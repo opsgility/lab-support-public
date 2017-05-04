@@ -1,0 +1,45 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "subnets": {
+      "type": "array"
+    },
+    "dnsServers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "ContosoVNET"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "comments": "Internal vNet used by deployment.",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('virtualNetworkName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourcegroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('addressPrefix')]"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": "[parameters('dnsServers')]"
+        },
+        "subnets": "[parameters('subnets')]"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

@@ -1,5 +1,6 @@
 param($sourceFileUrl, $destinationFolder)
 
+
 if((Test-Path $destinationFolder) -eq $false)
 {
     New-Item -Path $destinationFolder -ItemType directory

@@ -6,7 +6,7 @@ if((Test-Path $destinationFolder) -eq $false)
     New-Item -Path $destinationFolder -ItemType directory
 }
 
-if($sourceFileUrl -ne "" -and $sourceFileUrl -ne $null && $destinationFolder -ne "" && $destinationFolder -ne $null)
+if($sourceFileUrl -ne "" -and $sourceFileUrl -ne $null -and $destinationFolder -ne "" -and $destinationFolder -ne $null)
 {
 $splitpath = $sourceFileUrl.Split("/")
 $fileName = $splitpath[$splitpath.Length-1]

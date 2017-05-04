@@ -1,0 +1,3 @@
+configure-win-vm-image.ps1
+- Downloads and extracts a zip file if specified 
+- Disables IE Enhanced Security 

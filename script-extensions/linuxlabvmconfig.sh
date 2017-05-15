@@ -3,7 +3,7 @@
 apt-get update
 apt-get install lxde -y
 apt-get install xrdp -y
-curl -o .xsession https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xsession
+curl https://opsgilityweb.blob.core.windows.net/test/xsession
 /etc/init.d/xrdp start
 #install docker which will then allow for running the az cli from an container
 #to run the cli container open terminal and use sudo docker run -it azuresdk/azure-cli-python:latest

@@ -8,7 +8,7 @@ apt-get install xrdp -y
 apt-get update
 apt-get install -y docker.io
 #install Azure CLI 2.0 to run locally
-curl -L https://aka.ms/InstallAzureCli | bash
+apt-get install azure-cli -y
 #installing visual studio code which can be launched from accessories
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
 mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg

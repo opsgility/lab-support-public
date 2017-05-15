@@ -1,9 +1,7 @@
-#!/bin/bash
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get update
 apt-get install lxde -y
 apt-get install xrdp -y
-curl https://opsgilityweb.blob.core.windows.net/test/xsession
 /etc/init.d/xrdp start
 #install docker which will then allow for running the az cli from an container
 #to run the cli container open terminal and use sudo docker run -it azuresdk/azure-cli-python:latest
@@ -16,3 +14,6 @@ sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable
 sed -i 's/BIG-REQUESTS/_IG-REQUESTS/' /usr/lib/x86_64-linux-gnu/libxcb.so.1
 apt-get update
 apt-get install code
+#Prepare XWindows System
+wget https://opsgilityweb.blob.core.windows.net/test/xsession
+mv xsession /home/demouser/.xsession

@@ -1,0 +1,51 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  },
+  "variables": {
+    "VNETNAME": "OPSTrainingVNET",
+    "DNSIP": "10.0.1.4",
+    "OPSTrainingVNETPrefix": "10.0.0.0/16",
+    "OPSTrainingVNETSubnet1Name": "Apps",
+    "OPSTrainingVNETSubnet1Prefix": "10.0.0.0/24",
+    "OPSTrainingVNETSubnet2Name": "Identity",
+    "OPSTrainingVNETSubnet2Prefix": "10.0.1.0/24"
+  },
+
+  "resources": [
+    {
+      "name": "OPSTrainingVNET",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "OPSTrainingVNET"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('OPSTrainingVNETPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('OPSTrainingVNETSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('OPSTrainingVNETSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('OPSTrainingVNETSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('OPSTrainingVNETSubnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+
+  }

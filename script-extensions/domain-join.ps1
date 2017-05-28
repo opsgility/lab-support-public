@@ -1,14 +1,5 @@
-param($domain, $password)
-
+param($domain, $user, $password)
 $smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
-
-Install-WindowsFeature -Name "AD-Domain-Services" `
-                       -IncludeManagementTools `
-                       -IncludeAllSubFeature 
-
- Install-ADDSForest -DomainName $domain `
-                   -DomainMode Win2012 `
-                   -ForestMode Win2012 `
-                   -Force `
-                   -SafeModeAdministratorPassword $smPassword 
-
+$user = "$domain\demouser"
+$objCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($user, $smPassword)
+Add-Computer -DomainName "$domain" -Credential $objCred -Restart -Force

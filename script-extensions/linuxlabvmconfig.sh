@@ -34,3 +34,10 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
 apt-get update
 apt-get install -y docker-ce
+
+#download, extract, and create shorcut for Azure Storage Explorer
+mkdir /usr/share/storageexplorer
+wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz
+tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
+chmod a+x /usr/share/applications/storageexplorer.desktop

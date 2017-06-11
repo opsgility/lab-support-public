@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Azure Storage Explorer
+Comment=Microsoft Azure Storage Explorer
+Exec=/usr/share/storageexplorer/StorageExplorer %u
+Icon=/usr/share/storageexplorer/resources/app/out/app/icon.png
+Terminal=false
+Type=Application
+Categories=Utility;Application;Development;

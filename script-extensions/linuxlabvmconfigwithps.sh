@@ -39,3 +39,10 @@ apt-get update
 apt-get install -y powershell
 powershell Set-PSRepository -Name "PsGallery" -InstallationPolicy Trusted
 powershell Install-Module AzureRm
+
+#download, extract, and create shorcut for Azure Storage Explorer
+mkdir /usr/share/storageexplorer
+wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz
+tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
+chmod a+x /usr/share/applications/storageexplorer.desktop

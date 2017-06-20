@@ -53,18 +53,21 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 
-#download and install Azure Service Fabric and DotNet Core tools
-sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/servicefabric/ trusty main" > /etc/apt/sources.list.d/servicefabric.list'
+#download and intsall DotNet Core 1.0.1 package source and keys (dependency of service fabric)
 sh -c 'echo "deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main" > /etc/apt/sources.list.d/dotnetdev.list'
-apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 417A0893
 apt-get update
-apt-get install servicefabricsdkcommon
+
+#download and install Azure Service Fabric and DotNet Core tools
+sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/servicefabric/ trusty main" > /etc/apt/sources.list.d/servicefabric.list'
+apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893
+apt-get update
+apt-get install -y servicefabricsdkcommon
 echo "servicefabric servicefabric/accepted-eula-v1 select true" | debconf-set-selections
 echo "servicefabricsdkcommon servicefabricsdkcommon/accepted-eula-v1 select true" | debconf-set-selections
 /opt/microsoft/sdk/servicefabric/common/sdkcommonsetup.sh
 /opt/microsoft/sdk/servicefabric/common/clustersetup/devclustersetup.sh
-apt-get install servicefabricsdkjava
+apt-get install -y servicefabricsdkjava
 /opt/microsoft/sdk/servicefabric/java/sdkjavasetup.sh
-apt-get install servicefabricsdkcsharp
+apt-get install -y servicefabricsdkcsharp
 /opt/microsoft/sdk/servicefabric/csharp/sdkcsharpsetup.sh

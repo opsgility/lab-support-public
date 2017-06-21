@@ -62,13 +62,15 @@ apt-get update
 sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/servicefabric/ trusty main" > /etc/apt/sources.list.d/servicefabric.list'
 apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893
 apt-get update
-apt-get install -y servicefabricsdkcommon
 echo "servicefabric servicefabric/accepted-eula-v1 select true" | debconf-set-selections
 echo "servicefabricsdkcommon servicefabricsdkcommon/accepted-eula-v1 select true" | debconf-set-selections
+apt-get install -y servicefabricsdkcommon
 /opt/microsoft/sdk/servicefabric/common/sdkcommonsetup.sh
 /opt/microsoft/sdk/servicefabric/common/clustersetup/devclustersetup.sh
+echo "servicefabricsdkjava servicefabricsdkjava/accepted-eula-v1 select true" | debconf-set-selections
 apt-get install -y servicefabricsdkjava
 /opt/microsoft/sdk/servicefabric/java/sdkjavasetup.sh
+echo "servicefabricsdkcsharp servicefabricsdkcsharp/accepted-eula-v1 select true" | debconf-set-selections
 apt-get install -y servicefabricsdkcsharp
 /opt/microsoft/sdk/servicefabric/csharp/sdkcsharpsetup.sh
 

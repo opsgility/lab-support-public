@@ -34,17 +34,17 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xe
 apt-get update
 apt-get install -y docker-ce
 
-#download and install the Java JDK
-add-apt-repository ppa:webupd8team/java
-apt-get update
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | \
-    /usr/bin/debconf-set-selections
-apt-get install -y oracle-java8-installer
-apt-get install -y oracle-java8-set-default
-
-#download and install maven
-apt-get update
-apt-get install -y maven
+##download and install the Java JDK
+#add-apt-repository ppa:webupd8team/java
+#apt-get update
+#echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | \
+#    /usr/bin/debconf-set-selections
+#apt-get install -y oracle-java8-installer
+#apt-get install -y oracle-java8-set-default
+#
+##download and install maven
+#apt-get update
+#apt-get install -y maven
 
 #download, extract, and create shorcut for Azure Storage Explorer
 mkdir /usr/share/storageexplorer
@@ -71,3 +71,24 @@ apt-get install -y servicefabricsdkjava
 /opt/microsoft/sdk/servicefabric/java/sdkjavasetup.sh
 apt-get install -y servicefabricsdkcsharp
 /opt/microsoft/sdk/servicefabric/csharp/sdkcsharpsetup.sh
+
+#download service fabric certificate helper scripts
+mkdir /usr/share/SFScripts
+git clone https://github.com/ChackDan/Service-Fabric.git /usr/share/SFScripts
+#chmod a+x /usr/share/SFScripts/Scripts/CertUpload4Linux/cert_helper.py
+#chmod a+x /usr/share/SFScripts/Scripts/CertUpload4Linux/servicefabric.py
+chmod -R a+rwxX /usr/share/SFScripts/Scripts/CertUpload4Linux/
+
+#install the legacy azure cli for use with the SSL python helper scripts
+npm install azure-cli -g
+
+#copy the student files to the VM
+mkdir /usr/share/labfiles
+wget https://opsbitly.blob.core.windows.net/public/LinuxSslTemplate.zip -O /usr/share/labfiles/LinuxSslTemplate.zip
+unzip /usr/share/labfiles/LinuxSslTemplate.zip -d /usr/share/labfiles
+chmod -R a+rwxX /usr/share/labfiles/
+
+#clone the service-fabric-java-getting-started repo into the labfiles dir
+git clone https://github.com/Azure-Samples/service-fabric-java-getting-started.git /usr/share/labfiles/java-Samples
+chmod -R a+rwxX /usr/share/labfiles/
+

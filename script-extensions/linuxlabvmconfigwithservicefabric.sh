@@ -34,17 +34,19 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xe
 apt-get update
 apt-get install -y docker-ce
 
-##download and install the Java JDK
-#add-apt-repository ppa:webupd8team/java
-#apt-get update
-#echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | \
-#    /usr/bin/debconf-set-selections
-#apt-get install -y oracle-java8-installer
-#apt-get install -y oracle-java8-set-default
-#
-##download and install maven
-#apt-get update
-#apt-get install -y maven
+#download and install the Java JDK
+#the azure java SDK will install openjdk if this isn't present,
+#but this is the 'official' version
+add-apt-repository ppa:webupd8team/java
+apt-get update
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | \
+    /usr/bin/debconf-set-selections
+apt-get install -y oracle-java8-installer
+apt-get install -y oracle-java8-set-default
+
+#download and install maven
+apt-get update
+apt-get install -y maven
 
 #download, extract, and create shorcut for Azure Storage Explorer
 mkdir /usr/share/storageexplorer
@@ -74,11 +76,9 @@ echo "servicefabricsdkcsharp servicefabricsdkcsharp/accepted-eula-v1 select true
 apt-get install -y servicefabricsdkcsharp
 /opt/microsoft/sdk/servicefabric/csharp/sdkcsharpsetup.sh
 
-#download service fabric certificate helper scripts
+#download service fabric certificate helper python scripts
 mkdir /usr/share/SFScripts
 git clone https://github.com/ChackDan/Service-Fabric.git /usr/share/SFScripts
-#chmod a+x /usr/share/SFScripts/Scripts/CertUpload4Linux/cert_helper.py
-#chmod a+x /usr/share/SFScripts/Scripts/CertUpload4Linux/servicefabric.py
 chmod -R a+rwxX /usr/share/SFScripts/Scripts/CertUpload4Linux/
 
 #install the legacy azure cli for use with the SSL python helper scripts
@@ -87,10 +87,14 @@ npm install azure-cli -g
 #copy the student files to the VM
 mkdir /usr/share/labfiles
 wget https://opsbitly.blob.core.windows.net/public/LinuxSslTemplate.zip -O /usr/share/labfiles/LinuxSslTemplate.zip
+wget https://opsbitly.blob.core.windows.net/public/storage-app.zip -O /usr/share/labfiles/storage-app.zip
+wget https://opsbitly.blob.core.windows.net/public/container-app.zip -O /usr/share/labfiles/container-app.zip
 unzip /usr/share/labfiles/LinuxSslTemplate.zip -d /usr/share/labfiles
+mkdir /usr/share/labfiles/storage-app
+unzip /usr/share/labfiles/storage-app.zip -d /usr/share/labfiles/storage-app
+mkdir /usr/share/labfiles/container-app
+unzip /usr/share/labfiles/container-app.zip -d /usr/share/labfiles/container-app
 chmod -R a+rwxX /usr/share/labfiles/
 
-#clone the service-fabric-java-getting-started repo into the labfiles dir
-git clone https://github.com/Azure-Samples/service-fabric-java-getting-started.git /usr/share/labfiles/java-Samples
-chmod -R a+rwxX /usr/share/labfiles/
-
+#change permissions on the cacert.pem file so self-signed certs can be trusted by python and az cli 2.0
+chmod a+rwxX /opt/az/lib/python3.6/site-packages/certify/cacert.pem

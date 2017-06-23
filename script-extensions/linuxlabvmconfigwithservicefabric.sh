@@ -89,12 +89,22 @@ mkdir /usr/share/labfiles
 wget https://opsbitly.blob.core.windows.net/public/LinuxSslTemplate.zip -O /usr/share/labfiles/LinuxSslTemplate.zip
 wget https://opsbitly.blob.core.windows.net/public/storage-app.zip -O /usr/share/labfiles/storage-app.zip
 wget https://opsbitly.blob.core.windows.net/public/container-app.zip -O /usr/share/labfiles/container-app.zip
+wget https://opsbitly.blob.core.windows.net/public/images.zip -O /usr/share/labfiles/images.zip
+#extract the .zip files into directories
 unzip /usr/share/labfiles/LinuxSslTemplate.zip -d /usr/share/labfiles
 mkdir /usr/share/labfiles/storage-app
 unzip /usr/share/labfiles/storage-app.zip -d /usr/share/labfiles/storage-app
 mkdir /usr/share/labfiles/container-app
 unzip /usr/share/labfiles/container-app.zip -d /usr/share/labfiles/container-app
+mkdir /usr/share/labfiles/images
+unzip /usr/share/labfiles/images.zip -d /usr/share/labfiles/images
+#clean up .zip files
+rm /usr/share/labfiles/LinuxSslTemplate.zip
+rm /usr/share/labfiles/storage-app.zip
+rm /usr/share/labfiles/container-app.zip
+rm /usr/share/labfiles/images.zip
+#set permissions on the labfiles directory
 chmod -R a+rwxX /usr/share/labfiles/
 
 #change permissions on the cacert.pem file so self-signed certs can be trusted by python and az cli 2.0
-chmod a+rwxX /opt/az/lib/python3.6/site-packages/certify/cacert.pem
+#chmod a+rwxX /opt/az/lib/python3.6/site-packages/certify/cacert.pem

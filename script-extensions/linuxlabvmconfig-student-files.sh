@@ -43,4 +43,4 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 mkdir /usr/opsgilitytraining
-wget -P /usr/opsgilitytraining DOWNLOADURL
+wget -P /usr/opsgilitytraining $DOWNLOADURL

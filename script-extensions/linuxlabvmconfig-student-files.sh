@@ -44,3 +44,5 @@ wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/scrip
 chmod a+x /usr/share/applications/storageexplorer.desktop
 mkdir /usr/opsgilitytraining
 wget -P /usr/opsgilitytraining $DOWNLOADURL
+unzip /usr/opsgilitytraining/StudentFiles.zip
+chmod 755 /usr/opsgilitytraining

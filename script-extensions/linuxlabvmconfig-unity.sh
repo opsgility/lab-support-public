@@ -13,8 +13,8 @@ apt-get update
 apt-get install code
 
 #Prepare XWindows System
-wget https://opsgilityweb.blob.core.windows.net/test/xsession
-mv xsession /home/demouser/.xsession
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xsession-unity
+mv xsession-unity /home/demouser/.xsession
 
 #install the Azure CLI using instructions from Azure.com
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \

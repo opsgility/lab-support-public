@@ -87,4 +87,12 @@ echo "expect \"(y/n?\"" >> /home/demouser/.profile
 echo "send \"n\r\"" >> /home/demouser/.profile
 echo "expect eof" >> /home/demouser/.profile
 echo "EOF" >> /home/demouser/.profile
+echo "rm /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "vncserver -kill :1" >> /home/demouser/.profile
+echo "wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup" >> /home/demouser/.profile
+echo "mv xstartup /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "chmod 0755 /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "vncserver" >> /home/demouser/.profile
 echo "autocutsel -fork" >> /home/demouser/.profile
+
+

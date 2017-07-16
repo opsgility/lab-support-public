@@ -1,8 +1,19 @@
-#Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
-apt-get update
-apt-get install ubuntu-desktop -y
+#Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
+apt-get update && sudo apt-get install -y lxde tightvncserver
+
+PASSWD_PATH="$HOME/.vnc/passwd"
+VNCSERVER="tightvncserver"
+VNCPASSWD="tightvncpasswd"
+echo "$1" | $VNCPASSWD -f > $PASSWD_PATH
+$VNCSERVER 
+
+apt-get install autocutsel -y
+autocutsel -fork
+echo "autocutsel -fork" >> "$HOME/.vnc/xstartup"
+
+#Install RDP (make sure to open 3389 on the NSG of the azure vm)
 apt-get install xrdp -y
-/etc/init.d/xrdp start
+
 
 #installing visual studio code which can be launched from accessories
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
@@ -13,8 +24,8 @@ apt-get update
 apt-get install code
 
 #Prepare XWindows System
-wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xsession-unity
-mv xsession-unity /home/demouser/.xsession
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xsession
+mv xsession /home/demouser/.xsession
 
 #install the Azure CLI using instructions from Azure.com
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \

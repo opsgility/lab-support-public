@@ -1,23 +1,8 @@
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
+apt-get install lxde -y
 apt-get update && sudo apt-get install -y lxde tightvncserver
 
-apt-get install expect -y
-/usr/bin/expect <<EOF
-spawn vncserver
-expect "Password:"
-send "$1\r"
-expect "Verify:"
-send "$1\r"
-expect "Would you like to enter a view-only password (y/n)?"
-send "n\r"
-expect eof
-exit
-EOF
-
-apt-get install autocutsel -y
-autocutsel -fork
-echo "autocutsel -fork" >> "$HOME/.vnc/xstartup"
 
 #Install RDP (make sure to open 3389 on the NSG of the azure vm)
 apt-get install xrdp -y
@@ -60,3 +45,21 @@ wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplore
 tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
+
+
+apt-get install expect -y
+/usr/bin/expect <<EOF
+spawn vncserver
+expect "Password:"
+send "$1\r"
+expect "Verify:"
+send "$1\r"
+expect "Would you like to enter a view-only password (y/n)?"
+send "n\r"
+expect eof
+exit
+EOF
+
+apt-get install autocutsel -y
+autocutsel -fork
+echo "autocutsel -fork" >> "/home/demouser/.vnc/xstartup"

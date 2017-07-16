@@ -46,14 +46,7 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 
-####################
-# Setup Chrome
-####################
-cd /tmp
-time wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-time sudo dpkg -i google-chrome-stable_current_amd64.deb
-time sudo apt-get -y --force-yes install -f
-time rm /tmp/google-chrome-stable_current_amd64.deb
+apt-get install expect -y
 
 # Setup VNC 
 /usr/bin/expect <<EOF
@@ -66,13 +59,20 @@ expect "(y/n?"
 send "n\r"
 expect eof
 EOF
-vncserver
+vncserver -kill :1
 
 # Enable copy & paste
 apt-get install autocutsel -y
 autocutsel -fork
 
+# Setup .vnc folder for demouser
+mkdir /home/demouser/.vnc
+
 # Setup VNC start environment 
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup
-mv xstartup /home/demouser/.vnc/xstartup
+mv xstartup /home/demouser/.vnc
+chmod 0755 /home/demouser/.vnc/xstartup
+
+echo "vncserver" >> /home/demouser/.profile
+
 

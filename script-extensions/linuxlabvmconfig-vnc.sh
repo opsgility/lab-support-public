@@ -48,6 +48,7 @@ chmod a+x /usr/share/applications/storageexplorer.desktop
 
 
 apt-get install expect -y
+/usr/bin/expect <<EOF
 spawn "vncserver"
 expect "Password:"
 send "$mypass\r"

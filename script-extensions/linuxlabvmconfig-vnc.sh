@@ -1,3 +1,4 @@
+export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
 apt-get update && sudo apt-get install -y lxde tightvncserver
 

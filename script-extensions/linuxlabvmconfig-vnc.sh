@@ -1,10 +1,12 @@
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
+apt-get update 
 apt-get install lxde -y
-apt-get update && sudo apt-get install -y lxde tightvncserver
+apt-get install -y lxde tightvncserver
 
 
 #Install RDP (make sure to open 3389 on the NSG of the azure vm)
+apt-get update 
 apt-get install xrdp -y
 
 
@@ -29,6 +31,7 @@ apt-get update && sudo apt-get install azure-cli -y
 
 #install docker
 #to run the az cli container open terminal and use 'sudo docker run -it azuresdk/azure-cli-python:latest'
+apt-get update 
 apt-get install -y \
     apt-transport-https \
     ca-certificates \
@@ -46,11 +49,12 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 
-apt-get install expect -y
+#apt-get update 
+#apt-get install expect -y
 
 # Setup VNC 
 /usr/bin/expect <<EOF
-spawn "/usr/bin/vncserver"
+spawn su demouser -c "sudo /usr/bin/vncserver"
 expect "Password:"
 send "$1\r"
 expect "Verify:"
@@ -62,11 +66,12 @@ EOF
 vncserver -kill :1
 
 # Enable copy & paste
+apt-get update 
 apt-get install autocutsel -y
 autocutsel -fork
 
 # Setup .vnc folder for demouser
-mkdir /home/demouser/.vnc
+# mkdir /home/demouser/.vnc
 
 # Setup VNC start environment 
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup

@@ -71,11 +71,11 @@ apt-get install autocutsel -y
 autocutsel -fork
 
 # Setup .vnc folder for demouser
-# mkdir /home/demouser/.vnc
+#mkdir /home/demouser/.vnc
 
 # Setup VNC start environment 
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup
-mv xstartup /home/demouser/.vnc
+mv xstartup /home/demouser/.vnc/xstartup
 chmod 0755 /home/demouser/.vnc/xstartup
 
 echo "vncserver" >> /home/demouser/.profile

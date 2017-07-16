@@ -48,11 +48,14 @@ chmod a+x /usr/share/applications/storageexplorer.desktop
 
 
 apt-get install expect -y
-spawn "vncserver"
+/usr/bin/expect <<EOF
+spawn vncserver
 expect "Password:"
-send "$mypass\r"
+send "$1\r"
 expect "Verify:"
-send "$mypass\r"
+send "$1\r"
+expect "Would you like to enter a view-only password (y/n)?"
+send "n\r"
 expect eof
 exit
 EOF
@@ -60,13 +63,3 @@ EOF
 apt-get install autocutsel -y
 autocutsel -fork
 echo "autocutsel -fork" >> "/home/demouser/.vnc/xstartup"
-
-
-####################
-# Setup Chrome
-####################
-cd /tmp
-time wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-time sudo dpkg -i google-chrome-stable_current_amd64.deb
-time sudo apt-get -y --force-yes install -f
-time rm /tmp/google-chrome-stable_current_amd64.deb

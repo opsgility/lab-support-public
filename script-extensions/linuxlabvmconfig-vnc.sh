@@ -68,10 +68,7 @@ apt-get install expect -y
 # Enable copy & paste
 apt-get update 
 apt-get install autocutsel -y
-autocutsel -fork
-
-# Setup .vnc folder for demouser
-#mkdir /home/demouser/.vnc
+#autocutsel -fork
 
 # Setup VNC start environment 
 #wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup
@@ -81,7 +78,7 @@ autocutsel -fork
 
 # Setup VNC in the user's profile 
 echo "/usr/bin/expect <<EOF" >> /home/demouser/.profile
-echo "spawn su demouser -c \"sudo /usr/bin/vncserver\"" >> /home/demouser/.profile
+echo "spawn vncserver" >> /home/demouser/.profile
 echo "expect \"Password:\"" >> /home/demouser/.profile
 echo "send \"$1\r\"" >> /home/demouser/.profile
 echo "expect \"Verify:\"" >> /home/demouser/.profile

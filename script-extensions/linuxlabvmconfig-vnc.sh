@@ -1,11 +1,18 @@
 #Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
 apt-get update && sudo apt-get install -y lxde tightvncserver
 
-PASSWD_PATH="$HOME/.vnc/passwd"
-VNCSERVER="tightvncserver"
-VNCPASSWD="tightvncpasswd"
-echo "$1" | $VNCPASSWD -f > $PASSWD_PATH
-$VNCSERVER 
+apt-get install expect -y
+/usr/bin/expect <<EOF
+spawn vncserver
+expect "Password:"
+send "$1\r"
+expect "Verify:"
+send "$1\r"
+expect "Would you like to enter a view-only password (y/n)?"
+send "n\r"
+expect eof
+exit
+EOF
 
 apt-get install autocutsel -y
 autocutsel -fork

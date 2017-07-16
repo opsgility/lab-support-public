@@ -46,23 +46,6 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 
-
-apt-get install expect -y
-/usr/bin/expect <<EOF
-spawn "vncserver"
-expect "Password:"
-send "$mypass\r"
-expect "Verify:"
-send "$mypass\r"
-expect eof
-exit
-EOF
-
-apt-get install autocutsel -y
-autocutsel -fork
-echo "autocutsel -fork" >> "/home/demouser/.vnc/xstartup"
-
-
 ####################
 # Setup Chrome
 ####################
@@ -71,3 +54,25 @@ time wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.
 time sudo dpkg -i google-chrome-stable_current_amd64.deb
 time sudo apt-get -y --force-yes install -f
 time rm /tmp/google-chrome-stable_current_amd64.deb
+
+# Setup VNC 
+/usr/bin/expect <<EOF
+spawn "/usr/bin/vncserver"
+expect "Password:"
+send "$1\r"
+expect "Verify:"
+send "$1\r"
+expect "(y/n?"
+send "n\r"
+expect eof
+EOF
+vncserver
+
+# Enable copy & paste
+apt-get install autocutsel -y
+autocutsel -fork
+
+# Setup VNC start environment 
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup
+mv xstartup /home/demouser/.vnc/xstartup
+

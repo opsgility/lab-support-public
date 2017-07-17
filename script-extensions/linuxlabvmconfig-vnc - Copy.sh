@@ -1,10 +1,12 @@
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and vnc - (make sure to open 5901 on the NSG of the azure vm)
+apt-get update 
 apt-get install lxde -y
-apt-get update && sudo apt-get install -y lxde tightvncserver
+apt-get install -y lxde tightvncserver
 
 
 #Install RDP (make sure to open 3389 on the NSG of the azure vm)
+apt-get update 
 apt-get install xrdp -y
 
 
@@ -29,6 +31,7 @@ apt-get update && sudo apt-get install azure-cli -y
 
 #install docker
 #to run the az cli container open terminal and use 'sudo docker run -it azuresdk/azure-cli-python:latest'
+apt-get update 
 apt-get install -y \
     apt-transport-https \
     ca-certificates \
@@ -46,20 +49,50 @@ tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storag
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
 
-
+apt-get update 
 apt-get install expect -y
-/usr/bin/expect <<EOF
-spawn vncserver
-expect "Password:"
-send "$1\r"
-expect "Verify:"
-send "$1\r"
-expect "Would you like to enter a view-only password (y/n)?"
-send "n\r"
-expect eof
-exit
-EOF
 
+# Setup VNC 
+#/usr/bin/expect <<EOF
+#spawn su demouser -c "sudo /usr/bin/vncserver"
+#expect "Password:"
+#send "$1\r"
+#expect "Verify:"
+#send "$1\r"
+#expect "(y/n?"
+#send "n\r"
+#expect eof
+#EOF
+#vncserver -kill :1
+
+# Enable copy & paste
+apt-get update 
 apt-get install autocutsel -y
-autocutsel -fork
-echo "autocutsel -fork" >> "/home/demouser/.vnc/xstartup"
+#autocutsel -fork
+
+# Setup VNC start environment 
+#wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup
+#mv xstartup /home/demouser/.vnc/xstartup
+#chmod 0755 /home/demouser/.vnc/xstartup
+
+
+# Setup VNC in the user's profile 
+echo "/usr/bin/expect <<EOF" >> /home/demouser/.profile
+echo "spawn vncserver" >> /home/demouser/.profile
+echo "expect \"Password:\"" >> /home/demouser/.profile
+echo "send \"$1\r\"" >> /home/demouser/.profile
+echo "expect \"Verify:\"" >> /home/demouser/.profile
+echo "send \"$1\r\"" >> /home/demouser/.profile
+echo "expect \"(y/n?\"" >> /home/demouser/.profile
+echo "send \"n\r\"" >> /home/demouser/.profile
+echo "expect eof" >> /home/demouser/.profile
+echo "EOF" >> /home/demouser/.profile
+echo "rm /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "vncserver -kill :1" >> /home/demouser/.profile
+echo "wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/xstartup" >> /home/demouser/.profile
+echo "mv xstartup /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "chmod 0755 /home/demouser/.vnc/xstartup" >> /home/demouser/.profile
+echo "vncserver" >> /home/demouser/.profile
+echo "autocutsel -fork" >> /home/demouser/.profile
+
+

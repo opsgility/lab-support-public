@@ -12,7 +12,8 @@ d:\temp\wpi.msi /passive
 
 Set-Location 'C:\Program Files\Microsoft\Web Platform Installer'
 
-.\WebpiCmd.exe /Install /Products:'Microsoft Azure Service Fabric SDK - 2.6.220' /AcceptEula
+.\WebpiCmd.exe /Install /Products:'Microsoft Azure Service Fabric SDK - 2.6.220' /AcceptEula /Log:"d:\temp\wpi-log.txt"
 
-Write-Output "All commands completed"
+Write-Output "Custom Script Completed"
+Write-Information "Custom Script Completed"
 

@@ -1,0 +1,437 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "CSWeb1Name": {
+      "type": "string",
+      "defaultValue": "CSWeb1",
+      "metadata": {
+        "description": "Cloud Shop web server name"
+      }
+    },
+    "CSWeb1AdminUserName": {
+      "type": "string",
+      "defaultValue": "demouser",
+      "metadata": {
+        "description": "Web server administrator name"
+      }
+    },
+    "CSWeb1AdminPassword": {
+      "type": "securestring",
+      "defaultValue": "demo@pass123",
+      "metadata": {
+        "description": "Web server administrator password"
+      }
+    },
+    "CSWeb1WindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter"
+    },
+    "CSWebPIPDnsName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Cloud Shop web server DNS name"
+      }
+    },
+    "WebPackage": {
+      "type": "string",
+      "defaultValue": "https://github.com/opsgility/lab-support-public/blob/master/assets/cloudshop.zip?raw=true"
+    },
+    "CSSQLVMName": {
+      "type": "string",
+      "defaultValue": "CSSQL1",
+      "metadata": {
+        "description": "Cloud Shop SQL server name"
+      }
+    },
+    "CSSQLVMAdminUserName": {
+      "type": "string",
+      "defaultValue": "demouser",
+      "metadata": {
+        "description": "SQL server administrator name"
+      }
+    },
+    "CSSQLVMAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "demo@pass123",
+      "metadata": {
+        "description": "SQL server administrator password"
+      }
+    },
+    "SQLVMSKU": {
+      "type": "string",
+      "defaultValue": "Web"
+    },
+    "CloudShopDownloadUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Zip that contains cloud shop sample"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/CloudShop/CloudShop.zip"
+    },
+    "CloudShopDBDownloadUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Zip that contains Adventure works DB sample"
+      },
+      "defaultValue": "http://opsgilitytraining.blob.core.windows.net/public/AdventureWorks2012.bak"
+    },
+    "CloudShopInstallscriptUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/deploy-cloudshop.ps1"
+    },
+    "CloudShopDBInstallscriptUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/deploy-cloudshop-db.ps1"
+    },
+    "SQLConfigscriptUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/configure-sql.ps1"
+    }
+  },
+  "variables": {
+    "VNet1Prefix": "10.0.0.0/16",
+    "VNet1Subnet1Name": "FrontEnd",
+    "VNet1Subnet1Prefix": "10.0.0.0/24",
+    "VNet1Subnet2Name": "BackEnd",
+    "VNet1Subnet2Prefix": "10.0.1.0/24",
+    "vmstorageName": "[concat('vmstorage', uniqueString(resourceGroup().id))]",
+    "CSWeb1ImagePublisher": "MicrosoftWindowsServer",
+    "CSWeb1ImageOffer": "WindowsServer",
+    "CSWeb1VmSize": "Standard_DS1_v2",
+    "CSWeb1VnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
+    "CSWeb1SubnetRef": "[concat(variables('CSWeb1VnetID'), '/subnets/', variables('VNet1Subnet1Name'))]",
+    "CSWeb1NicName": "[concat(parameters('CSWeb1Name'), 'NetworkInterface')]",
+    "CSWebPIPName": "CSWebPIP",
+    "CSSQLVMImagePublisher": "MicrosoftSQLServer",
+    "CSSQLVMImageOffer": "SQL2014SP2-WS2012R2",
+    "CSSQLVMVmSize": "Standard_DS2_v2",
+    "CSSQLVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
+    "CSSQLVMSubnetRef": "[concat(variables('CSSQLVMVnetID'), '/subnets/', variables('VNet1Subnet2Name'))]",
+    "CSSQLVMNicName": "[concat(parameters('CSSQLVMName'), 'NetworkInterface')]",
+    "scriptFolder": ".",
+    "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('CSSQLVMAdminUserName'), ' -password ', parameters('CSSQLVMAdminPassword'), ' -cloudshopurl ', parameters('CloudShopDownloadUrl'))]",
+    "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('CSSQLVMAdminUserName'), ' -password ', parameters('CSSQLVMAdminPassword'), ' -dbsource ', parameters('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', parameters('SQLConfigscriptUrl') )]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-03-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "WebNetworkSecurityGroup",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "webrule",
+            "properties": {
+              "description": "This rule allows traffic in on port 80",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "INTERNET",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "rdprule",
+            "properties": {
+              "description": "This rule allows traffic on port 3389 from the web",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "INTERNET",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VNet1",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
+      ],
+      "tags": {
+        "displayName": "VNet1"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('VNet1Prefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('VNet1Subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNet1Subnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
+              }
+            }
+          },
+          {
+            "name": "[variables('VNet1Subnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VNet1Subnet2Prefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('CSWeb1NicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('CSWebPIPName'))]"
+      ],
+      "tags": {
+        "displayName": "CSWeb1Nic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('CSWeb1SubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('CSWebPIPName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('CSWeb1Name')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('CSWeb1NicName'))]"
+      ],
+      "tags": {
+        "displayName": "CSWeb1"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('CSWeb1VmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('CSWeb1Name')]",
+          "adminUsername": "[parameters('CSWeb1AdminUsername')]",
+          "adminPassword": "[parameters('CSWeb1AdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('CSWeb1ImagePublisher')]",
+            "offer": "[variables('CSWeb1ImageOffer')]",
+            "sku": "[parameters('CSWeb1WindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "CSWeb1OSDisk",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('CSWeb1NicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "InstallCloudShop",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('CSWeb1Name'))]"
+          ],
+          "tags": {
+            "displayName": "InstallCloudShop"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('CloudShopInstallscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopInstallScriptFileName'), ' ', variables('CloudShopInstallScriptParameters'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('CSWebPIPName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-01",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "CSWebPIP"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('CSWebPIPDnsName')]"
+        }
+      }
+    },
+    {
+      "name": "[variables('CSSQLVMNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]"
+      ],
+      "tags": {
+        "displayName": "CSSQLVMNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('CSSQLVMSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('CSSQLVMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('CSSQLVMNicName'))]"
+      ],
+      "tags": {
+        "displayName": "CSSQLVM"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('CSSQLVMVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('CSSQLVMName')]",
+          "adminUsername": "[parameters('CSSQLVMAdminUsername')]",
+          "adminPassword": "[parameters('CSSQLVMAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('CSSQLVMImagePublisher')]",
+            "offer": "[variables('CSSQLVMImageOffer')]",
+            "sku": "[parameters('SQLVMSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "CSSQLVMOSDisk",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "managedDisk": {
+                "storageAccountType": "Standard_LRS"
+                },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk2",
+              "diskSizeGB": "1023",
+              "lun": 1,
+              "managedDisk": {
+                "storageAccountType": "Standard_LRS"
+                },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('CSSQLVMNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "InstallCloudShopDB",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('CSSQLVMName'))]"
+          ],
+          "tags": {
+            "displayName": "InstallCloudShopDB"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('CloudShopDBInstallscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopDBInstallScriptFileName'), ' ', variables('CloudShopDBInstallScriptParameters'))]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {}
+}

@@ -10,10 +10,7 @@ $webclient.DownloadFile("https://download.microsoft.com/download/C/F/F/CFF3A0B8-
 
 d:\temp\wpi.msi /passive
 
-Set-Location 'C:\Program Files\Microsoft\Web Platform Installer'
+$wpidir = "C:\Program Files\Microsoft\Web Platform Installer"
 
-.\WebpiCmd.exe /Install /Products:'Microsoft Azure Service Fabric SDK - 2.6.220' /AcceptEula /Log:"d:\temp\wpi-log.txt"
-
-Write-Output "Custom Script Completed"
-Write-Information "Custom Script Completed"
+Start-Process WebpiCmd.exe '/Install /Products:"Microsoft Azure Service Fabric SDK - 2.6.220" /AcceptEula /Log:"d:\temp\wpi-log.txt"' -Wait -WorkingDirectory $wpidir -RedirectStandardError "d:\temp\wpi-stderr.txt" -RedirectStandardOutput "d:\temp\wpi-stdout.txt"
 

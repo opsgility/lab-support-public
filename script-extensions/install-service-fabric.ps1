@@ -13,3 +13,6 @@ d:\temp\wpi.msi /passive
 Set-Location 'C:\Program Files\Microsoft\Web Platform Installer'
 
 .\WebpiCmd.exe /Install /Products:'Microsoft Azure Service Fabric SDK - 2.6.220' /AcceptEula
+
+Write-Output "All commands completed"
+

@@ -13,7 +13,3 @@ d:\temp\wpi.msi /quiet
 $wpidir = "C:\Program Files\Microsoft\Web Platform Installer"
 
 Start-Process WebpiCmd.exe '/Install /Products:"Microsoft Azure Service Fabric SDK - 2.6.220" /AcceptEula /Log:"d:\temp\wpi-log.txt"' -Wait -WorkingDirectory $wpidir -RedirectStandardError -Credential demouser
-
-#Set-Location "C:\Program Files\Microsoft\Web Platform Installer"
-#.\WebpiCmd.exe /Install /Products:"Microsoft Azure Service Fabric SDK - 2.6.220" /AcceptEula /Log:"d:\temp\wpi-log.txt"
-

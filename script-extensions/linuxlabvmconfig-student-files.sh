@@ -51,6 +51,7 @@ else
   wget -P /usr/opsgilitytraining $DOWNLOADURL
   unzip /usr/opsgilitytraining/StudentFiles.zip
   chmod -R 775 /usr/opsgilitytraining
+  chown -R demouser /usr/opsgilitytraining
 fi
 
 

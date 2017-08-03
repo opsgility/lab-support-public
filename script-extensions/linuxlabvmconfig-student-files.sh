@@ -42,7 +42,15 @@ wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplore
 tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
-mkdir /usr/opsgilitytraining
-chmod 775 /usr/opsgilitytraining
-wget -P /usr/opsgilitytraining $DOWNLOADURL
-unzip /usr/opsgilitytraining/StudentFiles.zip
+
+if [ -z "${DOWNLOADURL}" ]; then
+  echo "no download url for lab"
+else
+  echo "setting up student files"
+  mkdir /usr/opsgilitytraining
+  chmod 775 /usr/opsgilitytraining
+  wget -P /usr/opsgilitytraining $DOWNLOADURL
+  unzip /usr/opsgilitytraining/StudentFiles.zip
+fi
+
+

@@ -16,14 +16,23 @@
       "metadata": {
         "description": "Password for the Virtual Machine."
       }
+    },
+    "studentFilesUrl": {
+      "type": "string",
+      "defaultValue": "https://opsgilityweb.blob.core.windows.net/online-labs/authoring-arm-template-iaas-visualstudio-2017/StudentFiles.zip"
+    },
+    "studentFilesDestination": {
+      "type": "string",
+      "defaultValue": "C:\\OpsgilityTraining"
     }
   },
   "variables": {
-    "customScriptUri1ScriptFileName": "linuxlabvmconfig.sh",
-    "customScriptUri1": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/linuxlabvmconfig.sh",
-    "imagePublisher": "Canonical",
-    "imageOffer": "UbuntuServer",
-    "imageSku": "17.04",
+    "customScriptFolder": "./",
+    "customScriptUriScriptFileName": "configure-win-vm-image.ps1",
+    "customScriptUri": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/configure-win-vm-image.ps1",
+    "imagePublisher": "MicrosoftVisualStudio",
+    "imageOffer": "VisualStudio",
+    "imageSku": "VS-2017-Comm-WS2016",
     "OSDiskName": "labvmosdisk",
     "nicName": "labvmnic",
     "addressPrefix": "10.0.0.0/16",
@@ -182,15 +191,15 @@
             "displayName": "ConfigureVM"
           },
           "properties": {
-            "publisher": "Microsoft.OSTCExtensions",
-            "type": "CustomScriptForLinux",
-            "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.8",
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
-                "[variables('customScriptUri1')]"
+                "[variables('customScriptUri')]"
               ],
-              "commandToExecute": "[concat('bash ', variables('customScriptUri1ScriptFileName'))]"
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('customScriptFolder'), '/', variables('customScriptUriScriptFileName'), ' -sourceFileUrl ', parameters('studentFilesUrl'), ' -destinationFolder ', parameters('studentFilesDestination'))]"
             }
           }
         }

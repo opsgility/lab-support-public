@@ -48,9 +48,9 @@ if [ -z "${DOWNLOADURL}" ]; then
 else
   echo "setting up student files"
   mkdir /usr/opsgilitytraining
-  chmod 775 /usr/opsgilitytraining
   wget -P /usr/opsgilitytraining $DOWNLOADURL
   unzip /usr/opsgilitytraining/StudentFiles.zip
+  chmod -R 775 /usr/opsgilitytraining
 fi
 
 

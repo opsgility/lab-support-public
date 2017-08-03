@@ -2,73 +2,40 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "CSWeb1Name": {
+    "vmstorageType": {
       "type": "string",
-      "defaultValue": "CSWeb1",
-      "metadata": {
-        "description": "Cloud Shop web server name"
-      }
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Premium_LRS"
+      ]
     },
-    "CSWeb1AdminUserName": {
+    "vmdiagstorageType": {
       "type": "string",
-      "defaultValue": "demouser",
-      "metadata": {
-        "description": "Web server administrator name"
-      }
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS"
+      ]
     },
-    "CSWeb1AdminPassword": {
-      "type": "securestring",
-      "defaultValue": "demo@pass123",
-      "metadata": {
-        "description": "Web server administrator password"
-      }
-    },
-    "CSWeb1WindowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2016-Datacenter"
-    },
-    "CSWebPIPDnsName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "Cloud Shop web server DNS name"
-      }
-    },
-    "WebPackage": {
-      "type": "string",
-      "defaultValue": "https://github.com/opsgility/lab-support-public/blob/master/assets/cloudshop.zip?raw=true"
-    },
-    "CSSQLVMName": {
-      "type": "string",
-      "defaultValue": "CSSQL1",
-      "metadata": {
-        "description": "Cloud Shop SQL server name"
-      }
-    },
-    "CSSQLVMAdminUserName": {
+    "adminUsername": {
       "type": "string",
       "defaultValue": "demouser",
       "metadata": {
-        "description": "SQL server administrator name"
+        "description": "The name of the administrator account of the new VM"
       }
     },
-    "CSSQLVMAdminPassword": {
+    "adminPassword": {
       "type": "securestring",
       "defaultValue": "demo@pass123",
       "metadata": {
-        "description": "SQL server administrator password"
+        "description": "The password for the administrator account of the new VM and domain"
       }
-    },
-    "SQLVMSKU": {
-      "type": "string",
-      "defaultValue": "Web"
     },
     "CloudShopDownloadUrl": {
       "type": "string",
       "metadata": {
         "description": "Zip that contains cloud shop sample"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/CloudShop/CloudShop.zip"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/CloudShop.zip"
     },
     "CloudShopDBDownloadUrl": {
       "type": "string",
@@ -82,135 +49,162 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/deploy-cloudshop.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/deploy-cloudshop.ps1"
     },
     "CloudShopDBInstallscriptUrl": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/deploy-cloudshop-db.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/deploy-cloudshop-db.ps1"
     },
     "SQLConfigscriptUrl": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/cloud-shop-no-dsc/master/script-extensions/configure-sql.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/configure-sql.ps1"
+    },
+    "WebVMName": {
+      "type": "string",
+      "defaultValue": "ContosoWeb1",
+      "minLength": 1
+    },
+    "SQLVMName": {
+      "type": "string",
+      "defaultValue": "ContosoSQLSrv1",
+      "minLength": 1
     }
   },
   "variables": {
-    "VNet1Prefix": "10.0.0.0/16",
-    "VNet1Subnet1Name": "FrontEnd",
-    "VNet1Subnet1Prefix": "10.0.0.0/24",
-    "VNet1Subnet2Name": "BackEnd",
-    "VNet1Subnet2Prefix": "10.0.1.0/24",
-    "vmstorageName": "[concat('vmstorage', uniqueString(resourceGroup().id))]",
-    "CSWeb1ImagePublisher": "MicrosoftWindowsServer",
-    "CSWeb1ImageOffer": "WindowsServer",
-    "CSWeb1VmSize": "Standard_DS1_v2",
-    "CSWeb1VnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
-    "CSWeb1SubnetRef": "[concat(variables('CSWeb1VnetID'), '/subnets/', variables('VNet1Subnet1Name'))]",
-    "CSWeb1NicName": "[concat(parameters('CSWeb1Name'), 'NetworkInterface')]",
-    "CSWebPIPName": "CSWebPIP",
-    "CSSQLVMImagePublisher": "MicrosoftSQLServer",
-    "CSSQLVMImageOffer": "SQL2014SP2-WS2012R2",
-    "CSSQLVMVmSize": "Standard_DS2_v2",
-    "CSSQLVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
-    "CSSQLVMSubnetRef": "[concat(variables('CSSQLVMVnetID'), '/subnets/', variables('VNet1Subnet2Name'))]",
-    "CSSQLVMNicName": "[concat(parameters('CSSQLVMName'), 'NetworkInterface')]",
-    "scriptFolder": ".",
+    "VNETPrefix": "10.0.0.0/16",
+    "VNETSubnet1Name": "Web",
+    "VNETSubnet1Prefix": "10.0.0.0/24",
+    "VNETSubnet2Name": "Data",
+    "VNETSubnet2Prefix": "10.0.1.0/24",
+    "VNETNAME": "CloudShopVNET",
+    "VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
     "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
-    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('CSSQLVMAdminUserName'), ' -password ', parameters('CSSQLVMAdminPassword'), ' -cloudshopurl ', parameters('CloudShopDownloadUrl'))]",
+    "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', parameters('CloudShopDownloadUrl'))]",
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
-    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('CSSQLVMAdminUserName'), ' -password ', parameters('CSSQLVMAdminPassword'), ' -dbsource ', parameters('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', parameters('SQLConfigscriptUrl') )]"
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', parameters('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', parameters('SQLConfigscriptUrl') )]",
+    "vmstorageName": "[concat('chqdisks', uniqueString(resourceGroup().id))]",
+    "diagstorageName": "[concat('chqdiag', uniqueString(resourceGroup().id))]",
+    "diagstorageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagstorageName'))]",
+    "WindowsOSVersion": "2016-Datacenter",
+    "WindowsImagePublisher": "MicrosoftWindowsServer",
+    "WindowsImageOffer": "WindowsServer",
+    "SQLSKU": "Web",
+    "SQLImagePublisher": "MicrosoftSQLServer",
+    "SQLImageOffer": "SQL2014SP2-WS2012R2",
+    "WebAvailabilitySetName": "WebAVSet",
+    "WebOSDiskName": "WebOSDisk",
+    "WebVmSize": "Standard_DS1_v2",
+    "WebVnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
+    "WebSubnetRef": "[concat(variables('WebVnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "WebStorageAccountContainerName": "vhds",
+    "WebNicName": "[concat(parameters('WebVMName'), 'NetworkInterface')]",
+    "SQLOSDiskName": "SQLOSDisk2",
+    "SQLVmSize": "Standard_DS1_v2",
+    "SQLVnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
+    "SQLSubnetRef": "[concat(variables('SQLVnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "SQLStorageAccountContainerName": "vhds",
+    "SQLNicName": "[concat(parameters('SQLVMName'), 'NetworkInterface')]",
+    "scriptFolder": ".",
+    "webipName": "webip",
+    "sqlipName": "sqlip",
+    "avsetname": "WebAVSet",
+    "wadlogs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"Security!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"System!*[System[(Level = 1 or Level = 2)]]\" /></WindowsEventLog>",
+    "wadperfcounters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Processor Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU utilization\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Privileged Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU privileged time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% User Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor Information(_Total)\\Processor Frequency\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"CPU frequency\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\System\\Processes\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Processes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Thread Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Threads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Handle Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Handles\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\% Committed Bytes In Use\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory usage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Available Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Committed Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory committed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Commit Limit\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory commit limit\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
+    "wadperfcounters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Read Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Write Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Transfers/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Reads/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk read operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Writes/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk write operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Read Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Write Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\LogicalDisk(_Total)\\% Free Space\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk free space (percentage)\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
+    "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcounters1'), variables('wadperfcounters2'), '<Metrics resourceId=\"')]",
+    "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name , '/providers/', 'Microsoft.Compute/virtualMachines/')]",
+    "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>"
   },
   "resources": [
     {
-      "apiVersion": "2017-03-01",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "name": "WebNetworkSecurityGroup",
+      "name": "[variables('vmstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('vmstorageType')]"
+      },
+      "tags": {
+        "displayName": "CloudShopStorage"
+      },
+      "dependsOn": [],
+      "kind": "Storage"
+    },
+    {
+      "name": "[variables('diagstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('vmdiagstorageType')]"
+      },
+      "tags": {
+        "displayName": "CloudShopDiagnosticsStorage"
+      },
+      "dependsOn": [],
+      "kind": "Storage"
+    },
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('avsetname')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "WebAVSet"
+      },
       "properties": {
-        "securityRules": [
-          {
-            "name": "webrule",
-            "properties": {
-              "description": "This rule allows traffic in on port 80",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "80",
-              "sourceAddressPrefix": "INTERNET",
-              "destinationAddressPrefix": "10.0.0.0/24",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "rdprule",
-            "properties": {
-              "description": "This rule allows traffic on port 3389 from the web",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "INTERNET",
-              "destinationAddressPrefix": "10.0.0.0/24",
-              "access": "Allow",
-              "priority": 200,
-              "direction": "Inbound"
-            }
-          }
-        ]
+        "platformFaultDomainCount": "2",
+        "platformUpdateDomainCount": "2",
+        "managed": "false"
       }
     },
     {
-      "name": "VNet1",
+      "name": "[variables('VNETNAME')]",
       "type": "Microsoft.Network/virtualNetworks",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
-      ],
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
       "tags": {
-        "displayName": "VNet1"
+        "displayName": "CloudShopVNET"
       },
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('VNet1Prefix')]"
+            "[variables('VNETPrefix')]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('VNet1Subnet1Name')]",
+            "name": "[variables('VNETSubnet1Name')]",
             "properties": {
-              "addressPrefix": "[variables('VNet1Subnet1Prefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
-              }
+              "addressPrefix": "[variables('VNETSubnet1Prefix')]"
             }
           },
           {
-            "name": "[variables('VNet1Subnet2Name')]",
+            "name": "[variables('VNETSubnet2Name')]",
             "properties": {
-              "addressPrefix": "[variables('VNet1Subnet2Prefix')]"
+              "addressPrefix": "[variables('VNETSubnet2Prefix')]"
             }
           }
         ]
       }
     },
     {
-      "name": "[variables('CSWeb1NicName')]",
+      "name": "[variables('WebNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-01",
+      "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('CSWebPIPName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
       ],
       "tags": {
-        "displayName": "CSWeb1Nic"
+        "displayName": "WebNic"
       },
       "properties": {
         "ipConfigurations": [
@@ -219,10 +213,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('CSWeb1SubnetRef')]"
+                "id": "[variables('WebSubnetRef')]"
               },
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('CSWebPIPName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
               }
             }
           }
@@ -230,36 +224,42 @@
       }
     },
     {
-      "name": "[parameters('CSWeb1Name')]",
+      "name": "[parameters('WebVMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-30",
+      "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('CSWeb1NicName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('WebAvailabilitySetName'))]"
       ],
       "tags": {
-        "displayName": "CSWeb1"
+        "displayName": "ContosoWeb1"
       },
       "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('WebAvailabilitySetName'))]"
+        },
         "hardwareProfile": {
-          "vmSize": "[variables('CSWeb1VmSize')]"
+          "vmSize": "[variables('WebVmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('CSWeb1Name')]",
-          "adminUsername": "[parameters('CSWeb1AdminUsername')]",
-          "adminPassword": "[parameters('CSWeb1AdminPassword')]"
+          "computerName": "[parameters('WebVMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('CSWeb1ImagePublisher')]",
-            "offer": "[variables('CSWeb1ImageOffer')]",
-            "sku": "[parameters('CSWeb1WindowsOSVersion')]",
+            "publisher": "[variables('WindowsImagePublisher')]",
+            "offer": "[variables('WindowsImageOffer')]",
+            "sku": "[variables('WindowsOSVersion')]",
             "version": "latest"
           },
           "osDisk": {
-            "name": "CSWeb1OSDisk",
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
+            "name": "WebOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -268,7 +268,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('CSWeb1NicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]"
             }
           ]
         }
@@ -280,7 +280,7 @@
           "location": "[resourceGroup().location]",
           "apiVersion": "2016-03-30",
           "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('CSWeb1Name'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('WebVMName'))]"
           ],
           "tags": {
             "displayName": "InstallCloudShop"
@@ -297,35 +297,46 @@
               "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopInstallScriptFileName'), ' ', variables('CloudShopInstallScriptParameters'))]"
             }
           }
+        },
+        {
+          "name": "Microsoft.Insights.VMDiagnosticsSettings",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('WebVMName'))]"
+          ],
+          "tags": {
+            "displayName": "AzureDiagnostics"
+          },
+          "properties": {
+            "publisher": "Microsoft.Azure.Diagnostics",
+            "type": "IaaSDiagnostics",
+            "typeHandlerVersion": "1.5",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "xmlCfg": "[base64(concat(variables('wadcfgxstart'), variables('wadmetricsresourceid'), parameters('WebVMName'), variables('wadcfgxend')))]",
+              "storageAccount": "[variables('diagstorageName')]"
+            },
+            "protectedSettings": {
+              "storageAccountName": "[variables('diagstorageName')]",
+              "storageAccountKey": "[listkeys(variables('diagstorageId'), '2015-05-01-preview').key1]",
+              "storageAccountEndPoint": "https://core.windows.net"
+            }
+          }
         }
       ]
     },
     {
-      "name": "[variables('CSWebPIPName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-01",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "CSWebPIP"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('CSWebPIPDnsName')]"
-        }
-      }
-    },
-    {
-      "name": "[variables('CSSQLVMNicName')]",
+      "name": "[variables('SQLNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-01",
+      "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('SQLipName'))]"
       ],
       "tags": {
-        "displayName": "CSSQLVMNic"
+        "displayName": "SQLNic"
       },
       "properties": {
         "ipConfigurations": [
@@ -334,7 +345,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('CSSQLVMSubnetRef')]"
+                "id": "[variables('SQLSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]"
               }
             }
           }
@@ -342,65 +356,47 @@
       }
     },
     {
-      "name": "[parameters('CSSQLVMName')]",
+      "name": "[parameters('SQLVMName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2017-03-30",
+      "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('CSSQLVMNicName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
       ],
       "tags": {
-        "displayName": "CSSQLVM"
+        "displayName": "ContosoSQL1"
       },
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('CSSQLVMVmSize')]"
+          "vmSize": "[variables('SQLVmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('CSSQLVMName')]",
-          "adminUsername": "[parameters('CSSQLVMAdminUsername')]",
-          "adminPassword": "[parameters('CSSQLVMAdminPassword')]"
+          "computerName": "[parameters('SQLVMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('CSSQLVMImagePublisher')]",
-            "offer": "[variables('CSSQLVMImageOffer')]",
-            "sku": "[parameters('SQLVMSKU')]",
+            "publisher": "[variables('SQLImagePublisher')]",
+            "offer": "[variables('SQLImageOffer')]",
+            "sku": "[variables('SQLSKU')]",
             "version": "latest"
           },
           "osDisk": {
-            "name": "CSSQLVMOSDisk",
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
+            "name": "SQLOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/', variables('SQLOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "name": "datadisk1",
-              "diskSizeGB": "1023",
-              "lun": 0,
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-                },
-              "createOption": "Empty"
-            },
-            {
-              "name": "datadisk2",
-              "diskSizeGB": "1023",
-              "lun": 1,
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-                },
-              "createOption": "Empty"
-            }
-          ]
+          }
         },
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('CSSQLVMNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLNicName'))]"
             }
           ]
         }
@@ -412,7 +408,7 @@
           "location": "[resourceGroup().location]",
           "apiVersion": "2016-03-30",
           "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('CSSQLVMName'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('SQLVMName'))]"
           ],
           "tags": {
             "displayName": "InstallCloudShopDB"
@@ -429,8 +425,61 @@
               "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('CloudShopDBInstallScriptFileName'), ' ', variables('CloudShopDBInstallScriptParameters'))]"
             }
           }
+        },
+        {
+          "name": "Microsoft.Insights.VMDiagnosticsSettings",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('SQLVMName'))]"
+          ],
+          "tags": {
+            "displayName": "AzureDiagnostics"
+          },
+          "properties": {
+            "publisher": "Microsoft.Azure.Diagnostics",
+            "type": "IaaSDiagnostics",
+            "typeHandlerVersion": "1.5",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "xmlCfg": "[base64(concat(variables('wadcfgxstart'), variables('wadmetricsresourceid'), parameters('SQLVMName'), variables('wadcfgxend')))]",
+              "storageAccount": "[variables('diagstorageName')]"
+            },
+            "protectedSettings": {
+              "storageAccountName": "[variables('diagstorageName')]",
+              "storageAccountKey": "[listkeys(variables('diagstorageId'), '2015-05-01-preview').key1]",
+              "storageAccountEndPoint": "https://core.windows.net"
+            }
+          }
         }
       ]
+    },
+    {
+      "name": "[variables('webipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "webip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "name": "[variables('sqlipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "sqlip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
     }
   ],
   "outputs": {}

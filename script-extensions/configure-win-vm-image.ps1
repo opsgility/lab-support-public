@@ -1,20 +1,21 @@
 param($sourceFileUrl, $destinationFolder)
 $ErrorActionPreference = 'SilentlyContinue'
 
-if((Test-Path $destinationFolder) -eq $false)
+
+
+if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder -eq $false))
 {
-    New-Item -Path $destinationFolder -ItemType directory
-}
+    if((Test-Path $destinationFolder) -eq $false)
+    {
+        New-Item -Path $destinationFolder -ItemType directory
+    }
+    $splitpath = $sourceFileUrl.Split("/")
+    $fileName = $splitpath[$splitpath.Length-1]
+    $destinationPath = Join-Path $destinationFolder $fileName
 
-if($sourceFileUrl -ne "" -and $sourceFileUrl -ne $null -and $destinationFolder -ne "" -and $destinationFolder -ne $null)
-{
-$splitpath = $sourceFileUrl.Split("/")
-$fileName = $splitpath[$splitpath.Length-1]
-$destinationPath = Join-Path $destinationFolder $fileName
+    (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
 
-(New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
-
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+    (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
 
 

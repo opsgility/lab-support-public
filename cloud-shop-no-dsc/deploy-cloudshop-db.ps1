@@ -1,4 +1,4 @@
-param($dbsource, $sqlConfigUrl, $user, $password)
+param($user, $password, $dbsource, $sqlConfigUrl)
 
 $logs    = "C:\Logs"
 $data    = "C:\Data"

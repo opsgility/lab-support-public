@@ -100,7 +100,7 @@
     "CloudShopInstallScriptFileName": "deploy-cloudshop.ps1",
     "CloudShopInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -cloudshopurl ', parameters('CloudShopDownloadUrl'))]",
     "CloudShopDBInstallScriptFileName": "deploy-cloudshop-db.ps1",
-    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', parameters('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', parameters('SQLConfigscriptUrl') )]",
+    "CloudShopDBInstallScriptParameters": "[concat(' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -dbsource ', parameters('CloudShopDBDownloadUrl'), ' -sqlConfigUrl ', parameters('SQLConfigscriptUrl'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword')  )]",
     "vmstorageName": "[concat('chqdisks', uniqueString(resourceGroup().id))]",
     "diagstorageName": "[concat('chqdiag', uniqueString(resourceGroup().id))]",
     "diagstorageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('diagstorageName'))]",

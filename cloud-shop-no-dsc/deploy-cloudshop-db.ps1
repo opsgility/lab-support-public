@@ -1,4 +1,4 @@
-param($dbsource, $sqlConfigUrl)
+param($dbsource, $sqlConfigUrl, $user, $password)
 
 $logs    = "C:\Logs"
 $data    = "C:\Data"
@@ -25,7 +25,8 @@ $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
 
 Enable-PSRemoting –force
-Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME
+Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
+Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password
 Disable-PSRemoting -Force
 
 New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow 

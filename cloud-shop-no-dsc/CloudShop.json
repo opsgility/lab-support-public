@@ -364,7 +364,8 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('SQLipName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('SQLipName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]"
       ],
       "tags": {
         "displayName": "SQLNic"

@@ -447,8 +447,8 @@
           "properties": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.9",
-            "autoUpgradeMinorVersion": true,
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
                 "[concat(parameters('CloudShopDBInstallscriptUrl'))]"
@@ -636,7 +636,7 @@
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
             "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
                 "[concat(parameters('CloudShopInstallscriptUrl'))]"

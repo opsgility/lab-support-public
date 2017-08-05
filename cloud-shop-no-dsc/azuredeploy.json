@@ -67,7 +67,7 @@
     },
     "WebVMName": {
       "type": "string",
-      "defaultValue": "ContosoWeb1",
+      "defaultValue": "WebVM-1",
       "minLength": 1
     },
     "SQLVMName": {

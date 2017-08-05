@@ -13,7 +13,7 @@ $sqlesq.Alter()
 Restart-Service -Name "MSSQLSERVER" -Force
 # Re-enable the sa account and set a new password to enable login
 Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa ENABLE" 
-Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 'Demo@pass1'"
+Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 'demo@pass123'"
 
 
 $mdf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorks2012_Data", "C:\Data\AdventureWorks2012.mdf")

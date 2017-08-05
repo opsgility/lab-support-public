@@ -47,7 +47,7 @@ Set-ItemProperty -Path $HKLM -Name "1803" -Value 0
 Set-ItemProperty -Path $HKCU -Name "1803" -Value 0
 $HKLM = "HKLM:\Software\Microsoft\Internet Explorer\Security"
 New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -PropertyType DWORD
-
+Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 

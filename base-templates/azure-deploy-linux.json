@@ -38,7 +38,7 @@
     "publicIPAddressType": "Dynamic",
     "vhdStorageContainerName": "vhds",
     "vmName": "LabVM",
-    "vmSize": "Standard_DS2_V2",
+    "vmSize": "Standard_DS1_V2",
     "virtualNetworkName": "LabVMVNet",
     "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",

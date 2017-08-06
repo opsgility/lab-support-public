@@ -46,17 +46,3 @@ New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -Prop
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
-
-
-# Install Storage Explorer Silently
-$storageDownloadUrl = "https://opsgilitylabs.blob.core.windows.net/public/StorageExplorer.exe"
-$storageFolder = "C:\Temp"
-$storageDestination = "C:\Temp\StorageExplorer.exe"
-if((Test-Path $storageFolder) -eq $false)
-{
-    New-Item -Path $storageFolder -ItemType directory
-}
-(New-Object Net.WebClient).DownloadFile($storageDownloadUrl,$storageDestination) 
-Start-Process $storageDestination -ArgumentList "/SILENT"
-
-

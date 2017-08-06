@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt-get update
-apt-get -y install apache2 php5 php5-mysql
+apt-get -y install apache2 php-mysql
 
 echo \<center\>\<h1\>My Demo App on `hostname` \</h1\>\<br/\>\</center\> | tee -a /var/www/html/demoapp.php
 

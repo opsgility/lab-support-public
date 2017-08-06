@@ -1,12 +1,13 @@
 #!/bin/bash
 
 apt-get update
-apt-get -y install apache2 php-mysql
+apt-get -y install apache2 php7.0 libapache2-mod-php7.0
+sudo a2enmod php7.0
 
 echo \<center\>\<h1\>My Demo App on `hostname` \</h1\>\<br/\>\</center\> | tee -a /var/www/html/demoapp.php
 
 echo \<\?php | tee -a /var/www/html/demoapp.php
-echo \$servername \= \"10.0.2.4\"\;  | tee -a /var/www/html/demoapp.php
+echo \$servername \= \"mysqlvm\"\;  | tee -a /var/www/html/demoapp.php
 echo \$username \= \"root\"\;  | tee -a /var/www/html/demoapp.php
 echo \$password \= \"mySQLPassw0rd\"\;  | tee -a /var/www/html/demoapp.php
 echo try \{  | tee -a /var/www/html/demoapp.php

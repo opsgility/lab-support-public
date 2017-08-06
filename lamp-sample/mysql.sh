@@ -18,5 +18,5 @@ Q4="GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;"
 SQL="${Q1}${Q2}${Q3}${Q4}"
 $MYSQL -u root --password=mySQLPassw0rd -e "$SQL"
 
-sudo sed -i "s/.*bind-address.*/bind-address = 10.0.0.4/" /etc/mysql/my.cnf
+sudo sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 sudo /etc/init.d/mysql restart

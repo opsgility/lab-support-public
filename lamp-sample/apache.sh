@@ -2,6 +2,7 @@
 
 apt-get update
 apt-get -y install apache2 php7.0 libapache2-mod-php7.0
+apt-get -y install php-mysql
 sudo a2enmod php7.0
 
 echo \<center\>\<h1\>My Demo App on `hostname` \</h1\>\<br/\>\</center\> | tee -a /var/www/html/demoapp.php

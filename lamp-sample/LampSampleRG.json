@@ -92,7 +92,7 @@
     "scriptFolder": ".",
     "webipName": "webip",
     "webip2Name": "webip2",
-    "lbipName": "cloushopip",
+    "lbipName": "weblbip",
     "sqlipName": "sqlip",
     "avsetname": "WebAVSet",
     "WebVM-2VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
@@ -115,7 +115,7 @@
         "name": "[parameters('vmstorageType')]"
       },
       "tags": {
-        "displayName": "CloudShopStorage"
+        "displayName": "VMStorage"
       },
       "dependsOn": [],
       "kind": "Storage"

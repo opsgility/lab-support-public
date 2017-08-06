@@ -49,7 +49,7 @@ else
   echo "setting up student files"
   mkdir /usr/opsgilitytraining
   wget -P /usr/opsgilitytraining $DOWNLOADURL
-  unzip /usr/opsgilitytraining/StudentFiles.zip
+  unzip /usr/opsgilitytraining/StudentFiles.zip -d /usr/opsgilitytraining
   chmod -R 775 /usr/opsgilitytraining
   chown -R demouser /usr/opsgilitytraining
 fi

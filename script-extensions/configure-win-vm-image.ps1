@@ -1,8 +1,6 @@
 param($sourceFileUrl, $destinationFolder)
 $ErrorActionPreference = 'SilentlyContinue'
 
-
-
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder -eq $false))
 {
     if((Test-Path $destinationFolder) -eq $false)
@@ -17,8 +15,6 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
-
-
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -50,5 +46,17 @@ New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -Prop
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+
+
+# Install Storage Explorer Silently
+$storageDownloadUrl = "https://opsgilitylabs.blob.core.windows.net/public/StorageExplorer.exe"
+$storageFolder = "C:\Temp"
+$storageDestination = "C:\Temp\StorageExplorer.exe"
+if((Test-Path $storageFolder) -eq $false)
+{
+    New-Item -Path $storageFolder -ItemType directory
+}
+(New-Object Net.WebClient).DownloadFile($storageDownloadUrl,$storageDestination) 
+Start-Process $storageDestination -ArgumentList "/SILENT"
 
 

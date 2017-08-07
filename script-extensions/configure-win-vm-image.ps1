@@ -1,7 +1,7 @@
 param($sourceFileUrl, $destinationFolder)
 $ErrorActionPreference = 'SilentlyContinue'
 
-if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder -eq $false))
+if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
     if((Test-Path $destinationFolder) -eq $false)
     {

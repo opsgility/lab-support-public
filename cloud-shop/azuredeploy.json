@@ -2,6 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "vmstorageType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Premium_LRS"
+      ]
+    },
     "CSWeb1Name": {
       "type": "string",
       "defaultValue": "CSWeb1",
@@ -83,9 +90,27 @@
     "CSSQLVMVmSize": "Standard_DS2_v2",
     "CSSQLVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VNet1')]",
     "CSSQLVMSubnetRef": "[concat(variables('CSSQLVMVnetID'), '/subnets/', variables('VNet1Subnet2Name'))]",
-    "CSSQLVMNicName": "[concat(parameters('CSSQLVMName'), 'NetworkInterface')]"
+    "CSSQLVMNicName": "[concat(parameters('CSSQLVMName'), 'NetworkInterface')]",
+    "SQLStorageAccountContainerName": "vhds",
+    "WebStorageAccountContainerName": "vhds",
+    "SQLOSDiskName": "SQLOSDisk1",
+    "WebOSDiskName": "WebOSDisk"
   },
   "resources": [
+    {
+      "name": "[variables('vmstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-06-01",
+      "sku": {
+        "name": "[parameters('vmstorageType')]"
+      },
+      "tags": {
+        "displayName": "CloudShopStorage"
+      },
+      "dependsOn": [],
+      "kind": "Storage"
+    },
     {
       "apiVersion": "2017-03-01",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -195,6 +220,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2017-03-30",
       "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('CSWeb1NicName'))]"
       ],
       "tags": {
@@ -218,8 +244,8 @@
           },
           "osDisk": {
             "name": "CSWeb1OSDisk",
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -312,6 +338,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2017-03-30",
       "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('CSSQLVMNicName'))]"
       ],
       "tags": {
@@ -334,9 +361,9 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "CSSQLVMOSDisk",
-            "managedDisk": {
-              "storageAccountType": "Premium_LRS"
+            "name": "[variables('SQLOSDiskName')]",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/', variables('SQLOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -346,18 +373,9 @@
               "name": "datadisk1",
               "diskSizeGB": "1023",
               "lun": 0,
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-                },
-              "createOption": "Empty"
+              "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/datadisk1.vhd')]"
             },
-            {
-              "name": "datadisk2",
-              "diskSizeGB": "1023",
-              "lun": 1,
-              "managedDisk": {
-                "storageAccountType": "Standard_LRS"
-                },
               "createOption": "Empty"
             }
           ]

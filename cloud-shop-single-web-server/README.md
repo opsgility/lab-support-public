@@ -1,0 +1,1 @@
+This will deploy CloudShop with a single web vm and no load balancer. Used for quick testing when the full CloudShop deployment (2 web servers in AVSet behind LB) is not required.

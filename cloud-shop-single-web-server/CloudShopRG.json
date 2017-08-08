@@ -28,7 +28,7 @@
       "metadata": {
         "description": "Zip that contains cloud shop sample"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/CloudShop.zip"
+      "defaultValue": "https://github.com/opsgility/lab-support-public/blob/master/cloud-shop-single-web-server/CloudShop.zip?raw=true"
     },
     "CloudShopDBDownloadUrl": {
       "type": "string",
@@ -42,21 +42,21 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/deploy-cloudshop.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-single-web-server/deploy-cloudshop.ps1"
     },
     "CloudShopDBInstallscriptUrl": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/deploy-cloudshop-db.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-single-web-server/deploy-cloudshop-db.ps1"
     },
     "SQLConfigscriptUrl": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/configure-sql.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-single-web-server/configure-sql.ps1"
     },
     "WebVMName": {
       "type": "string",
@@ -99,8 +99,7 @@
     "SQLStorageAccountContainerName": "vhds",
     "SQLNicName": "[concat(parameters('SQLVMName'), 'NetworkInterface')]",
     "scriptFolder": ".",
-    "webipName": "webip",
-    "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbipName'))]"
+    "webipName": "webip"
   },
   "resources": [
     {

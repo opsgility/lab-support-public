@@ -119,8 +119,6 @@
     "lbipName": "cloushopip",
     "sqlipName": "sqlip",
     "avsetname": "WebAVSet",
-    "WebVM-2VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-    "WebVM-2SubnetRef": "[concat(variables('WebVM-2VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
     "WebVM-2StorageAccountContainerName": "vhds",
     "WebVM-2NicName": "[concat(parameters('WebVMName2'), 'NetworkInterface')]",
     "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbipName'))]",
@@ -238,6 +236,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]",
         "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
       ],
@@ -502,7 +501,8 @@
       "apiVersion": "2016-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webip2Name'))]"
       ],
       "tags": {
         "displayName": "WebVM-2Nic"
@@ -514,7 +514,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('WebVM-2SubnetRef')]"
+                "id": "[variables('WebSubnetRef')]"
               },
               "loadBalancerBackendAddressPools": [
                 {

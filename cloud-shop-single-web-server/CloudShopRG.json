@@ -65,7 +65,7 @@
     },
     "SQLVMName": {
       "type": "string",
-      "defaultValue": "ContosoSQLSrv1",
+      "defaultValue": "SQLVM-1",
       "minLength": 1
     }
   },

@@ -105,14 +105,12 @@
     "WebOSDiskName": "WebOSDisk",
     "WebVM-2OSDiskName": "WebOSDisk2",
     "WebVmSize": "Standard_DS1_v2",
-    "WebVnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-    "WebSubnetRef": "[concat(variables('WebVnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
     "WebStorageAccountContainerName": "vhds",
     "WebNicName": "[concat(parameters('WebVMName'), 'NetworkInterface')]",
     "SQLOSDiskName": "SQLOSDisk2",
     "SQLVmSize": "Standard_DS1_v2",
-    "SQLVnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-    "SQLSubnetRef": "[concat(variables('SQLVnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
+    "SQLSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet2Name'))]",
     "SQLStorageAccountContainerName": "vhds",
     "SQLNicName": "[concat(parameters('SQLVMName'), 'NetworkInterface')]",
     "scriptFolder": ".",
@@ -121,8 +119,6 @@
     "lbipName": "cloushopip",
     "sqlipName": "sqlip",
     "avsetname": "WebAVSet",
-    "WebVM-2VnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-    "WebVM-2SubnetRef": "[concat(variables('WebVM-2VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
     "WebVM-2StorageAccountContainerName": "vhds",
     "WebVM-2NicName": "[concat(parameters('WebVMName2'), 'NetworkInterface')]",
     "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbipName'))]",
@@ -150,7 +146,7 @@
       "name": "[variables('vmstorageName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2016-01-01",
+      "apiVersion": "2017-06-01",
       "sku": {
         "name": "[parameters('vmstorageType')]"
       },
@@ -161,11 +157,51 @@
       "kind": "Storage"
     },
     {
+      "apiVersion": "2017-03-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "WebNetworkSecurityGroup",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "webrule",
+            "properties": {
+              "description": "This rule allows traffic in on port 80",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "INTERNET",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "rdprule",
+            "properties": {
+              "description": "This rule allows traffic on port 3389 from the web",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "INTERNET",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "[variables('VNETNAME')]",
       "type": "Microsoft.Network/virtualNetworks",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
-      "dependsOn": [],
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
+      ],
       "tags": {
         "displayName": "CloudShopVNET"
       },
@@ -179,7 +215,10 @@
           {
             "name": "[variables('VNETSubnet1Name')]",
             "properties": {
-              "addressPrefix": "[variables('VNETSubnet1Prefix')]"
+              "addressPrefix": "[variables('VNETSubnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'WebNetworkSecurityGroup')]"
+              }
             }
           },
           {
@@ -197,6 +236,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]",
         "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
       ],
@@ -260,7 +300,7 @@
           "osDisk": {
             "name": "WebOSDisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('WebStorageAccountContainerName'), '/', variables('WebOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -361,7 +401,7 @@
           "osDisk": {
             "name": "SQLOSDisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/', variables('SQLOSDiskName'), '.vhd')]"
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('SQLStorageAccountContainerName'), '/', variables('SQLOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -461,7 +501,8 @@
       "apiVersion": "2016-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webip2Name'))]"
       ],
       "tags": {
         "displayName": "WebVM-2Nic"
@@ -473,7 +514,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('WebVM-2SubnetRef')]"
+                "id": "[variables('WebSubnetRef')]"
               },
               "loadBalancerBackendAddressPools": [
                 {
@@ -522,7 +563,7 @@
           "osDisk": {
             "name": "WebVM-2OSDisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('WebVM-2StorageAccountContainerName'), '/', variables('WebVM-2OSDiskName'), '.vhd')]"
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2017-06-01').primaryEndpoints.blob, variables('WebVM-2StorageAccountContainerName'), '/', variables('WebVM-2OSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

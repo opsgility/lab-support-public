@@ -61,6 +61,7 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
     (new-object -com shell.application).namespace($playerFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/online-labs/$labName/lab-player.json"
+    $destinationPath = Join-Path $playerFolder  "lab-player.json"
     (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
 
     $shortCutPath = Join-Path $playerFolder "OpsgilityLabPlayer.lnk"

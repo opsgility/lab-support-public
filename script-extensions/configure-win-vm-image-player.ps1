@@ -59,12 +59,12 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     $fileName = $splitpath[$splitpath.Length-1]
     $destinationPath = Join-Path $playerFolder  $fileName
     (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
-    (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+    (new-object -com shell.application).namespace($playerFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/online-labs/$labName/lab-player.json"
     (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
 
     $shortCutPath = Join-Path $playerFolder "OpsgilityLabPlayer.lnk"
 
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-    Copy-Item -Path $shortCutPath -Destination "C:\Scratch"
+    Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 }

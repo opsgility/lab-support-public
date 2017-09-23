@@ -73,7 +73,7 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
-$dbsource = Join-Path $destinationFolder "AdventureWorks2016CTP3.bak"
+$dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
 
 # Setup Credentials
 $pword =  ConvertTo-SecureString "$pword" -AsPlainText -Force
@@ -81,11 +81,11 @@ $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTE
 
 # Get the Adventure works database backup 
 #$dbsource = "https://opsgilityweb.blob.core.windows.net/online-labs/create-migrate-to-azure-sql-database/StudentFiles.zip"
-#$dbdestination = "C:\OpsgilityTraining\AdventureWorks2016CTP3.bak"
+#$dbdestination = "C:\OpsgilityTraining\AdventureWorksDW2016CTP3.bak"
 #Invoke-WebRequest $dbsource -OutFile $dbdestination 
 
 Enable-PSRemoting -Force
 
-Invoke-Command -FilePath $sqlConfigUrl -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Backup", $dbsource
+Invoke-Command -FilePath $sqlConfigUrl -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $dbsource
 
 Disable-PSRemoting -Force

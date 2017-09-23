@@ -23,11 +23,12 @@ param($dbsource)
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 'Demo@pass123'"
 
 # Relocate data and log files
-		$mdf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("'AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2016CTP3_Data.mdf")
-		$ldf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2016CTP3_Log.ldf")
+#		$mdf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("'AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2016CTP3_Data.mdf")
+#		$ldf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2016CTP3_Log.ldf")
 
 # Restore the database from the backup
-		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorks -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
+#		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorks -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
+		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -ReplaceDatabase 
 		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
 		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
 		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound -Protocol TCP -LocalPort 59999 -Action allow 
@@ -37,5 +38,5 @@ param($dbsource)
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
 
 # Put the database into full recovery and run a backup (required for SQL AG)
-		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorks SET RECOVERY FULL"
-		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorks 
+		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"
+		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 

@@ -35,7 +35,7 @@
       "metadata": {
         "description": "Zip that contains Adventure works DB sample"
       },
-      "defaultValue": "http://opsgilitytraining.blob.core.windows.net/public/AdventureWorks2012.bak"
+      "defaultValue": "https://opsgilitylabs.blob.core.windows.net/public/AdventureWorks2012.bak"
     },
     "CloudShopInstallscriptUrl": {
       "type": "string",

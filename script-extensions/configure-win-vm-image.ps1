@@ -1,4 +1,4 @@
-param($sourceFileUrl, $destinationFolder, $labName)
+param($sourceFileUrl, $destinationFolder, $labName="authoring-arm-templates-vs-2017")
 $ErrorActionPreference = 'SilentlyContinue'
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)

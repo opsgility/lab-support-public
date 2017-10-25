@@ -1,6 +1,4 @@
-param($sourceFileUrl="http://opsgilitylabs.blob.core.windows.net/online-labs/sql-server-iaas-leverage-azure-storage/StudentFiles.zip", $destinationFolder="C:\OpsgilityTraining", $labName="sql-server-iaas-leverage-azure-storage")
-
-
+param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
@@ -49,6 +47,7 @@ Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
+
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"
@@ -71,20 +70,8 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 }
 
-### Extract Zip -- <<<comment this line out for uncompressed db files>>>
-Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
-#$dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
-
-#Open firewall
-New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound �Protocol TCP �LocalPort 1433 -Action allow 
-
-# Enable TCP Server Network Protocol
-$smo = 'Microsoft.SqlServer.Management.Smo.'  
-$wmi = new-object ($smo + 'Wmi.ManagedComputer').  
-$uri = "ManagedComputer[@Name='" + (get-item env:\computername).Value + "']/ServerInstance[@Name='MSSQLSERVER']/ServerProtocol[@Name='Tcp']"  
-$Tcp = $wmi.GetSmoObject($uri)  
-$Tcp.IsEnabled = $true  
-$Tcp.Alter() 
-
-# Restart the SQL Server service
-Restart-Service -Name "MSSQLSERVER" -Force
+#Join Domain
+$smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
+$user = "$domain\demouser"
+$objCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($user, $smPassword)
+Add-Computer -DomainName "$domain" -Credential $objCred -Restart -Force

@@ -117,7 +117,7 @@
     "imagePublisherSQL": "MicrosoftSqlServer",
     "imageOfferSQL": "SQL2016-WS2016",
     "availabilitySetName": "SQLAvSet",
-    "virtualNetworkName": "ContosoVNET",
+    "virtualNetworkName": "OpsTrainingVNET",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "SQLVM-1OSDiskName": "SQLVM-1OSDisk",
     "SQLVM-1VmSize": "Standard_DS2_v2",

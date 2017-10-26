@@ -73,7 +73,7 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
 
-Enable-PSRemoting –force
+Enable-PSRemoting -Force
 Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password -ScriptBlock { 
 
         # Setup mixed mode authentication
@@ -91,31 +91,14 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$Tcp.IsEnabled = $true  
 		$Tcp.Alter() 
 
-		# Restart the SQL Server service
-		# Restart-Service -Name "MSSQLSERVER" -Force
-
-		# Re-enable the sa account and set a new password to enable login
-		# Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa ENABLE"
-		# Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 'Demo@pass123'"
-
-		#$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorks2016CTP3_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorks2016CTP3_Data.mdf"
-		#$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorks2016CTP3_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorks2016CTP3_Log.ldf"
-		#$mod = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorks2016CTP3_mod", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorks2016CTP3_mod"
-
-		# Restore the database from the backup
-		#Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorks -BackupFile $dbdestination -RelocateFile @($mdf,$ldf,$mod) -ReplaceDatabase 
-		#New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow 
-		#New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound –Protocol TCP –LocalPort 5022 -Action allow 
-		#New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound –Protocol TCP –LocalPort 59999 -Action allow 
+	    # Open firewall for SQL and SQLAG and Load Balancer
+		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
+		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
+		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound -Protocol TCP -LocalPort 59999 -Action allow 
 
 		# Add local administrators group as sysadmin
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
-
-		# Put the database into full recovery and run a backup (required for SQL AG)
-		#Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorks SET RECOVERY FULL"
-		#Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorks 
-
 }
 Disable-PSRemoting -Force
 

@@ -77,7 +77,7 @@ $dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
 
-Enable-PSRemoting �force
+Enable-PSRemoting -Force
 Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password -ScriptBlock { 
 
         # Setup mixed mode authentication
@@ -96,14 +96,14 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$Tcp.Alter() 
 
 		# Restore the database from the backup
-		$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "'AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
-		$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "'AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
-		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf,$mod) -ReplaceDatabase 
+		$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
+		$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
+		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
 
 	    # Open firewall for SQL and SQLAG and Load Balancer
-		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound �Protocol TCP �LocalPort 1433 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound �Protocol TCP �LocalPort 5022 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound �Protocol TCP �LocalPort 59999 -Action allow 
+		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
+		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
+		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound -Protocol TCP -LocalPort 59999 -Action allow 
 
 		# Add local administrators group as sysadmin
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
@@ -111,7 +111,7 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 
 		# Put the database into full recovery and run a backup (required for SQL AG)
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"
-		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorks 
+		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 
 
 }
 Disable-PSRemoting -Force

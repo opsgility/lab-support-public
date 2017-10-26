@@ -85,6 +85,27 @@
         "description": "script to execute"
       },
       "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/configure-witness.ps1"
+    },
+    "sourceFileUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "http://opsgilitylabs.blob.core.windows.net/online-labs/sql-server-iaas-availability-groups/StudentFiles.zip"
+    },
+    "destinationFolder": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "C:\\OpsgilityTrainging"
+    },
+    "labName": {
+      "type": "string",
+      "metadata": {
+        "description": "script to execute"
+      },
+      "defaultValue": "sql-server-iaas-availability-groups"
     }
   },
   "variables": {
@@ -111,9 +132,9 @@
     "ConfigSQLVM-1": "ConfigSQL1.ps1",
     "ConfigSQLVM-2": "ConfigSQL2.ps1",
     "ConfigWitnessVM": "ConfigWitness.ps1",
-    "SQLVM-1scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",
-    "SQLVM-2scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",
-    "WitnessScriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",
+    "SQLVM-1scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder', parameters('destinationFolder'), ' -labName', parameters('labName'))]",
+    "SQLVM-2scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder', parameters('destinationFolder'), ' -labName', parameters('labName'))]",
+    "WitnessScriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder', parameters('destinationFolder'), ' -labName', parameters('labName'))]",
     "PIPSQLVM1Name": "PIPSQLVM1",
     "PIPSQLVM2Name": "PIPSQLVM2",
     "PIPWitnessName": "PIPWitness",

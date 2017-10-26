@@ -112,7 +112,6 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		# Put the database into full recovery and run a backup (required for SQL AG)
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"
 		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 
-
 }
 Disable-PSRemoting -Force
 

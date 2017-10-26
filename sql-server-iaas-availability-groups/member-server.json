@@ -70,21 +70,21 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/configure-sqlvm1.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/sql-server-iaas-availability-groups/configure-sqlvm1.ps1"
     },
     "SQLVM-2ScriptURL": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/configure-sqlvm2.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/sql-server-iaas-availability-groups/configure-sqlvm2.ps1"
     },
     "WitnessVmScriptURL": {
       "type": "string",
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/configure-witness.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/sql-server-iaas-availability-groups/configure-witness.ps1"
     },
     "sourceFileUrl": {
       "type": "string",

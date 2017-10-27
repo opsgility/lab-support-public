@@ -2,7 +2,7 @@ param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="
 $ErrorActionPreference = 'SilentlyContinue'
 
 #put in an artificial wait to let things settle down before we start making changes
-Start-Sleep -s 300
+Start-Sleep -s 120
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
@@ -77,6 +77,9 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 $dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
 
+### Create SQLDATA Directory
+New-Item -ItemType Directory -Force -Path C:\ -Name SQLDATA
+        
 $spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)
 
@@ -98,11 +101,6 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$Tcp.IsEnabled = $true  
 		$Tcp.Alter() 
 
-		# Restore the database from the backup
-		$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
-		$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
-		Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
-
 	    # Open firewall for SQL and SQLAG and Load Balancer
 		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
 		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
@@ -111,6 +109,12 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		# Add local administrators group as sysadmin
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
+
+		# Restore the database from the backup
+		#$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
+		#$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
+		#Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorksDW2016CTP3 FROM DISK = 'C:\OpsgilityTraining\AdventureWorksDW2016CTP3.bak' WITH MOVE 'AdventureWorksDW2014_Data' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Data.mdf', MOVE 'AdventureWorksDW2014_Log' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Log.ldf'"
 
 		# Put the database into full recovery and run a backup (required for SQL AG)
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"

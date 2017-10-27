@@ -1,6 +1,9 @@
 param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
+#put in an artificial wait to let things settle down before we start making changes
+Start-Sleep -s 120
+
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
     if((Test-Path $destinationFolder) -eq $false)
@@ -74,11 +77,11 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 $dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
 
-$password =  ConvertTo-SecureString "$password" -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
+$spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)
 
 Enable-PSRemoting -Force
-Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password -ScriptBlock { 
+Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $spassword -ScriptBlock { 
 
         # Setup mixed mode authentication
 		Import-Module "sqlps" -DisableNameChecking
@@ -116,7 +119,5 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 Disable-PSRemoting -Force
 
 #Join Domain
-$smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
-$user = "$domain\demouser"
-$objCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($user, $smPassword)
-Add-Computer -DomainName "$domain" -Credential $objCred -Restart -Force
+$domCredential = New-Object System.Management.Automation.PSCredential("$domain\$user", $spassword)
+Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force

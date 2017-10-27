@@ -91,7 +91,7 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "http://opsgilitylabs.blob.core.windows.net/online-labs/sql-server-iaas-availability-groups/StudentFiles.zip"
+      "defaultValue": "http://opsgilitylabs.blob.core.windows.net/online-labs/sql-server-iaas-availability-groups/studentFiles.zip"
     },
     "destinationFolder": {
       "type": "string",
@@ -103,7 +103,7 @@
     "labName": {
       "type": "string",
       "metadata": {
-        "description": "script to execute"
+        "description": "Name of the lab"
       },
       "defaultValue": "sql-server-iaas-availability-groups"
     }

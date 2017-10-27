@@ -2,7 +2,7 @@ param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="
 $ErrorActionPreference = 'SilentlyContinue'
 
 #put in an artificial wait to let things settle down before we start making changes
-Start-Sleep -s 120
+Start-Sleep -s 240
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {

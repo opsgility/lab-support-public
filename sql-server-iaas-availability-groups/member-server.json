@@ -115,7 +115,7 @@
     "imagePublisherWitness": "MicrosoftWindowsServer",
     "imageOfferWitness": "WindowsServer",
     "imagePublisherSQL": "MicrosoftSqlServer",
-    "imageOfferSQL": "SQL2016-WS2016",
+    "imageOfferSQL": "SQL2016SP1-WS2016",
     "availabilitySetName": "SQLAvSet",
     "virtualNetworkName": "OpsTrainingVNET",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
@@ -206,7 +206,7 @@
         "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
       ],
       "tags": {
-        "displayName": "SQLVM-1"
+        "displayName": "SQLVM-01"
       },
       "properties": {
         "hardwareProfile": {
@@ -323,7 +323,7 @@
         "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
       ],
       "tags": {
-        "displayName": "SQLVM-2"
+        "displayName": "SQLVM-02"
       },
       "properties": {
         "hardwareProfile": {

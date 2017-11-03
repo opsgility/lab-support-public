@@ -98,7 +98,7 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "C:\\OpsgilityTrainging"
+      "defaultValue": "C:\\OpsgilityTraining"
     },
     "labName": {
       "type": "string",

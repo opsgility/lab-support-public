@@ -1,0 +1,146 @@
+#!/bin/bash
+#AWS TechSummit Networking Scripting
+#This script is meant to be run from a Windows 10 with Linux Services 
+#Update Variables for the deployment
+
+regionName="centralus"
+rgName="TechSummitRG"
+vNetName="TechSummitVNet"
+addPrefix="10.0.0.0/16"
+subnet1="Apps"
+subnet2="Data"
+addSubnet1="10.0.1.0/24"
+addSubnet2="10.0.2.0/24"
+storAcctName="tsstor8675309"
+webVM1Name=nginx1
+webVM1PubIP=nginx1PubIP
+webVM1DNSName=techsummitnginx1
+webVM1NicName=nginx1NIC
+webVM2Name=nginx2
+webVM2NicName=nginx2NIC
+dbVM=mysql
+dbVMNicName=mysqlNIC
+avset1=WebAVSet
+
+az group create --name $rgName --location "$regionName"
+
+az storage account create -n $storAcctName \
+                          --sku Premium_LRS \
+                          -l "$regionName" \
+                          --kind Storage \
+                          --resource-group $rgName
+
+az network vnet create --resource-group $rgName \
+                       -n $vNetName \
+                       --address-prefixes $addPrefix \
+                       -l "$regionName"
+
+az network vnet subnet create --resource-group $rgName \
+                              --vnet-name $vNetName \
+                              -n $subnet1 \
+                              --address-prefix $addSubnet1
+ 
+az network vnet subnet create --resource-group $rgName \
+                              --vnet-name $vNetName \
+                              -n $subnet2 \
+                              --address-prefix $addSubnet2
+
+az network nsg create -n WebNSG \
+                      -g $rgName \
+                      -l "$regionName"
+
+az network nsg rule create -n SSH \
+                           --nsg-name WebNSG \
+                           --priority 100 \
+                           -g $rgName \
+                           --access Allow \
+                           --description "SSH Access" \
+                           --direction Inbound \
+                           --protocol Tcp \
+                           --destination-address-prefix "*" \
+                           --destination-port-range 22 \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network nsg rule create -n HTTP \
+                           --nsg-name WebNSG \
+                           --priority 101 \
+                           -g $rgName \
+                           --access Allow \
+                           --description "Web Access" \
+                           --direction Inbound \
+                           --protocol Tcp \
+                           --destination-address-prefix "*" \
+                           --destination-port-range 80 \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network public-ip create -n $webVM1PubIP \
+                            -g $rgName \
+                            --allocation-method Dynamic \
+                            --dns-name $webVM1DNSName \
+                            -l "$regionName"
+
+az network nic create -n $webVM1NicName \
+                      -g $rgName \
+                      --subnet $subnet1 \
+                      --network-security-group WebNSG \
+                      --vnet-name $vNetName \
+                      --public-ip-address $webVM1PubIP \
+                      -l "$regionName"
+
+az network nic create -n $dbVMNicName \
+                      -g $rgName \
+                      --subnet $subnet2 \
+                      --vnet-name $vNetName \
+                      -l "$regionName"
+
+az vm availability-set create -n $avset1 \
+                              -g $rgName \
+                              --platform-fault-domain-count 2 \
+                              --platform-update-domain-count 2 \
+                              --unmanaged \
+                              -l "$regionName"
+
+az vm create -n $webVM1Name \
+             -g $rgName \
+             -l "$regionName" \
+             --size Standard_DS1_V2 \
+             --availability-set $avset1 \
+             --nics $webVM1NicName \
+             --authentication-type password \
+             --admin-username demouser \
+             --admin-password demo@pass123 \
+             --image "Canonical:UbuntuServer:17.04:latest" \
+             --use-unmanaged-disk \
+             --os-disk-name $webVM1Name-OSDISK.vhd \
+             --storage-account $storAcctName \
+             --storage-container-name vhds
+
+az vm create -n $dbVM \
+             -g $rgName \
+             -l "$regionName" \
+             --size Standard_DS1_V2 \
+             --nics $dbVMNicName \
+             --authentication-type password \
+             --admin-username demouser \
+             --admin-password demo@pass123 \
+             --image "Canonical:UbuntuServer:17.04:latest" \
+             --use-unmanaged-disk \
+             --os-disk-name $dbVM-OSDISK.vhd \
+             --storage-account $storAcctName \
+             --storage-container-name vhds
+
+az vm extension set --publisher Microsoft.OSTCExtensions \
+                    -n CustomScriptForLinux \
+                    -g $rgName \
+                    --vm-name $webVM1Name \
+                    --version 1.4 \
+                    --settings "{ \"fileUris\": [\"https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/apache.sh\"], \"commandToExecute\": \"bash apache.sh\" }"
+
+az vm extension set --publisher Microsoft.OSTCExtensions \
+                    -n CustomScriptForLinux \
+                    -g $rgName \
+                    --vm-name $dbVM \
+                    --version 1.4 \
+                    --settings "{ \"fileUris\": [\"https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/mysql.sh\"], \"commandToExecute\": \"bash mysql.sh\" }"

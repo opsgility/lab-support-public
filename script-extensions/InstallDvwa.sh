@@ -1,6 +1,6 @@
 # Custom Script for Linux
 #!/bin/bash
-sudo wget https://github.com/opsgility/lab-support-public/blob/master/dvwa/DVWA.zip?raw=true
+sudo wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/dvwa/DVWA.zip
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password p@ssw0rd'
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password p@ssw0rd'
 sudo apt-get install -y apache2 mysql-server php5 unzip php5-mysql php-pear*

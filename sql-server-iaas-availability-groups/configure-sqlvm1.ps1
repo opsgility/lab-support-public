@@ -74,7 +74,7 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 }
 
 # Get the Student Files 
-Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
+# Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>

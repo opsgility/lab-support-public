@@ -1,0 +1,19 @@
+#!/bin/bash
+# AWS TechSummit Demo Script
+# Requirements:  Linux Services for Windows https://msdn.microsoft.com/commandline/wsl/install_guide
+# Azure CLI 2.0 for Linux from here: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+# Script Location:  https://github.com/opsgility/lab-support-public/tree/master/awsdemo
+# Download this script and run locally
+# Update the variables below for your deployment
+# Start your bash terminal and authenticate to azure using: az login 
+# Once authenticate then move to the location of the downlaoded script and run the script
+# bash awsstorage.sh
+
+storAcctName="tsstor8675309"
+
+#Create Storage Account to be used with the VMs
+az storage account create -n $storAcctName \
+                          --sku Premium_LRS \
+                          -l "$regionName" \
+                          --kind Storage \
+                          --resource-group $rgName

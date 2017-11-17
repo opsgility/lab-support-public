@@ -1,0 +1,111 @@
+#!/bin/bash
+# AWS TechSummit Demo Script
+# Requirements:  Linux Services for Windows https://msdn.microsoft.com/commandline/wsl/install_guide
+# Azure CLI 2.0 for Linux from here: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+# Script Location:  https://github.com/opsgility/lab-support-public/tree/master/awsdemo
+# Download this script and run locally
+# Update the variables below for your deployment
+# Start your bash terminal and authenticate to azure using: az login 
+# Once authenticate then move to the location of the downlaoded script and run the script
+# bash awsnetworkdemo.sh
+
+regionName="centralus"
+rgName="TechSummitRG"
+vNetName="TechSummitVNet"
+addPrefix="10.0.0.0/16"
+subnet1="Apps"
+subnet2="Data"
+addSubnet1="10.0.1.0/24"
+addSubnet2="10.0.2.0/24"
+
+#Create the Resource Group
+az group create --name $rgName --location $regionName
+
+#Create the Virtual Network & Subnets
+az network vnet create --resource-group $rgName \
+                       -n $vNetName \
+                       --address-prefixes $addPrefix \
+                       -l $regionName
+
+az network vnet subnet create --resource-group $rgName \
+                              --vnet-name $vNetName \
+                              -n $subnet1 \
+                              --address-prefix $addSubnet1
+ 
+az network vnet subnet create --resource-group $rgName \
+                              --vnet-name $vNetName \
+                              -n $subnet2 \
+                              --address-prefix $addSubnet2
+
+#Create the Network Security Group, Rules and assoicate with Web Tier
+
+az network nsg create -n AppsNSG \
+                      -g $rgName \
+                      -l $regionName
+
+az network nsg rule create -n LeastPrivilageRule \
+                           --nsg-name AppsNSG \
+                           --priority 1000 \
+                           -g $rgName \
+                           --access Deny \
+                           --description "DenyAll" \
+                           --direction Inbound \
+                           --destination-address-prefix "*" \
+                           --destination-port-range "*" \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network nsg rule create -n SSH \
+                           --nsg-name AppsNSG \
+                           --priority 100 \
+                           -g $rgName \
+                           --access Allow \
+                           --description "SSH Access" \
+                           --direction Inbound \
+                           --protocol Tcp \
+                           --destination-address-prefix "*" \
+                           --destination-port-range 22 \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network nsg rule create -n HTTP \
+                           --nsg-name AppsNSG \
+                           --priority 101 \
+                           -g $rgName \
+                           --access Allow \
+                           --description "Web Access" \
+                           --direction Inbound \
+                           --protocol Tcp \
+                           --destination-address-prefix "*" \
+                           --destination-port-range 80 \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network vnet subnet update -n $subnet1 \
+                              -g $rgName \
+                              --vnet-name $vNetName \
+                              --network-security-group AppsNSG
+
+#Create the Network Security Group, Rules and assoicate with Data Tier
+
+az network nsg create -n DataNSG \
+                      -g $rgName \
+                      -l $regionName
+
+az network nsg rule create -n LeastPrivilageRule \
+                           --nsg-name DataNSG \
+                           --priority 1000 \
+                           -g $rgName \
+                           --access Deny \
+                           --description "DenyAll" \
+                           --direction Inbound \
+                           --protocol "*" \
+                           --destination-address-prefix "*" \
+                           --destination-port-range "*" \
+                           --source-address-prefix "*" \
+                           --source-port-range "*"
+
+az network vnet subnet update -n $subnet2 \
+                              -g $rgName \
+                              --vnet-name $vNetName \
+                              --network-security-group DataNSG

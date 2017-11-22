@@ -87,7 +87,7 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
     Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
 
     # Restore the database from the backup
-    Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE CohoDW FROM DISK = 'C:\LabFiles\AdventureWorksDW2016CTP3.bak' WITH MOVE 'CohoDW_Data' TO 'C:\SQLDATA\CohoDW_Data.mdf', MOVE 'CohoDW_Log' TO 'C:\SQLDATA\CohoDW_Log.ldf'"
+    Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE CohoDW FROM DISK = 'C:\LabFiles\CohoDW.bak' WITH MOVE 'CohoDW_Data' TO 'C:\SQLDATA\CohoDW_Data.mdf', MOVE 'CohoDW_Log' TO 'C:\SQLDATA\CohoDW_Log.ldf'"
 
 }
 Disable-PSRemoting -Force

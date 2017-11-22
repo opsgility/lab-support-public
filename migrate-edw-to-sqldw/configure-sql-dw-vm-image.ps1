@@ -1,4 +1,4 @@
-param($sourceFileUrl="http://opsgilitylabs.blob.core.windows.net/online-labs/sql-server-iaas-leverage-azure-storage/StudentFiles.zip", $destinationFolder="C:\OpsgilityTraining", $labName="sql-server-iaas-leverage-azure-storage")
+param($sourceFileUrl="http://cloudworkshop.blob.core.windows.net/migrate-edw/StudentFiles-11-2017.zip", $destinationFolder="C:\LabFiles", $labName="migrate-edw-to-sqldw",$user="", $password="")
 
 $ErrorActionPreference = 'SilentlyContinue'
 

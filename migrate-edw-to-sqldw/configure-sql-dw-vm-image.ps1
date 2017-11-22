@@ -92,16 +92,5 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 }
 Disable-PSRemoting -Force
 
-#Open firewall
-New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound �Protocol TCP �LocalPort 1433 -Action allow 
-
-# Enable TCP Server Network Protocol
-$smo = 'Microsoft.SqlServer.Management.Smo.'  
-$wmi = new-object ($smo + 'Wmi.ManagedComputer').  
-$uri = "ManagedComputer[@Name='" + (get-item env:\computername).Value + "']/ServerInstance[@Name='MSSQLSERVER']/ServerProtocol[@Name='Tcp']"  
-$Tcp = $wmi.GetSmoObject($uri)  
-$Tcp.IsEnabled = $true  
-$Tcp.Alter() 
-
 # Restart the SQL Server service
 Restart-Service -Name "MSSQLSERVER" -Force

@@ -19,8 +19,8 @@
       }
     },
     "variables": {
-      "customScriptUri1ScriptFileName": "osticketonprem.sh",
-      "customScriptUri1": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/osticketonprem.sh",
+      "customScriptUri1ScriptFileName": "osticketonpremvm.sh",
+      "customScriptUri1": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/osticketonpremvm.sh",
       "imagePublisher": "Canonical",
       "imageOffer": "UbuntuServer",
       "imageSku": "16.04-LTS",

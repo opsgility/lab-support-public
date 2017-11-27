@@ -78,6 +78,6 @@ Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -W
 Remove-Item $Path\$Installer
 
 $smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
-$user = "$domain\demouser"
-$objCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($user, $smPassword)
+$domuser = "$domain\$user"
+$objCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($domuser, $smPassword)
 Add-Computer -DomainName "$domain" -Credential $objCred -Restart -Force

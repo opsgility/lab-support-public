@@ -12,7 +12,7 @@ sudo apt-get install unzip -y
 sudo apt-get update -y
 sudo wget https://github.com/osTicket/osTicket/releases/download/v1.10.1/osTicket-v1.10.1.zip
 sudo unzip osTicket-v1.10.1.zip
-sudo cp -rv ~/upload/* /var/www/html
+sudo cp -rv upload/* /var/www/html
 sudo cp /var/www/html/include/ost-sampleconfig.php /var/www/html/include/ost-config.php
 sudo chown -R demouser:www-data /var/www/html
 mv /var/www/html/index.html /var/www/html/index.html.org

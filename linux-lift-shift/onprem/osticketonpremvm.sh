@@ -17,3 +17,4 @@ sudo cp /var/www/html/include/ost-sampleconfig.php /var/www/html/include/ost-con
 sudo chown -R demouser:www-data /var/www/html
 mv /var/www/html/index.html /var/www/html/index.html.org
 chmod 666 /var/www/html/include/ost-config.php
+sudo systemctl restart apache2

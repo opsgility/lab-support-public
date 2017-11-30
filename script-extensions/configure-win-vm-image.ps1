@@ -119,7 +119,8 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-    Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\desktop"
+    # Copy shortcut to desktop
+    Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
 
 # Install Chrome

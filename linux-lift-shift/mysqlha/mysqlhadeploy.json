@@ -244,7 +244,7 @@
                         "name": "ipconfig1",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAddress": "10.0.0.100",
                             "subnet": {
                                 "id": "[concat(resourceId('Microsoft.Network/virtualNetworks','MySQLVNet'),'/subnets/', 'data')]"
                             },

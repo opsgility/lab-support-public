@@ -249,9 +249,9 @@
                   "autoUpgradeMinorVersion": true,
                   "settings": {
                     "fileUris": [
-                      "https://raw.githubusercontent.com/opsgility/lab-support-public/master/linux-lift-shift/onprem/osticketonpremvm.sh"
+                      "https://raw.githubusercontent.com/opsgility/lab-support-public/master/linux-lift-shift/scaleset/osticketscalesets.sh"
                     ],
-                    "commandToExecute": "bash osticketonpremvm.sh"
+                    "commandToExecute": "bash osticketscalesets.sh"
                   }
                 }
               }

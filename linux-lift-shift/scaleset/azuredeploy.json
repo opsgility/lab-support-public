@@ -11,9 +11,8 @@
     },
     "vmssName": {
       "type": "string",
-      "defaultValue": "osticketss",
       "metadata": {
-        "description": "String used as a base for naming resources (9 characters or less). A hash is prepended to this string for some resources, and resource-specific information is appended."
+        "description": "Unique String used as a base for naming resources (9 characters or less). A hash is prepended to this string for some resources, and resource-specific information is appended."
       }
     },
     "instanceCount": {

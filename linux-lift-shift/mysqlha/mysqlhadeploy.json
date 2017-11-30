@@ -243,7 +243,8 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "10.0.0.4",
                             "subnet": {
                                 "id": "[concat(resourceId('Microsoft.Network/virtualNetworks','MySQLVNet'),'/subnets/', 'data')]"
                             },
@@ -336,7 +337,7 @@
                     "imageReference": {
                         "publisher": "credativ",
                         "offer": "Debian",
-                        "sku": 8,
+                        "sku": "8",
                         "version": "latest"
                     },
                     "osDisk": {

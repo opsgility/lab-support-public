@@ -84,6 +84,20 @@ Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
+# Allow programmatic clipboard access
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "1407" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1407" -Value 0
+
+# Emulate IE 11 for web browser control
+$HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
+New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
+
+
+Stop-Process -Name Explorer
+Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
@@ -105,6 +119,8 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+    # Copy shortcut to desktop
+    Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
 
 # Install Chrome

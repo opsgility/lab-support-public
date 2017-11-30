@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password demo@pass123'
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password demo@pass123'
 sudo apt-get install -y lamp-server^

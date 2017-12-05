@@ -58,11 +58,8 @@ Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 $pword =  ConvertTo-SecureString "$pword" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $pword)
  
-
 Enable-PSRemoting -Force
-
-Enable-PSRemoting -Force
-Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $spassword -ScriptBlock { 
+Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $pword -ScriptBlock { 
 
         # Setup mixed mode authentication
 		Import-Module "sqlps" -DisableNameChecking
@@ -88,6 +85,8 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		# Add local administrators group as sysadmin
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
+		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN dataloader WITH PASSWORD = 'Demo@pass123'"
+		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [dataloader]"
 
 		# Restore the database from the backup
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE WideWorldImportersDW FROM DISK = 'C:\OpsgilityTraining\WideWorldImporters.bak'"

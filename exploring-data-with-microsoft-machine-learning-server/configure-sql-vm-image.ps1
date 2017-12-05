@@ -90,6 +90,8 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 
 		# Restore the database from the backup
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE WideWorldImportersDW FROM DISK = 'C:\OpsgilityTraining\WideWorldImporters.bak'"
+        Start-Sleep -s 60
+        
 
 }
 Disable-PSRemoting -Force

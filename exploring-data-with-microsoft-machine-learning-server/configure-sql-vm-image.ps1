@@ -45,11 +45,59 @@ $HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones
 $HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
 Set-ItemProperty -Path $HKLM -Name "1803" -Value 0
 Set-ItemProperty -Path $HKCU -Name "1803" -Value 0
+
+# Allow file downloads
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+
+# allow websites to open windows without address or status bars 
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+
 $HKLM = "HKLM:\Software\Microsoft\Internet Explorer\Security"
 New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+
+# Allow programmatic clipboard access
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "1407" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1407" -Value 0
+
+# Emulate IE 11 for web browser control
+$HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
+New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force

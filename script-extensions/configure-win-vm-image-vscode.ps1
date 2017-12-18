@@ -95,6 +95,10 @@ $HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureCont
 New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
 
+# Turn off server manager on load
+$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
+New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 0 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 0 -Type DWord
 
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
@@ -137,3 +141,7 @@ $Installer = "vscode.exe"
 Invoke-WebRequest "https://go.microsoft.com/fwlink/?Linkid=852157" -OutFile $Path\$Installer
 Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
+
+
+
+

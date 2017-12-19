@@ -137,9 +137,7 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [dataloader]"
 
 		# Restore the database from the backup
-        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE WideWorldImportersDW FROM DISK = 'C:\OpsgilityTraining\WideWorldImporters.bak'"
-        Start-Sleep -s 60
-        
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -QueryTimeout 180 -Query "RESTORE DATABASE WideWorldImportersDW FROM DISK = 'C:\OpsgilityTraining\WideWorldImporters.bak' WITH RECOVERY"
 
 }
 Disable-PSRemoting -Force

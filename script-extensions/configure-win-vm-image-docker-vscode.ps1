@@ -165,11 +165,14 @@ $dockerUrl = "https://download.docker.com/win/stable/Docker for Windows Installe
 $dockerInstaller = "docker-installer.exe"
 $dockerArgs = "install --quiet"
 $dockerInstallerPath = (Join-Path $env:TEMP $dockerInstaller)
-
 Write-Host "Downloading $dockerUrl..." -ForegroundColor Green
 Invoke-Webrequest $dockerUrl -UseBasicParsing -OutFile $dockerInstallerPath
 Write-Host "Installing $dockerInstallerPath..." -ForegroundColor Green
 Start-Process $dockerInstallerPath -ArgumentList $dockerArgs -Verb RunAs -Wait
+
+#Allow demouser to run Docker
+$group = [ADSI]"WinNT://$env:COMPUTERNAME/docker-users,group"
+$group.Add("WinNT://$env:COMPUTERNAME/demouser,user")
 
 #Install Hyper-V 
 Write-Host "Installing Hyper-V..." -ForegroundColor Green

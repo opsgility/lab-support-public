@@ -150,15 +150,8 @@ $Installer = "vscode.exe"
 Write-Host "Downloading VS Code..." -ForegroundColor Green
 Invoke-WebRequest "https://go.microsoft.com/fwlink/?Linkid=852157" -OutFile $Path\$Installer
 Write-Host "Installing VS Code..." -ForegroundColor Green
-Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode" -Verb RunAs -Wait
+Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode,addtopath,addcontextmenufiles,addcontextmenufolders,associatewithfiles" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
-
-# Install Docker Extension for VS Code
-$Path = "C:\Program Files\Microsoft VS Code"; 
-$Installer = "code.exe"
-$dockerExtensionInstallerPath = (Join-Path $Path $Installer)
-Write-Host "Installing docker extension with $dockerExtensionInstallerPath ..." -ForegroundColor Green
-Start-Process -FilePath $dockerExtensionInstallerPath -Args "--install-extension PeterJausovec.vscode-docker" -Verb RunAs
 
 #Install docker
 $dockerUrl = "https://download.docker.com/win/stable/Docker for Windows Installer.exe" 

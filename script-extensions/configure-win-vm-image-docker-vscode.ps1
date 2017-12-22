@@ -15,6 +15,7 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
+
 # Extract Zip 
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 

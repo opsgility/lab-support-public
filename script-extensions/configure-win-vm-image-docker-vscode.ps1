@@ -15,6 +15,8 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
+# Extract Zip 
+Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -167,6 +169,6 @@ Start-Process $dockerInstallerPath -ArgumentList $dockerArgs -Verb RunAs -Wait
 $group = [ADSI]"WinNT://$env:COMPUTERNAME/docker-users,group"
 $group.Add("WinNT://$env:COMPUTERNAME/demouser,user")
 
-#Install Hyper-V 
+#Install Hyper-V - required for Docker
 Write-Host "Installing Hyper-V..." -ForegroundColor Green
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

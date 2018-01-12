@@ -99,6 +99,16 @@ Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
+# Hide Server Manager
+$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
+New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -Type DWord
+
+# Hide Server Manager
+$HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
+New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
+Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
+
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"

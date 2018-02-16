@@ -1,5 +1,5 @@
 #!/bin/bash
-
+export DEBIAN_FRONTEND=noninteractive
 dbpass="mySQLPassw0rd"
 
 export DEBIAN_FRONTEND=noninteractive

@@ -1,7 +1,7 @@
 DOWNLOADURL=$1
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
-sudo sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
+sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
 apt-get update
 apt-get install lxde -y
 apt-get install xrdp -y

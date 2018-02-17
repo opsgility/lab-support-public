@@ -7,7 +7,7 @@ sudo a2enmod php
 
 echo \<center\>\<h1\>My Demo App on `hostname` \</h1\>\<br/\>\</center\> | tee -a /var/www/html/demoapp.php
 echo \<\?php | tee -a /var/www/html/demoapp.php
-echo \$servername \= \"mysqlvm\"\;  | tee -a /var/www/html/demoapp.php
+echo \$servername \= \"10.0.1.4\"\;  | tee -a /var/www/html/demoapp.php
 echo \$username \= \"root\"\;  | tee -a /var/www/html/demoapp.php
 echo \$password \= \"mySQLPassw0rd\"\;  | tee -a /var/www/html/demoapp.php
 echo try \{  | tee -a /var/www/html/demoapp.php

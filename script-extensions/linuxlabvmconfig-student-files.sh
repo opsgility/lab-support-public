@@ -1,7 +1,6 @@
 DOWNLOADURL=$1
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
-sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
 apt-get update
 apt-get install lxde -y
 apt-get install xrdp -y
@@ -16,8 +15,10 @@ apt-get update
 apt-get install code
 
 #Prepare XWindows System
+sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
 wget https://opsgilityweb.blob.core.windows.net/test/xsession
 mv xsession /home/demouser/.xsession
+
 
 #install the Azure CLI using instructions from Azure.com
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
@@ -55,5 +56,3 @@ else
   chmod -R 775 /usr/opsgilitytraining
   chown -R demouser /usr/opsgilitytraining
 fi
-
-

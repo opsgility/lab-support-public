@@ -156,13 +156,6 @@
       },
       "defaultValue": "STS#0"
     },
-    "spDNSPrefix": {
-      "type": "string",
-      "defaultValue":"[concat('opsspf', uniqueString(resourceGroup().id)]",
-      "metadata": {
-        "description": "The DNS Prefix for the SharePoint Public IP Address"
-      }
-    },
     "baseUrl": {
       "type": "string",
       "metadata": {
@@ -184,13 +177,14 @@
     },
     "spPublicIPRGName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "NA",
       "metadata": {
         "description": "Resource Group containing existing public IP for Sharepoint"
       }
     },
     "sppublicIPAddressName": {
       "type": "string",
+      "defaultValue": "NA",
       "metadata": {
         "description": "Name of existing public IP resource for Sharepoint"
       }
@@ -295,7 +289,8 @@
     "SpPublicIpnew": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),parameters('sppublicIPAddressName'))]",
     "adPublicIpResourceId": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),variables('adpublicIPAddressName'))]",
     "sqlPublicIpResourceId": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),variables('sqlpublicIPAddressName'))]",
-    "spFQDN":"[concat(parameters('spDNSPrefix'),'.',toLower(trim(replace(parameters('location'),' ' ,''))),'.cloudapp.azure.com')]",
+    "spDNSPrefix": "[concat('opsspf', uniqueString(resourceGroup().id))]",
+    "spFQDN":"[concat(variables('spDNSPrefix'),'.',toLower(trim(replace(parameters('location'),' ' ,''))),'.cloudapp.azure.com')]",
     "splbResourceId":"[resourceId(concat('Microsoft.Network','/','loadBalancers'),variables('spLBName'))]",
     "adModulesURL": "[concat(variables('assetLocation'),'/CreateADPDC.ps1.zip')]",
     "adConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
@@ -444,7 +439,7 @@
             "value": "[variables('publicIPAddressType')]"
           },
           "dnsPrefix": {
-            "value": "[parameters('spDNSPrefix')]"
+            "value": "[variables('spDNSPrefix')]"
           },
           "publicIpRGName": {
             "value": "[parameters('spPublicIPRGName')]"

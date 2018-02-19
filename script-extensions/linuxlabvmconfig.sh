@@ -14,6 +14,7 @@ apt-get update
 apt-get install code
 
 #Prepare XWindows System
+sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
 wget https://opsgilityweb.blob.core.windows.net/test/xsession
 mv xsession /home/demouser/.xsession
 

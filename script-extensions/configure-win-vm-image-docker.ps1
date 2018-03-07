@@ -152,15 +152,6 @@ Write-Host "Installing Chrome..." -ForegroundColor Green
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
 
-# Install VS Code
-$Path = $env:TEMP; 
-$Installer = "vscode.exe"
-Write-Host "Downloading VS Code..." -ForegroundColor Green
-Invoke-WebRequest "https://go.microsoft.com/fwlink/?Linkid=852157" -OutFile $Path\$Installer
-Write-Host "Installing VS Code..." -ForegroundColor Green
-Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode,addtopath,addcontextmenufiles,addcontextmenufolders,associatewithfiles" -Verb RunAs -Wait
-Remove-Item $Path\$Installer
-
 #Install docker
 $dockerUrl = "https://download.docker.com/win/stable/Docker for Windows Installer.exe" 
 $dockerInstaller = "docker-installer.exe"

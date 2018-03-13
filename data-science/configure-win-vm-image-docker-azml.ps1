@@ -134,6 +134,14 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
 
+# Download Azure ML Workbench and copy to desktop
+# NOTE THERE IS NO INSTALL
+# INSTALL TAKES ABOUT 30 MINUTES
+$Path = "C:\Users\Default\Desktop"; 
+$Installer = "azure_ml_workbench.msi"
+Write-Host "Downloading Azure ML Workbench..." -ForegroundColor Green
+Invoke-WebRequest "https://aka.ms/azureml-wb-msi" -OutFile $Path\$Installer
+
 # Install Azure CLI
 $Path = $env:TEMP; 
 $Installer = "cli_installer.msi"
@@ -152,15 +160,6 @@ Write-Host "Installing Chrome..." -ForegroundColor Green
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
 
-# Install VS Code
-$Path = $env:TEMP; 
-$Installer = "vscode.exe"
-Write-Host "Downloading VS Code..." -ForegroundColor Green
-Invoke-WebRequest "https://go.microsoft.com/fwlink/?Linkid=852157" -OutFile $Path\$Installer
-Write-Host "Installing VS Code..." -ForegroundColor Green
-Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode,addtopath,addcontextmenufiles,addcontextmenufolders,associatewithfiles" -Verb RunAs -Wait
-Remove-Item $Path\$Installer
-
 #Install docker
 $dockerUrl = "https://download.docker.com/win/stable/Docker for Windows Installer.exe" 
 $dockerInstaller = "docker-installer.exe"
@@ -170,6 +169,14 @@ Write-Host "Downloading $dockerUrl..." -ForegroundColor Green
 Invoke-Webrequest $dockerUrl -UseBasicParsing -OutFile $dockerInstallerPath
 Write-Host "Installing $dockerInstallerPath..." -ForegroundColor Green
 Start-Process $dockerInstallerPath -ArgumentList $dockerArgs -Verb RunAs -Wait
+
+#Launch Docker at Login
+$DockerPath = "C:\Program Files\Docker\Docker\Docker for Windows.exe"
+$ShortcutFile = "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\docker_for_windows.lnk"
+$WScriptShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+$Shortcut.TargetPath = $DockerFile
+$Shortcut.Save()
 
 #Install Hyper-V - required for Docker
 Write-Host "Installing Hyper-V..." -ForegroundColor Green
@@ -182,3 +189,4 @@ $group.Add("WinNT://$env:COMPUTERNAME/demouser,user")
 
 #Start Docker Service
 Start-Service Docker
+

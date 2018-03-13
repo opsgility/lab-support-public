@@ -23,7 +23,7 @@
     "customScriptUri1": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/linuxlabvmconfig.sh",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "imageSku": "16.04",
+    "imageSku": "16.04-LTS",
     "OSDiskName": "labvmosdisk",
     "nicName": "labvmnic",
     "addressPrefix": "10.0.0.0/16",

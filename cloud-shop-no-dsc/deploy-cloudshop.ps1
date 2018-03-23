@@ -16,7 +16,7 @@ $destinationPath = "C:\Inetpub\wwwroot\CloudShop.zip"
 $destinationFolder = "C:\Inetpub\wwwroot"
 
 
-
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 $WebClient = New-Object System.Net.WebClient
 $WebClient.DownloadFile($cloudShopUrl,$destinationPath)
 

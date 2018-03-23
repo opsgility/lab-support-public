@@ -28,7 +28,7 @@
       "metadata": {
         "description": "Zip that contains cloud shop sample"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/CloudShop.zip"
+      "defaultValue": "https://github.com/opsgility/lab-support-public/blob/master/cloud-shop-single-web-server/CloudShop.zip?raw=true"
     },
     "CloudShopDBDownloadUrl": {
       "type": "string",
@@ -42,7 +42,7 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-no-dsc/deploy-cloudshop.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-shop-single-web-server/deploy-cloudshop.ps1"
     },
     "CloudShopDBInstallscriptUrl": {
       "type": "string",
@@ -65,17 +65,9 @@
     },
     "SQLVMName": {
       "type": "string",
-      "defaultValue": "ContosoSQLSrv1",
+      "defaultValue": "SQLVM-1",
       "minLength": 1
-    },
-    "lbName": {
-      "type": "string",
-      "defaultValue": "OPSLB",
-      "metadata": {
-        "description": "Load Balancer name"
-      }
     }
-
   },
   "variables": {
     "VNETPrefix": "10.0.0.0/16",
@@ -96,9 +88,7 @@
     "SQLSKU": "Web",
     "SQLImagePublisher": "MicrosoftSQLServer",
     "SQLImageOffer": "SQL2014SP2-WS2012R2",
-    "WebAvailabilitySetName": "WebAVSet",
     "WebOSDiskName": "WebOSDisk",
-    "WebVM-2OSDiskName": "WebOSDisk2",
     "WebVmSize": "Standard_DS1_v2",
     "WebSubnetRef": "[concat(variables('VnetID'), '/subnets/', variables('VNETSubnet1Name'))]",
     "WebStorageAccountContainerName": "vhds",
@@ -109,33 +99,9 @@
     "SQLStorageAccountContainerName": "vhds",
     "SQLNicName": "[concat(parameters('SQLVMName'), 'NetworkInterface')]",
     "scriptFolder": ".",
-    "webipName": "webip",
-    "webip2Name": "webip2",
-    "lbipName": "cloushopip",
-    "sqlipName": "sqlip",
-    "avsetname": "WebAVSet",
-    "WebVM-2StorageAccountContainerName": "vhds",
-    "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbipName'))]",
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers',parameters('lbName'))]",
-    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerFrontEnd')]",
-    "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/BackendPool1')]",
-    "lbProbeID": "[concat(variables('lbID'),'/probes/httpProbe')]"
+    "webipName": "webip"
   },
   "resources": [
-    {
-      "apiVersion": "2016-04-30-preview",
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[variables('avsetname')]",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "WebAVSet"
-      },
-      "properties": {
-        "platformFaultDomainCount": "2",
-        "platformUpdateDomainCount": "2",
-        "managed": "false"
-      }
-    },
     {
       "name": "[variables('vmstorageName')]",
       "type": "Microsoft.Storage/storageAccounts",
@@ -231,8 +197,7 @@
       "apiVersion": "2016-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]",
-        "[concat('Microsoft.Network/loadBalancers/', parameters('lbName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
       ],
       "tags": {
         "displayName": "WebNic"
@@ -246,11 +211,6 @@
               "subnet": {
                 "id": "[variables('WebSubnetRef')]"
               },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID'), '/backendAddressPools/BackendPool1')]"
-                }
-              ],
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('webipName'))]"
               }
@@ -266,16 +226,12 @@
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('WebAvailabilitySetName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('WebNicName'))]"
       ],
       "tags": {
         "displayName": "WebVM-1"
       },
       "properties": {
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('WebAvailabilitySetName'))]"
-        },
         "hardwareProfile": {
           "vmSize": "[variables('WebVmSize')]"
         },
@@ -341,7 +297,6 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('SQLipName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('VNETNAME'))]"
       ],
       "tags": {
@@ -355,9 +310,6 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('SQLSubnetRef')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlipName'))]"
               }
             }
           }
@@ -447,107 +399,6 @@
       },
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    {
-      "name": "[variables('webip2Name')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "webip2"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    {
-      "name": "[variables('lbipName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "lbipName"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    {
-      "name": "[variables('sqlipName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [],
-      "tags": {
-        "displayName": "sqlip"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "name": "[parameters('lbName')]",
-      "type": "Microsoft.Network/loadBalancers",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('lbipName'))]"
-      ],
-      "tags": {
-        "displayName": "OPSLB"
-      },
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "LoadBalancerFrontEnd",
-            "properties": {
-              "publicIPAddress": {
-                "id": "[variables('publicIPAddressID')]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "BackendPool1"
-          }
-        ],
-        "loadBalancingRules": [
-          {
-            "name": "LBRule",
-            "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('frontEndIPConfigID')]"
-              },
-              "backendAddressPool": {
-                "id": "[variables('lbPoolID')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "enableFloatingIP": false,
-              "idleTimeoutInMinutes": 5,
-              "probe": {
-                "id": "[variables('lbProbeID')]"
-              }
-            }
-          }
-        ],
-        "probes": [
-          {
-            "name": "httpProbe",
-            "properties": {
-              "protocol": "Http",
-              "port": 80,
-              "intervalInSeconds": 5,
-              "numberOfProbes": 2,
-              "requestPath": "/"
-            }
-          }
-        ]
       }
     }
   ],

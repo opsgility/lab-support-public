@@ -1,31 +1,35 @@
-param($cloudShopUrl)
+param($user, $password, $dbsource, $sqlConfigUrl)
 
+$logs    = "C:\Logs"
+$data    = "C:\Data"
+$backups = "C:\Backup" 
+$script  = "C:\Script" 
 
+[system.io.directory]::CreateDirectory($logs)
+[system.io.directory]::CreateDirectory($data)
+[system.io.directory]::CreateDirectory($backups)
+[system.io.directory]::CreateDirectory($script)
+[system.io.directory]::CreateDirectory("C:\SQLDATA")
 
-add-WindowsFeature -Name "Web-Server" -IncludeAllSubFeature
-
-
-
-
-$splitpath = $cloudShopUrl.Split("/")
-
+$splitpath = $sqlConfigUrl.Split("/")
 $fileName = $splitpath[$splitpath.Length-1]
+$destinationPath = "$script\configure-sql.ps1"
+# Download config script
+(New-Object Net.WebClient).DownloadFile($sqlConfigUrl,$destinationPath);
 
-$destinationPath = "C:\Inetpub\wwwroot\CloudShop.zip"
+# Get the Adventure works database backup 
+$dbdestination = "C:\SQLDATA\AdventureWorks2012.bak"
+Invoke-WebRequest $dbsource -OutFile $dbdestination
 
-$destinationFolder = "C:\Inetpub\wwwroot"
+$password =  ConvertTo-SecureString "$password" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
 
+Enable-PSRemoting –force
+Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
+Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password
+Disable-PSRemoting -Force
 
-
-$WebClient = New-Object System.Net.WebClient
-$WebClient.DownloadFile($cloudShopUrl,$destinationPath)
-
-
-
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
-
-
-
+New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow 
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"

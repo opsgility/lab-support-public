@@ -23,9 +23,13 @@ $WebClient.DownloadFile($cloudShopUrl,$destinationPath)
 
 
 
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+#(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 
 
+
+
+
+Expand-Archive -LiteralPath $destinationPath -DestinationPath $destinationFolder -Force
 
 
 # Disable IE Enhanced Security Configuration

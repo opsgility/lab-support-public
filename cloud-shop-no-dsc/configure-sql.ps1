@@ -17,7 +17,7 @@ Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN s
 Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 'demo@pass123'"
 
 
-$mdf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorks2012_Data", "C:\Data\AdventureWorks2012.mdf")
+$mdf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorks2012", "C:\Data\AdventureWorks2012.mdf")
 $ldf = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile("AdventureWorks2012_Log", "C:\Logs\AdventureWorks2012.ldf")
 
 # Restore the database from the backup

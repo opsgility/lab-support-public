@@ -139,3 +139,9 @@ $Installer = "chrome_installer.exe"
 Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
+
+# Create a PowerShell ISE Shortcut on the Desktop
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:SystemDrive\Users\demouser\Desktop\PowerShell ISE.lnk")
+$Shortcut.TargetPath = "$env:windir\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe"
+$Shortcut.Save()

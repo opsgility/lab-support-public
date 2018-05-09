@@ -109,6 +109,11 @@ $HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
 New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
 Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
+# Fix CredSSP 
+$credSSPFix = "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\CredSSP\Parameters"
+Set-ItemProperty -Path $credSSPFixPath -Name "AllowEncryptionOracle" -Value 1
+
+
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"

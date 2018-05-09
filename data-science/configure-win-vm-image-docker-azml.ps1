@@ -139,8 +139,11 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 # INSTALL TAKES ABOUT 30 MINUTES
 $Path = "C:\Users\Default\Desktop"; 
 $Installer = "azure_ml_workbench.msi"
-Write-Host "Downloading Azure ML Workbench..." -ForegroundColor Green
-Invoke-WebRequest "https://aka.ms/azureml-wb-msi" -OutFile $Path\$Installer
+Write-Host "Downloading Azure ML Workbench..." -ForegroundColor Green 
+Invoke-WebRequest "http://opsgilitylabs.blob.core.windows.net/online-labs/deep-learning-with-neural-networks-and-cntk/AmlWorkbenchSetup.msi" -UseBasicParsing -OutFile $Path\$Installer
+# lastest version has a bug
+# Invoke-WebRequest "https://aka.ms/azureml-wb-msi" -OutFile $Path\$Installer 
+
 
 # Install Azure CLI
 $Path = $env:TEMP; 

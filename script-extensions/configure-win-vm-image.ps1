@@ -111,7 +111,7 @@ Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type
 
 # Fix CredSSP 
 $credSSPFix = "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\CredSSP\Parameters"
-Set-ItemProperty -Path $credSSPFixPath -Name "AllowEncryptionOracle" -Value 1
+Set-ItemProperty -Path $credSSPFixPath -Name "AllowEncryptionOracle" -Value 2
 
 
 if([String]::IsNullOrEmpty($labName) -eq $false){

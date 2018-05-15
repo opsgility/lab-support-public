@@ -21,6 +21,7 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 # Extract Zip 
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 
+
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
 $UserKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}"
@@ -87,6 +88,7 @@ $HKLM = "HKLM:\Software\Microsoft\Internet Explorer\Security"
 New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
+Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
 # Allow programmatic clipboard access
 $HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
@@ -99,13 +101,19 @@ $HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureCont
 New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
 
-# Turn off server manager on load
-$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
-New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 0 -PropertyType DWORD
-Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 0 -Type DWord
 
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+
+# Hide Server Manager
+$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
+New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -Type DWord
+
+# Hide Server Manager
+$HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
+New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
+Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
@@ -130,6 +138,13 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     # Copy shortcut to desktopgit
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
+
+# Install Chrome
+$Path = $env:TEMP; 
+$Installer = "chrome_installer.exe"
+Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
 
 #Open firewall
 New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 

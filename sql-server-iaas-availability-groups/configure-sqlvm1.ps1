@@ -76,6 +76,12 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 # Get the Student Files 
 # Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 
+# Install Chrome
+$Path = $env:TEMP; 
+$Installer = "chrome_installer.exe"
+Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
@@ -128,19 +134,16 @@ Disable-PSRemoting -Force
 
 #Join Domain
 $domCredential = New-Object System.Management.Automation.PSCredential("$domain\$user", $spassword)
-#Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
+Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
 
-Add-Computer -DomainName "$domain" -Credential $domCredential -Force
+#Add-Computer -DomainName "$domain" -Credential $domCredential -Force
 
 # Download RDP fix 
-$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4093120-x64_72c7d6ce20eb42c0df760cd13a917bbc1e57c0b7.msu"
-$output = "C:\OpsgilityTraining\windows10.0-kb4093120-x64_72c7d6ce20eb42c0df760cd13a917bbc1e57c0b7.msu"
+#$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4093120-x64_72c7d6ce20eb42c0df760cd13a917bbc1e57c0b7.msu"
+#$output = "C:\OpsgilityTraining\windows10.0-kb4093120-x64_72c7d6ce20eb42c0df760cd13a917bbc1e57c0b7.msu"
 
-if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
+#if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
 
-    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
-}
-Invoke-WebRequest -Uri $url -OutFile $output
-
-
-& wusa.exe C:\OpsgilityTraining\windows10.0-kb4093120-x64_72c7d6ce20eb42c0df760cd13a917bbc1e57c0b7.msu /quiet /forcerestart
+#    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
+#}
+#Invoke-WebRequest -Uri $url -OutFile $output

@@ -88,7 +88,7 @@
       "name": "[variables('ADVMNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2016-09-01",
       "dependsOn": [
           "[resourceId('Microsoft.Network/publicIPAddresses', variables('advmipName'))]"
       ],

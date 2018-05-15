@@ -171,7 +171,7 @@
       "name": "[variables('SQLVM-1NicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2016-09-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIPSQLVM1Name'))]"
       ],
@@ -289,7 +289,7 @@
       "name": "[variables('SQLVM-2NicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2016-09-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIPSQLVM2Name'))]"
       ],
@@ -407,7 +407,7 @@
       "name": "[variables('WitnessNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2016-09-01",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIPSQLVM2Name'))]"
       ],

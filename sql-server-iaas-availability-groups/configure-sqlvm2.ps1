@@ -112,20 +112,21 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 }
 Disable-PSRemoting -Force
 
+
 #Join Domain
 $domCredential = New-Object System.Management.Automation.PSCredential("$domain\$user", $spassword)
-#Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
+Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
 
-Add-Computer -DomainName "$domain" -Credential $domCredential -Force
+#Add-Computer -DomainName "$domain" -Credential $domCredential -Force
 
 # Download RDP fix 
-$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
-$output = "C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
+#$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
+#$output = "C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
 
-if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
+#if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
 
-    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
-}
-Invoke-WebRequest -Uri $url -OutFile $output
+#    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
+#}
+#Invoke-WebRequest -Uri $url -OutFile $output
 
-& wusa.exe C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu /quiet /forcerestart
+#& wusa.exe C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu /quiet /forcerestart

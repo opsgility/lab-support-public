@@ -126,7 +126,7 @@
     "SQLVM-2VmSize": "Standard_DS2_v2",
     "SQLVM-2NicName": "[concat(parameters('SQLVM-2Name'), 'NetworkInterface')]",
     "WitnessOSDiskName": "WitnessOSDisk",
-    "WitnessVmSize": "Standard_DS1_v2",
+    "WitnessVmSize": "Standard_DS2_v2",
     "WitnessNicName": "[concat(parameters('WitnessName'), 'NetworkInterface')]",
     "scriptFolder": ".",
     "ConfigSQLVM-1": "configure-sqlvm1.ps1",

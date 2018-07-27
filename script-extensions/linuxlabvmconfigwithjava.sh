@@ -1,9 +1,17 @@
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get update
+# install LXDE
 apt-get install lxde -y
+
+# update apt repo source to be able to get latest XRDP version
+add-apt-repository ppa:hermlnx/xrdp -y
+
+# install XRDP
+apt-get update
 apt-get install xrdp -y
 /etc/init.d/xrdp start
+
 
 #installing visual studio code which can be launched from accessories
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg

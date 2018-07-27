@@ -56,6 +56,13 @@ apt-get install -y oracle-java8-set-default
 apt-get update
 apt-get install -y maven
 
+#install NetBeans
+apt-get update
+apt-get install netbeans -y
+#add NetBeans to accessories menu
+wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/netbeans.desktop -O /usr/share/applications/netbeans.desktop
+chmod a+x /usr/share/applications/netbeans.desktop
+
 #download, extract, and create shorcut for Azure Storage Explorer
 mkdir /usr/share/storageexplorer
 wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz

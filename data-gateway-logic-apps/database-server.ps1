@@ -114,9 +114,6 @@ $HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
 New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
 Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
-Write-Error "Completed Windows Configurations"
-
-
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"
@@ -139,8 +136,6 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 }
 
-Write-Error "Lab player installed"
-
 # Get the Student Files 
 # Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 
@@ -150,25 +145,20 @@ $Installer = "chrome_installer.exe"
 Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
-Write-Error "Chrome Installed"
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 $dbsource = Join-Path $destinationFolder "AdventureWorks.bak"
-Write-Error "Database backup extracted"
 
 ### Create SQLDATA Directory
 New-Item -ItemType Directory -Force -Path C:\ -Name SQLDATA
-Write-Error "SQLDATA directory created."
         
 $spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)
-Write-Error "Credentials created."
 
 Enable-PSRemoting -Force
 Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $spassword -ScriptBlock { 
 
-        Write-Error "Start-setup mixed mode"
         # Setup mixed mode authentication
 		Import-Module "sqlps" -DisableNameChecking
 		[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")
@@ -176,7 +166,6 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$sqlesq.Settings.LoginMode = [Microsoft.SqlServer.Management.Smo.ServerLoginMode]::Mixed
 		$sqlesq.Alter() 
 
-        Write-Error "Start-enable tcp"
 		# Enable TCP Server Network Protocol
 		$smo = 'Microsoft.SqlServer.Management.Smo.'  
 		$wmi = new-object ($smo + 'Wmi.ManagedComputer').  
@@ -185,23 +174,21 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$Tcp.IsEnabled = $true  
 		$Tcp.Alter() 
 
-        Write-Error "Start-open firewall"
 	    # Open firewall for SQL 
 		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
 
-        Write-Error "Start-add local admins"
-		# Add local administrators group as sysadmin
+		# Add local administrators group as sysadmin and enable the sa account
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH CHECK_POLICY = OFF;"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 0x020008D1B59D2CB1EB3AB4EBAB18B006ADCCD98E406BE610800283295EBC568D3E153DA184D56C1073C557FDB13CE251137EFA0743E872C0C3EBD8A7A0EEA602A4D77E6926A7 HASHED;"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa ENABLE;"
 
-		Write-Error "Start-Restore backup"
         # Restore the database from the backup
-        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorks FROM DISK = 'C:\OpsgilityTraining\AdventureWorks.bak' WITH MOVE 'AdventureWorks_Data' TO 'C:\SQLDATA\AdventureWorks_Data.mdf', MOVE 'AdventureWorks_Log' TO 'C:\SQLDATA\AdventureWorks_Log.ldf'"
-		Write-Error "End-Restore backup"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorks FROM DISK = 'C:\OpsgilityTraining\AdventureWorks.bak' WITH RECOVERY;"
 
 }
 Disable-PSRemoting -Force
-Write-Error "PSRemoting complete"
 
 Set-MpPreference -DisableRealtimeMonitoring $false
 

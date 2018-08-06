@@ -1,4 +1,4 @@
-param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
+param($sourceFileUrl="", $destinationFolder="", $labName="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
 Set-MpPreference -DisableRealtimeMonitoring $true

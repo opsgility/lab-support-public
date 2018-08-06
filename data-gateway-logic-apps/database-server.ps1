@@ -1,6 +1,8 @@
 param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
+Set-MpPreference -DisableRealtimeMonitoring $true
+
 #put in an artificial wait to let things settle down before we start making changes
 Start-Sleep -s 240
 
@@ -200,4 +202,7 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 }
 Disable-PSRemoting -Force
 Write-Error "PSRemoting complete"
+
+Set-MpPreference -DisableRealtimeMonitoring $false
+
 

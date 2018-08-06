@@ -3,7 +3,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 
 # We do not need the StudentFiles on this machine so just download the Gateway installer
 # Note that this is the only customization in this script, everything else should be identical to the configure-win-vm-image.ps1 script
-$sourceFileUrl = "http://go.microsoft.com/fwlink/?LinkID=820931&clcid=0x409"
+$sourceFileUrl = "https://download.microsoft.com/download/D/A/1/DA1FDDB8-6DA8-4F50-B4D0-18019591E182/GatewayInstall.exe"
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {

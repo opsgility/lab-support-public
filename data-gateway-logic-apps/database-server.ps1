@@ -3,6 +3,16 @@ $ErrorActionPreference = 'SilentlyContinue'
 
 Set-MpPreference -DisableRealtimeMonitoring $true
 
+# This code block configures SQL Server to use instant file initialization. 
+# This makes all data file allocations much faster (read:database restores). 
+# This also makes the restore much more reliable as it was failing a lot with timeouts.
+
+$sqlaccount = "NT Service\MSSQLSERVER"
+secedit /export /cfg C:\secexport.txt /areas USER_RIGHTS
+$line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
+(Get-Content C:\secexport.txt).Replace($line,"$line,$sqlaccount") | Out-File C:\secimport.txt
+secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
+
 #put in an artificial wait to let things settle down before we start making changes
 Start-Sleep -s 240
 
@@ -183,6 +193,10 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH CHECK_POLICY = OFF;"
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 0x020008D1B59D2CB1EB3AB4EBAB18B006ADCCD98E406BE610800283295EBC568D3E153DA184D56C1073C557FDB13CE251137EFA0743E872C0C3EBD8A7A0EEA602A4D77E6926A7 HASHED;"
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa ENABLE;"
+        
+        # We need to restart SQL for the changes to take effect. Then we want to wait for SQL to get its life back together before we restore.
+        Restart-Service -DisplayName "SQL Server (MSSQLSERVER)" -Force
+        Start-Sleep -s 30
 
         # Restore the database from the backup
         Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorks FROM DISK = 'C:\OpsgilityTraining\AdventureWorks.bak' WITH RECOVERY;"

@@ -82,6 +82,10 @@ mkdir /usr/share/SFScripts
 git clone https://github.com/ChackDan/Service-Fabric.git /usr/share/SFScripts
 chmod -R a+rwxX /usr/share/SFScripts/Scripts/CertUpload4Linux/
 
+#update node.js
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
 #install the legacy azure cli for use with the SSL python helper scripts
 npm install azure-cli -g
 

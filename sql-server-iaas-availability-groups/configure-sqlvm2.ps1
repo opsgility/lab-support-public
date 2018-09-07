@@ -1,6 +1,19 @@
 param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
+Set-MpPreference -DisableRealtimeMonitoring $true
+
+# This code block configures SQL Server to use instant file initialization. 
+# This makes all data file allocations much faster (read:database restores). 
+# This also makes the restore much more reliable as it was failing a lot with timeouts.
+
+$sqlaccount = "NT Service\MSSQLSERVER"
+$localadmins = "BUILTIN\Administrators"
+secedit /export /cfg C:\secexport.txt /areas USER_RIGHTS
+$line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
+(Get-Content C:\secexport.txt).Replace($line,"$line,$sqlaccount,$localadmins") | Out-File C:\secimport.txt
+secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
+
 #put in an artificial wait to let things settle down before we start making changes
 Start-Sleep -s 240
 

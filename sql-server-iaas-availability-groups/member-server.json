@@ -115,7 +115,7 @@
     "imagePublisherWitness": "MicrosoftWindowsServer",
     "imageOfferWitness": "WindowsServer",
     "imagePublisherSQL": "MicrosoftSqlServer",
-    "imageOfferSQL": "SQL2016SP1-WS2016",
+    "imageOfferSQL": "SQL2016SP2-WS2016",
     "availabilitySetName": "SQLAvSet",
     "virtualNetworkName": "OpsTrainingVNET",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",

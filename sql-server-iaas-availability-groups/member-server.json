@@ -247,7 +247,7 @@
       },
       "resources": [
         {
-          "name": "ConfigSQL",
+          "name": "ConfigSQL1",
           "type": "extensions",
           "location": "[resourceGroup().location]",
           "apiVersion": "2016-03-30",
@@ -255,13 +255,13 @@
             "[resourceId('Microsoft.Compute/virtualMachines', parameters('SQLVM-1Name'))]"
           ],
           "tags": {
-            "displayName": "ConfigSQL"
+            "displayName": "ConfigSQL1"
           },
           "properties": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
+            "typeHandlerVersion": "1.8",
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
                 "[concat(parameters('SQLVM-1ScriptURL'))]"
@@ -365,7 +365,7 @@
       },
       "resources": [
         {
-          "name": "ConfigSQL",
+          "name": "ConfigSQL2",
           "type": "extensions",
           "location": "[resourceGroup().location]",
           "apiVersion": "2016-03-30",
@@ -373,13 +373,13 @@
             "[resourceId('Microsoft.Compute/virtualMachines', parameters('SQLVM-2Name'))]"
           ],
           "tags": {
-            "displayName": "ConfigSQL"
+            "displayName": "ConfigSQL2"
           },
           "properties": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
+            "typeHandlerVersion": "1.8",
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
                 "[concat(parameters('SQLVM-2ScriptURL'))]"
@@ -496,8 +496,8 @@
           "properties": {
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.4",
-            "autoUpgradeMinorVersion": true,
+            "typeHandlerVersion": "1.8",
+            "autoUpgradeMinorVersion": false,
             "settings": {
               "fileUris": [
                 "[concat(parameters('WitnessVmScriptURL'))]"

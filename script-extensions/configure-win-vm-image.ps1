@@ -135,6 +135,15 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
 
+# Install Azure CLI
+$Path = $env:TEMP; 
+$Installer = "cli_installer.msi"
+Write-Host "Downloading Azure CLI..." -ForegroundColor Green
+Invoke-WebRequest "https://aka.ms/InstallAzureCliWindows" -OutFile $Path\$Installer
+Write-Host "Installing Azure CLI from $Path\$Installer..." -ForegroundColor Green
+Start-Process -FilePath msiexec -Args "/i $Path\$Installer /quiet /qn /norestart" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
 # Install Chrome
 $Path = $env:TEMP; 
 $Installer = "chrome_installer.exe"

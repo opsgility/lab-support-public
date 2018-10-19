@@ -89,3 +89,11 @@ Enable-PSRemoting -Force
 Invoke-Command -FilePath $sqlConfigUrl -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList $dbsource
 
 Disable-PSRemoting -Force
+
+
+# Install Chrome
+$Path = $env:TEMP; 
+$Installer = "chrome_installer.exe"
+Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
+Remove-Item $Path\$Installer

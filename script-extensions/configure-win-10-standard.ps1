@@ -62,4 +62,3 @@ New-Item -ItemType Directory -Force -Path $allUsersDesktopPath
 $Shortcut = $WshShell.CreateShortcut("$allUsersDesktopPath\PowerShell ISE.lnk")
 $Shortcut.TargetPath = "$env:windir\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe"
 $Shortcut.Save()  
-}

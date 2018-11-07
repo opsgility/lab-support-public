@@ -1,4 +1,4 @@
-param($sourceFileUrl="", $destinationFolder="", $labName="", $installOptions="")
+param($sourceFileUrl="", $destinationFolder="", $labName="Ignored", $installOptions="Chrome")
 $ErrorActionPreference = 'SilentlyContinue'
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)

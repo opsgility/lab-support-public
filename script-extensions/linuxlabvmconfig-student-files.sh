@@ -27,6 +27,9 @@ apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
 apt-get install apt-transport-https -y
 apt-get update && sudo apt-get install azure-cli -y
 
+#annoying prompt on start
+apt-get remove clipit -y
+
 #install docker
 #to run the az cli container open terminal and use 'sudo docker run -it azuresdk/azure-cli-python:latest'
 apt-get install -y \

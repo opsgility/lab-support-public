@@ -1,17 +1,9 @@
 export DEBIAN_FRONTEND=noninteractive
 DOWNLOADURL=$1
 
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic main restricted"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates universe"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security main restricted"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security universe"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security multiverse"
+
 apt-get update
+apt-get upgrade
 
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get install lxde -y
@@ -23,7 +15,6 @@ sed -i 's/allowed_users=console/allowed_users=anybody/' /etc/X11/Xwrapper.config
 wget https://opsgilityweb.blob.core.windows.net/test/xsession
 mv xsession /home/demouser/.xsession
 
-apt-get install zip unzip -y
 
 #avoid annoying popup
 sudo apt-get remove clipit -y
@@ -31,6 +22,7 @@ sudo apt-get remove clipit -y
 if [ -z "${DOWNLOADURL}" ]; then
   echo "no download url for lab"
 else
+  apt-get install unzip -y
   echo "setting up student files"
   mkdir /usr/opsgilitytraining
   wget -P /usr/opsgilitytraining $DOWNLOADURL

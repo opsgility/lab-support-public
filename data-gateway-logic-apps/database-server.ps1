@@ -1,4 +1,4 @@
-param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
+param($sourceFileUrl="", $destinationFolder="", $labName="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
 Set-MpPreference -DisableRealtimeMonitoring $true
@@ -13,7 +13,6 @@ secedit /export /cfg C:\secexport.txt /areas USER_RIGHTS
 $line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
 (Get-Content C:\secexport.txt).Replace($line,"$line,$sqlaccount,$localadmins") | Out-File C:\secimport.txt
 secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
-
 #put in an artificial wait to let things settle down before we start making changes
 Start-Sleep -s 240
 
@@ -31,7 +30,6 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
-
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -100,6 +98,7 @@ New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -Prop
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+Write-Error "IE Enhanced Security Configuration (ESC) has been disabled." 
 
 # Allow programmatic clipboard access
 $HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
@@ -111,7 +110,6 @@ Set-ItemProperty -Path $HKCU -Name "1407" -Value 0
 $HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
 New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
-
 
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
@@ -146,9 +144,8 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-    # Copy shortcut to desktopgit
-    Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
+
 # Get the Student Files 
 # Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 
@@ -161,7 +158,7 @@ Remove-Item $Path\$Installer
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
-$dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
+$dbsource = Join-Path $destinationFolder "AdventureWorks.bak"
 
 ### Create SQLDATA Directory
 New-Item -ItemType Directory -Force -Path C:\ -Name SQLDATA
@@ -187,41 +184,26 @@ Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -Argument
 		$Tcp.IsEnabled = $true  
 		$Tcp.Alter() 
 
-	    # Open firewall for SQL and SQLAG and Load Balancer
+	    # Open firewall for SQL 
 		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound -Protocol TCP -LocalPort 59999 -Action allow 
 
-		# Add local administrators group as sysadmin
+		# Add local administrators group as sysadmin and enable the sa account
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
 		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH CHECK_POLICY = OFF;"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa WITH PASSWORD = 0x020008D1B59D2CB1EB3AB4EBAB18B006ADCCD98E406BE610800283295EBC568D3E153DA184D56C1073C557FDB13CE251137EFA0743E872C0C3EBD8A7A0EEA602A4D77E6926A7 HASHED;"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER LOGIN sa ENABLE;"
+        
+        # We need to restart SQL for the changes to take effect. Then we want to wait for SQL to get its life back together before we restore.
+        Restart-Service -DisplayName "SQL Server (MSSQLSERVER)" -Force
+        Start-Sleep -s 30
 
-		# Restore the database from the backup
-		#$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
-		#$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
-		#Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
-        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorksDW2016CTP3 FROM DISK = 'C:\OpsgilityTraining\AdventureWorksDW2016CTP3.bak' WITH MOVE 'AdventureWorksDW2014_Data' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Data.mdf', MOVE 'AdventureWorksDW2014_Log' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Log.ldf'"
+        # Restore the database from the backup
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorks FROM DISK = 'C:\OpsgilityTraining\AdventureWorks.bak' WITH RECOVERY;"
 
-		# Put the database into full recovery and run a backup (required for SQL AG)
-		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"
-		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 
 }
 Disable-PSRemoting -Force
 
-#Join Domain
-$domCredential = New-Object System.Management.Automation.PSCredential("$domain\$user", $spassword)
-Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
+Set-MpPreference -DisableRealtimeMonitoring $false
 
-#Add-Computer -DomainName "$domain" -Credential $domCredential -Force
 
-# Download RDP fix 
-#$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
-#$output = "C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
-
-#if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
-
-#    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
-#}
-#Invoke-WebRequest -Uri $url -OutFile $output
-
-#& wusa.exe C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu /quiet /forcerestart

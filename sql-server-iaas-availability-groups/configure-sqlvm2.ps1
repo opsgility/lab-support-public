@@ -1,23 +1,21 @@
 param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
 $ErrorActionPreference = 'SilentlyContinue'
 
+Set-MpPreference -DisableRealtimeMonitoring $true
+
+# This code block configures SQL Server to use instant file initialization. 
+# This makes all data file allocations much faster (read:database restores). 
+# This also makes the restore much more reliable as it was failing a lot with timeouts.
+
+$sqlaccount = "NT Service\MSSQLSERVER"
+$localadmins = "BUILTIN\Administrators"
+secedit /export /cfg C:\secexport.txt /areas USER_RIGHTS
+$line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
+(Get-Content C:\secexport.txt).Replace($line,"$line,$sqlaccount,$localadmins") | Out-File C:\secimport.txt
+secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
+
 #put in an artificial wait to let things settle down before we start making changes
 Start-Sleep -s 240
-
-if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
-{
-    if((Test-Path $destinationFolder) -eq $false)
-    {
-        New-Item -Path $destinationFolder -ItemType directory
-    }
-    $splitpath = $sourceFileUrl.Split("/")
-    $fileName = $splitpath[$splitpath.Length-1]
-    $destinationPath = Join-Path $destinationFolder $fileName
-
-    (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
-
-    (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
-}
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -44,12 +42,73 @@ $HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones
 $HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
 Set-ItemProperty -Path $HKLM -Name "1803" -Value 0
 Set-ItemProperty -Path $HKCU -Name "1803" -Value 0
+
+# Allow file downloads
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+Set-ItemProperty -Path $HKLM -Name "1807" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1807" -Value 0
+
+# allow websites to open windows without address or status bars 
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4"
+Set-ItemProperty -Path $HKLM -Name "2104" -Value 0
+Set-ItemProperty -Path $HKCU -Name "2104" -Value 0
+
 $HKLM = "HKLM:\Software\Microsoft\Internet Explorer\Security"
 New-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1 -PropertyType DWORD
 Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
+# Allow programmatic clipboard access
+$HKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+$HKCU = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+Set-ItemProperty -Path $HKLM -Name "1407" -Value 0
+Set-ItemProperty -Path $HKCU -Name "1407" -Value 0
+
+# Emulate IE 11 for web browser control
+$HKLM = "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"
+New-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "opsgility.exe" -Value 11001 -Type DWord
+
+
+Stop-Process -Name Explorer
+Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
+
+# Hide Server Manager
+$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
+New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -Type DWord
+
+# Hide Server Manager
+$HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
+New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
+Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
@@ -71,6 +130,8 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
 
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+    # Copy shortcut to desktopgit
+    Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
 
 # Install Chrome

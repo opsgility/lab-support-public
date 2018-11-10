@@ -1,4 +1,4 @@
-param($sourceFileUrl="", $destinationFolder="", $labName="Ignored",$installOptions="Chrome")
+param($sourceFileUrl="", $destinationFolder="", $labName="Ignored", $installOptions="Chrome")
 $ErrorActionPreference = 'SilentlyContinue'
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
@@ -15,6 +15,7 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
+
 
 if([string]::IsNullOrEmpty($installOptions) -eq $false) 
 {

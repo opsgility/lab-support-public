@@ -1,21 +1,9 @@
-param($sourceFileUrl="", $destinationFolder="", $labName="", $domain="", $user="", $password="")
+param($sourceFileUrl="", $destinationFolder="", $labName="")
 $ErrorActionPreference = 'SilentlyContinue'
 
-Set-MpPreference -DisableRealtimeMonitoring $true
-
-# This code block configures SQL Server to use instant file initialization. 
-# This makes all data file allocations much faster (read:database restores). 
-# This also makes the restore much more reliable as it was failing a lot with timeouts.
-
-$sqlaccount = "NT Service\MSSQLSERVER"
-$localadmins = "BUILTIN\Administrators"
-secedit /export /cfg C:\secexport.txt /areas USER_RIGHTS
-$line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
-(Get-Content C:\secexport.txt).Replace($line,"$line,$sqlaccount,$localadmins") | Out-File C:\secimport.txt
-secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
-
-#put in an artificial wait to let things settle down before we start making changes
-Start-Sleep -s 240
+# We do not need the StudentFiles on this machine so just download the Gateway installer
+# Note that this is the only customization in this script, everything else should be identical to the configure-win-vm-image.ps1 script
+$sourceFileUrl = "https://download.microsoft.com/download/D/A/1/DA1FDDB8-6DA8-4F50-B4D0-18019591E182/GatewayInstall.exe"
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
@@ -31,7 +19,6 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
-
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"
@@ -126,6 +113,8 @@ $HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
 New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
 Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
+
+
 if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"
@@ -149,8 +138,6 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     # Copy shortcut to desktopgit
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\Desktop"
 }
-# Get the Student Files 
-# Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 
 # Install Chrome
 $Path = $env:TEMP; 
@@ -159,69 +146,10 @@ Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
 
-### Extract Zip -- <<<comment this line out for uncompressed db files>>>
-Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
-$dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
-
-### Create SQLDATA Directory
-New-Item -ItemType Directory -Force -Path C:\ -Name SQLDATA
-        
-$spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
-$credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)
-
-Enable-PSRemoting -Force
-Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $spassword -ScriptBlock { 
-
-        # Setup mixed mode authentication
-		Import-Module "sqlps" -DisableNameChecking
-		[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")
-		$sqlesq = new-object ('Microsoft.SqlServer.Management.Smo.Server') Localhost
-		$sqlesq.Settings.LoginMode = [Microsoft.SqlServer.Management.Smo.ServerLoginMode]::Mixed
-		$sqlesq.Alter() 
-
-		# Enable TCP Server Network Protocol
-		$smo = 'Microsoft.SqlServer.Management.Smo.'  
-		$wmi = new-object ($smo + 'Wmi.ManagedComputer').  
-		$uri = "ManagedComputer[@Name='" + (get-item env:\computername).Value + "']/ServerInstance[@Name='MSSQLSERVER']/ServerProtocol[@Name='Tcp']"  
-		$Tcp = $wmi.GetSmoObject($uri)  
-		$Tcp.IsEnabled = $true  
-		$Tcp.Alter() 
-
-	    # Open firewall for SQL and SQLAG and Load Balancer
-		New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound -Protocol TCP -LocalPort 1433 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Endpoint" -Direction Inbound -Protocol TCP -LocalPort 5022 -Action allow 
-		New-NetFirewallRule -DisplayName "SQL AG Load Balancer Probe Port" -Direction Inbound -Protocol TCP -LocalPort 59999 -Action allow 
-
-		# Add local administrators group as sysadmin
-		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "CREATE LOGIN [BUILTIN\Administrators] FROM WINDOWS"
-		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER SERVER ROLE sysadmin ADD MEMBER [BUILTIN\Administrators]"
-
-		# Restore the database from the backup
-		#$mdf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Data", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Data.mdf"
-		#$ldf = New-Object 'Microsoft.SqlServer.Management.Smo.RelocateFile, Microsoft.SqlServer.SmoExtended, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -ArgumentList "AdventureWorksDW2014_Log", "C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\AdventureWorksDW2014_Log.ldf"
-		#Restore-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 -BackupFile $dbsource -RelocateFile @($mdf,$ldf) -ReplaceDatabase 
-        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE AdventureWorksDW2016CTP3 FROM DISK = 'C:\OpsgilityTraining\AdventureWorksDW2016CTP3.bak' WITH MOVE 'AdventureWorksDW2014_Data' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Data.mdf', MOVE 'AdventureWorksDW2014_Log' TO 'C:\SQLDATA\AdventureWorksDW2016CTP3_Log.ldf'"
-
-		# Put the database into full recovery and run a backup (required for SQL AG)
-		Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "ALTER DATABASE AdventureWorksDW2016CTP3 SET RECOVERY FULL"
-		Backup-SqlDatabase -ServerInstance Localhost -Database AdventureWorksDW2016CTP3 
-}
-Disable-PSRemoting -Force
-
-#Join Domain
-$domCredential = New-Object System.Management.Automation.PSCredential("$domain\$user", $spassword)
-Add-Computer -DomainName "$domain" -Credential $domCredential -Restart -Force
-
-#Add-Computer -DomainName "$domain" -Credential $domCredential -Force
-
-# Download RDP fix 
-#$url = "https://opsgilitylabs.blob.core.windows.net/rdp-fix/windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
-#$output = "C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu"
-
-#if((Test-Path -Path "C:\OpsgilityTraining") -eq $false) {
-
-#    New-Item -Path "C:\OpsgilityTraining" -ItemType Directory
-#}
-#Invoke-WebRequest -Uri $url -OutFile $output
-
-#& wusa.exe C:\OpsgilityTraining\windows10.0-kb4103723-x64_2adf2ea2d09b3052d241c40ba55e89741121e07e.msu /quiet /forcerestart
+# Create a PowerShell ISE Shortcut on the Desktop
+$WshShell = New-Object -ComObject WScript.Shell
+$allUsersDesktopPath = "$env:SystemDrive\Users\Public\Desktop"
+New-Item -ItemType Directory -Force -Path $allUsersDesktopPath
+$Shortcut = $WshShell.CreateShortcut("$allUsersDesktopPath\PowerShell ISE.lnk")
+$Shortcut.TargetPath = "$env:windir\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe"
+$Shortcut.Save()  

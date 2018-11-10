@@ -63,9 +63,25 @@ apt-get install netbeans -y
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/netbeans.desktop -O /usr/share/applications/netbeans.desktop
 chmod a+x /usr/share/applications/netbeans.desktop
 
+#install .net 2.0 to properly support storage explorer, the below actually just installs the whole .NET SDK which includes the runtime
+wget -q https://packages.microsoft.com/config/ubuntu/16.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install dotnet-hosting-2.0.9 -y
+
 #download, extract, and create shorcut for Azure Storage Explorer
 mkdir /usr/share/storageexplorer
 wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz
 tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
 wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
 chmod a+x /usr/share/applications/storageexplorer.desktop
+
+#copy the student files to the VM
+mkdir /usr/share/labfiles
+wget http://opsgilitylabs.blob.core.windows.net/online-labs/introduction-to-azure-cosmosdb-sql-api-using-java/StudentFiles.zip -O /usr/share/labfiles/StudentFiles.zip
+#extract the .zip files into directories
+unzip /usr/share/labfiles/StudentFiles.zip -d /usr/share/labfiles
+#clean up .zip files
+rm /usr/share/labfiles/StudentFiles.zip
+#set permissions on the labfiles directory
+chmod -R a+rwxX /usr/share/labfiles/

@@ -13,6 +13,8 @@ mv xsession /home/demouser/.xsession
 
 apt-get install zip unzip -y
 
+#avoid annoying popup
+sudo apt-get remove clipit -y
 
 if [ -z "${DOWNLOADURL}" ]; then
   echo "no download url for lab"

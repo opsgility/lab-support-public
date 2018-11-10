@@ -1,19 +1,6 @@
 export DEBIAN_FRONTEND=noninteractive
 DOWNLOADURL=$1
 
-
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic main restricted"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
-sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates universe"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse"
-#sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security main restricted"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security universe"
-#sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu bionic-security multiverse"
-apt-get update
-
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get install lxde -y
 apt-get install xrdp -y

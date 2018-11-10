@@ -1,6 +1,7 @@
 export DEBIAN_FRONTEND=noninteractive
 DOWNLOADURL=$1
 
+apt-get update
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get install lxde -y
 apt-get install xrdp -y
@@ -20,7 +21,7 @@ else
   echo "setting up student files"
   mkdir /usr/opsgilitytraining
   wget -P /usr/opsgilitytraining $DOWNLOADURL
-  tar -xvf /usr/opsgilitytraining/StudentFiles.zip -C /usr/opsgilitytraining
+  unzip /usr/opsgilitytraining/StudentFiles.zip -d /usr/opsgilitytraining
   chmod -R 775 /usr/opsgilitytraining
   chown -R demouser /usr/opsgilitytraining
 fi

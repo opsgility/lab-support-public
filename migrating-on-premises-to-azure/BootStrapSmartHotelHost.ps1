@@ -35,13 +35,18 @@ Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type
 # Download resources
 $opsDir = "C:\OpsgilityTraining"
 
-if((Test-Path $opsDir) -eq $false)
+if ((Test-Path $opsDir) -eq $false)
 {
     New-Item -Path $opsDir -ItemType directory
     New-Item -Path "$opsDir\Download" -ItemType directory
 }
 
-cd $opsDir
+if ((Test-Path "$opsDir\Download") -eq $false)
+{
+    New-Item -Path "$opsDir\Download" -ItemType directory
+}
+
+Set-Location $opsDir
 $urlWindows2016 = "https://software-download.microsoft.com/download/pr/Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO"
 $urlWindows2012R2 = "http://download.microsoft.com/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO"
 $urlSQL = "https://go.microsoft.com/fwlink/?LinkID=853015"

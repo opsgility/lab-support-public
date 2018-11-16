@@ -95,4 +95,24 @@ $outputCentOS7DVD = "$opsDir\Download\CentOS-7-x86_64-DVD-1804.iso"
 Import-Module BitsTransfer
 Start-BitsTransfer -Source $urlCentOS7DVD -Destination $outputCentOS7DVD
 
+$urlrhel6DVD = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-hyperv-linux-vm-to-azure/rhel-server-6.10-x86_64-dvd.iso"
+
+$outputrhel6DVD = "$opsDir\Download\rhel-server-6.10-x86_64-dvd.iso"
+
+
+Import-Module BitsTransfer
+
+Start-BitsTransfer -Source $urlrhel6DVD -Destination $outputrhel6DVD
+
+
+
+$urlrhel7DVD = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-hyperv-linux-vm-to-azure/rhel-server-7.6-x86_64-dvd.iso"
+
+$outputrhel7DVD = "$opsDir\Download\rhel-server-7.6-x86_64-dvd.iso"
+
+Import-Module BitsTransfer
+
+Start-BitsTransfer -Source $urlrhel7DVD -Destination $outputrhel7DVD
+
+
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

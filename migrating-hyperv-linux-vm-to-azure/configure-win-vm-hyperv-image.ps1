@@ -92,7 +92,7 @@ if ((Test-Path "$opsDir\Download") -eq $false)
 Import-Module BitsTransfer
 
 # Download CentOS
-$urlCentOS7DVD = "http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1804.iso"
+$urlCentOS7DVD = "http://centos.mirror.lstn.net/7.5.1804/isos/x86_64/CentOS-7-x86_64-DVD-1804.iso"
 $outputCentOS7DVD = "$opsDir\Download\CentOS-7-x86_64-DVD-1804.iso"
 Start-BitsTransfer -Source $urlCentOS7DVD -Destination $outputCentOS7DVD
 

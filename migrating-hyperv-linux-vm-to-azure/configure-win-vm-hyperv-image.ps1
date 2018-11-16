@@ -31,11 +31,9 @@ $HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
 New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
 Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
-if([string]::IsNullOrEmpty($installOptions) -eq $false) 
+if ([string]::IsNullOrEmpty($installOptions) -eq $false) 
 {
-
-
-    if($installOptions.Contains("Chrome")) 
+    if ($installOptions.Contains("Chrome")) 
     {
         # Install Chrome
         $Path = $env:TEMP; 
@@ -45,7 +43,7 @@ if([string]::IsNullOrEmpty($installOptions) -eq $false)
         Remove-Item $Path\$Installer
     }
 
-    if($installOptions.Contains("VSCode")) 
+    if ($installOptions.Contains("VSCode")) 
     {
         # Install VS Code
         $Path = $env:TEMP; 
@@ -55,7 +53,7 @@ if([string]::IsNullOrEmpty($installOptions) -eq $false)
         Remove-Item $Path\$Installer
     }
 
-    if($installOptions.Contains("CLI")) 
+    if ($installOptions.Contains("CLI")) 
     {
         # Install Azure CLI 2
         $Path = $env:TEMP; 
@@ -76,5 +74,25 @@ New-Item -ItemType Directory -Force -Path $allUsersDesktopPath
 $Shortcut = $WshShell.CreateShortcut("$allUsersDesktopPath\PowerShell ISE.lnk")
 $Shortcut.TargetPath = "$env:windir\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe"
 $Shortcut.Save()  
+
+# Download resources
+$opsDir = "C:\OpsgilityTraining"
+
+if ((Test-Path $opsDir) -eq $false)
+{
+    New-Item -Path $opsDir -ItemType directory
+    New-Item -Path "$opsDir\Download" -ItemType directory
+}
+
+if ((Test-Path "$opsDir\Download") -eq $false)
+{
+    New-Item -Path "$opsDir\Download" -ItemType directory
+}
+
+$urlCentOS7DVD = "http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1804.iso"
+$outputCentOS7DVD = "$opsDir\Download\CentOS-7-x86_64-DVD-1804.iso"
+
+Import-Module BitsTransfer
+Start-BitsTransfer -Source $urlCentOS7DVD -Destination $outputCentOS7DVD
 
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

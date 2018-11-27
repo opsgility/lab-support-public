@@ -77,4 +77,8 @@ Initialize-Disk -Number $disk.DiskNumber -PartitionStyle GPT
 New-Partition -DiskNumber $disk.DiskNumber -UseMaximumSize -DriveLetter F
 Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 
+$RunOnceKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe -executionPolicy Unrestricted -File ' + "C:\OpsgilityTraining\PostRebootConfigure.ps1")
+
+
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

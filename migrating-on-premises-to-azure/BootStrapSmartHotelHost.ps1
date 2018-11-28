@@ -80,16 +80,55 @@ Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 $RunOnceKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe -executionPolicy Unrestricted -File ' + "C:\OpsgilityTraining\PostRebootConfigure.ps1")
 
-$urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelWeb1.vhdx"
-$urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelWeb2.vhdx"
-$urlsmarthotelSQL1 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelSQL1.vhdx"
+$urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb1.zip"
+$urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb2.zip"
+$urlsmarthotelSQL1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelSQL1.zip"
+
+if ((Test-Path "D:\Temp") -eq $false)
+{
+    New-Item -Path "D:\Temp" -ItemType directory
+}
+
+$job1 = Start-BitsTransfer -Source $urlsmarthotelweb1 -Destination "D:\Temp" -Asynchronous
+$job2 = Start-BitsTransfer -Source $urlsmarthotelweb2 -Destination "D:\Temp" -Asynchronous
+$job3 = Start-BitsTransfer -Source $urlsmarthotelSQL1 -Destination "D:\Temp" -Asynchronous
+
+$jobs = Get-BitsTransfer
+while($true) {
+    $complete = $true
+    foreach($job in $jobs) {
+        if($job.JobState -ne "Transferred") {
+            Start-Sleep -Seconds 2
+            $complete = $false
+        }
+    }
+
+    if($complete -eq $true)
+    {
+      break
+    }
+    $jobs = Get-BitsTransfer
+
+}
+
+
 
 if ((Test-Path "F:\VirtualMachines") -eq $false)
 {
     New-Item -Path "F:\VirtualMachines" -ItemType directory
 }
-Start-BitsTransfer -Source $urlsmarthotelweb1 -Destination "F:\VirtualMachines"
-Start-BitsTransfer -Source $urlsmarthotelweb2 -Destination "F:\VirtualMachines"
-Start-BitsTransfer -Source $urlsmarthotelSQL1 -Destination "F:\VirtualMachines"
+
+$BackUpPath = "D:\SmartHotelWeb1.zip"
+$Destination = "F:\VirtualMachines\"
+
+Add-Type -assembly "system.io.compression.filesystem"
+
+[io.compression.zipfile]::ExtractToDirectory($BackUpPath, $destination)
+
+
+(new-object -com shell.application).namespace("F:\VirtualMachines").CopyHere((new-object -com shell.application).namespace("D:\SmartHotelWeb1.zip").Items(),16)
+(new-object -com shell.application).namespace("F:\VirtualMachines").CopyHere((new-object -com shell.application).namespace("D:\SmartHotelWeb2.zip").Items(),16)
+(new-object -com shell.application).namespace("F:\VirtualMachines").CopyHere((new-object -com shell.application).namespace("D:\SmartHotelSQL1.zip").Items(),16)
+
 
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

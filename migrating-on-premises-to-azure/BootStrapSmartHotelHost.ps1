@@ -80,5 +80,16 @@ Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 $RunOnceKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe -executionPolicy Unrestricted -File ' + "C:\OpsgilityTraining\PostRebootConfigure.ps1")
 
+$urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelWeb1.vhdx"
+$urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelWeb2.vhdx"
+$urlsmarthotelSQL1 = "https://opsgilitylabs.blob.core.windows.net/online-labs/migrating-on-premises-to-azure/SmartHotelSQL1.vhdx"
+
+if ((Test-Path "F:\VirtualMachines") -eq $false)
+{
+    New-Item -Path "F:\VirtualMachines" -ItemType directory
+}
+Start-BitsTransfer -Source $urlsmarthotelweb1 -Destination "F:\VirtualMachines"
+Start-BitsTransfer -Source $urlsmarthotelweb2 -Destination "F:\VirtualMachines"
+Start-BitsTransfer -Source $urlsmarthotelSQL1 -Destination "F:\VirtualMachines"
 
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart

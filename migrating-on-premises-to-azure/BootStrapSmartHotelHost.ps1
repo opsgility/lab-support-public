@@ -89,16 +89,17 @@ if ((Test-Path "D:\Temp") -eq $false)
     New-Item -Path "D:\Temp" -ItemType directory
 }
 
-$job1 = Start-BitsTransfer -Source $urlsmarthotelweb1 -Destination "D:\Temp" -Asynchronous
-$job2 = Start-BitsTransfer -Source $urlsmarthotelweb2 -Destination "D:\Temp" -Asynchronous
-$job3 = Start-BitsTransfer -Source $urlsmarthotelSQL1 -Destination "D:\Temp" -Asynchronous
+$job1 = Start-BitsTransfer -Source $urlsmarthotelweb1 -Destination "D:\SmartHotelWeb1.zip" -Asynchronous
+$job2 = Start-BitsTransfer -Source $urlsmarthotelweb2 -Destination "D:\SmartHotelWeb2.zip" -Asynchronous
+$job3 = Start-BitsTransfer -Source $urlsmarthotelSQL1 -Destination "D:\SmartHotelSQL1.zip" -Asynchronous
 
 $jobs = Get-BitsTransfer
 while($true) {
     $complete = $true
     foreach($job in $jobs) {
+        Write-Output "Status: " $job.JobState
         if($job.JobState -ne "Transferred") {
-            Start-Sleep -Seconds 2
+            Start-Sleep -Seconds 5
             $complete = $false
         }
     }

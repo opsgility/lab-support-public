@@ -77,6 +77,8 @@ Initialize-Disk -Number $disk.DiskNumber -PartitionStyle GPT
 New-Partition -DiskNumber $disk.DiskNumber -UseMaximumSize -DriveLetter F
 Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 
+$RunOnceKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe -executionPolicy Unrestricted -File ' + "C:\OpsgilityTraining\PostRebootConfigure.ps1")
 
 $urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb1.zip"
 $urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb2.zip"
@@ -112,7 +114,7 @@ while($true) {
 
 Complete-BitsTransfer -BitsJob $job1
 Complete-BitsTransfer -BitsJob $job2
-Complete-BitsTransfer -BitsJob $job3
+Complete-BitsTransfer -BitsJob $job
 
 
 
@@ -123,6 +125,11 @@ if ((Test-Path "F:\VirtualMachines") -eq $false)
 
 $BackUpPath = "D:\SmartHotelWeb1.zip"
 $Destination = "F:\VirtualMachines\"
+
+Add-Type -assembly "system.io.compression.filesystem"
+
+[io.compression.zipfile]::ExtractToDirectory($BackUpPath, $destination)
+
 
 (new-object -com shell.application).namespace("F:\VirtualMachines").CopyHere((new-object -com shell.application).namespace("D:\SmartHotelWeb1.zip").Items(),16)
 (new-object -com shell.application).namespace("F:\VirtualMachines").CopyHere((new-object -com shell.application).namespace("D:\SmartHotelWeb2.zip").Items(),16)

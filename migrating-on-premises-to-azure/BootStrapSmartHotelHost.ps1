@@ -53,21 +53,24 @@ if ((Test-Path "$opsDir\Download") -eq $false)
 }
 
 Set-Location $opsDir
+
+<#
 $urlWindows2016 = "https://software-download.microsoft.com/download/pr/Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO"
 $urlWindows2012R2 = "http://download.microsoft.com/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO"
 $urlSQL = "https://go.microsoft.com/fwlink/?LinkID=853015"
-$urlSSMS = "https://go.microsoft.com/fwlink/?linkid=2014306"
-$urlDMA = "https://download.microsoft.com/download/C/6/3/C63D8695-CEF2-43C3-AF0A-4989507E429B/DataMigrationAssistant.msi"
 $outputWindows2016 = "$opsDir\Download\Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO"
 $outputWindows2012R2 = "$opsDir\Download\9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO"
 $outputSQL = "$opsDir\Download\SQLServer2017-SSEI-Eval.exe"
+#>
+$urlSSMS = "https://go.microsoft.com/fwlink/?linkid=2014306"
+$urlDMA = "https://download.microsoft.com/download/C/6/3/C63D8695-CEF2-43C3-AF0A-4989507E429B/DataMigrationAssistant.msi"
 $outputSSMS = "$opsDir\Download\SSMS-Setup-ENU.exe"
 $outputDMA = "$opsDir\Download\DataMigrationAssistant.msi"
 
 Import-Module BitsTransfer
-Start-BitsTransfer -Source $urlWindows2016 -Destination $outputWindows2016
-Start-BitsTransfer -Source $urlWindows2012R2 -Destination $outputWindows2012R2
-Start-BitsTransfer -Source $urlSQL -Destination $outputSQL
+#Start-BitsTransfer -Source $urlWindows2016 -Destination $outputWindows2016
+#Start-BitsTransfer -Source $urlWindows2012R2 -Destination $outputWindows2012R2
+#Start-BitsTransfer -Source $urlSQL -Destination $outputSQL
 Start-BitsTransfer -Source $urlSSMS -Destination $outputSSMS
 Start-BitsTransfer -Source $urlDMA -Destination $outputDMA
 

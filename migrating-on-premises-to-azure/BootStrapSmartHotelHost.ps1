@@ -1,4 +1,4 @@
-param($sourceFileUrl="", $destinationFolder="")
+param($sourceFileUrl="", $destinationFolder="", $region="")
 $ErrorActionPreference = 'SilentlyContinue'
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
@@ -85,11 +85,53 @@ $RunOnceKey = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
 set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe -executionPolicy Unrestricted -File ' + "C:\OpsgilityTraining\PostRebootConfigure.ps1")
 
 
+switch($region)
+{
 
-$urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb1.zip"
-$urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb2.zip"
-$urlsmarthotelSQL1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    "WestUS"
+    {
+        $urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "EastUS"
+    {
+        $urlsmarthotelweb1 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "SouthCentralUS"
+    {
+        $urlsmarthotelweb1 = "https://opslabssouthcentral.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabssouthcentral.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabssouthcentral.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "NorthEurope"
+    {
+        $urlsmarthotelweb1 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "WestEurope"
+    {
+        $urlsmarthotelweb1 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabsnortheurope.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "AustraliaEast"
+    {
+        $urlsmarthotelweb1 = "https://opslabsaustraliaeast.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabsaustraliaeast.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabsaustraliaeast.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
+    "EastAsia"
+    {
+        $urlsmarthotelweb1 = "https://opslabseastasia.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabseastasia.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabseastasia.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
 
+}
 if ((Test-Path "D:\Temp") -eq $false)
 {
     New-Item -Path "D:\Temp" -ItemType directory

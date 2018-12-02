@@ -132,6 +132,8 @@ switch($region)
     }
 
 }
+
+
 if ((Test-Path "D:\Temp") -eq $false)
 {
     New-Item -Path "D:\Temp" -ItemType directory

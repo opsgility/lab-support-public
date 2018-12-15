@@ -2,8 +2,8 @@ export DEBIAN_FRONTEND=noninteractive
 DOWNLOADURL=$1
 
 
-apt-get update
-apt-get upgrade
+apt-get update -y
+apt-get upgrade -y
 
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get install lxde -y
@@ -37,8 +37,8 @@ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microso
 mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
 sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 sed -i 's/BIG-REQUESTS/_IG-REQUESTS/' /usr/lib/x86_64-linux-gnu/libxcb.so.1
-apt-get update
-apt-get install code
+apt-get update -y
+apt-get install code -y
 
 #download, extract, and create shorcut for Azure Storage Explorer
 mkdir /usr/share/storageexplorer

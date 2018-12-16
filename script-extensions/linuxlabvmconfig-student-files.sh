@@ -1,8 +1,8 @@
 export DEBIAN_FRONTEND=noninteractive
 DOWNLOADURL=$1
 
-apt-get update
-apt-get upgrade
+apt-get update -y
+apt-get upgrade -y
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
 apt-get install lxde -y
 apt-get install xrdp -y
@@ -19,8 +19,8 @@ sudo apt-get remove clipit -y
 if [ -z "${DOWNLOADURL}" ]; then
   echo "no download url for lab"
 else
-  echo "setting up student files"
-  apt-get install unzip
+  echo "setting up student files" 
+  apt-get install unzip -y
   mkdir /usr/opsgilitytraining
   wget -P /usr/opsgilitytraining $DOWNLOADURL
   unzip /usr/opsgilitytraining/StudentFiles.zip -d /usr/opsgilitytraining

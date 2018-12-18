@@ -1,6 +1,6 @@
 export DEBIAN_FRONTEND=noninteractive
 #Install LXDE lxde.org and xrdp - (make sure to open 3389 on the NSG of the azure vm)
-apt-get update
+apt-get update -y
 apt-get install lxde -y
 apt-get install xrdp -y
 /etc/init.d/xrdp start
@@ -10,8 +10,8 @@ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microso
 mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
 sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 sed -i 's/BIG-REQUESTS/_IG-REQUESTS/' /usr/lib/x86_64-linux-gnu/libxcb.so.1
-apt-get update
-apt-get install code
+apt-get update -y
+apt-get install code -y
 
 #Prepare XWindows System
 wget https://opsgilityweb.blob.core.windows.net/test/xsession
@@ -32,21 +32,21 @@ apt-get install -y \
     software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
-apt-get update
+apt-get update -y
 apt-get install -y docker-ce
 
 #download and install the Java JDK
 #the azure java SDK will install openjdk if this isn't present,
 #but this is the 'official' version
 add-apt-repository ppa:webupd8team/java
-apt-get update
+apt-get update -y
 echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | \
     /usr/bin/debconf-set-selections
 apt-get install -y oracle-java8-installer
 apt-get install -y oracle-java8-set-default
 
 #download and install maven
-apt-get update
+apt-get update -y
 apt-get install -y maven
 
 #download, extract, and create shorcut for Azure Storage Explorer
@@ -64,7 +64,7 @@ apt-get update
 #download and install Azure Service Fabric and DotNet Core tools
 sh -c 'echo "deb [arch=amd64] http://apt-mo.trafficmanager.net/repos/servicefabric/ trusty main" > /etc/apt/sources.list.d/servicefabric.list'
 apt-key adv --keyserver apt-mo.trafficmanager.net --recv-keys 417A0893
-apt-get update
+apt-get update -y
 echo "servicefabric servicefabric/accepted-eula-v1 select true" | debconf-set-selections
 echo "servicefabricsdkcommon servicefabricsdkcommon/accepted-eula-v1 select true" | debconf-set-selections
 apt-get install -y servicefabricsdkcommon

@@ -33,16 +33,17 @@ fi
 
 
 #installing visual studio code which can be launched from accessories
-curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
-sed -i 's/BIG-REQUESTS/_IG-REQUESTS/' /usr/lib/x86_64-linux-gnu/libxcb.so.1
-apt-get update -y
-apt-get install code -y
+wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
 
-#download, extract, and create shorcut for Azure Storage Explorer
-mkdir /usr/share/storageexplorer
-wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz
-tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
-wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
-chmod a+x /usr/share/applications/storageexplorer.desktop
+sudo add-apt-repository universe 
+sudo apt-get install apt-transport-https -y
+
+sudo apt-get update -y
+sudo apt-get install dotnet-sdk-2.2 -y
+
+sudo mkdir /usr/share/storageexplorer
+sudo wget https://go.microsoft.com/fwlink/?LinkId=722418 -O /usr/share/storageexplorer/StorageExplorer.tar.gz
+sudo tar -xvzf /usr/share/storageexplorer/StorageExplorer.tar.gz -C /usr/share/storageexplorer
+sudo wget https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/storageexplorer.desktop -O /usr/share/applications/storageexplorer.desktop
+sudo chmod a+x /usr/share/applications/storageexplorer.desktop

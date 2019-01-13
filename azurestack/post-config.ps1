@@ -3,7 +3,7 @@ Param (
     [string]
     $Username = "__administrator"
 )
-
+$ErrorActionPreference = 'SilentlyContinue'
 function DownloadWithRetry([string] $Uri, [string] $DownloadLocation, [int] $Retries = 5, [int]$RetryInterval = 10)
 {
     while($true)

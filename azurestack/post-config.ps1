@@ -1,19 +1,7 @@
 Param (
-    #[Parameter(Mandatory=$true)]
-    #[string]
-    #$Username = "__administrator",
-
-    [switch]
-    $EnableDownloadASDK,
-    
-    [switch]
-    $AzureImage,
-
-    [switch]
-    $ASDKImage,
-
+    [Parameter(Mandatory=$true)]
     [string]
-    $AutoDownloadASDK
+    $Username = "__administrator"
 )
 
 function DownloadWithRetry([string] $Uri, [string] $DownloadLocation, [int] $Retries = 5, [int]$RetryInterval = 10)
@@ -91,48 +79,48 @@ New-Item -Path 'HKLM:\Software\Policies\Microsoft\Windows\CurrentVersion\Interne
 New-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3' -Name 1803 -Value 0 -PropertyType DWORD -Force
 New-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\0' -Name 1803 -Value 0 -PropertyType DWORD -Force
 
-if ($ASDKImage)
-{
-    # Rename-LocalUser -Name Administrator -NewName $username
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\AAD_Install-ASDK.lnk")
-    $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $Shortcut.WorkingDirectory = "$defaultLocalPath"
-    $Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -DeploymentType AAD -SkipWorkaround}"
-    $Shortcut.Save()
 
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\ADFS_Install-ASDK.lnk")
-    $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $Shortcut.WorkingDirectory = "$defaultLocalPath"
-    $Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -DeploymentType ADFS -SkipWorkaround}"
-    $Shortcut.Save()
+Rename-LocalUser -Name Administrator -NewName $username
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\AAD_Install-ASDK.lnk")
+$Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+$Shortcut.WorkingDirectory = "$defaultLocalPath"
+$Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -DeploymentType AAD -SkipWorkaround}"
+$Shortcut.Save()
 
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\Install-ASDK.lnk")
-    $Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    $Shortcut.WorkingDirectory = "$defaultLocalPath"
-    $Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -SkipWorkaround}"
-    $Shortcut.Save()
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\ADFS_Install-ASDK.lnk")
+$Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+$Shortcut.WorkingDirectory = "$defaultLocalPath"
+$Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -DeploymentType ADFS -SkipWorkaround}"
+$Shortcut.Save()
 
-    $size = Get-Volume -DriveLetter c | Get-PartitionSupportedSize
-    Resize-Partition -DriveLetter c -Size $size.sizemax
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:ALLUSERSPROFILE\Desktop\Install-ASDK.lnk")
+$Shortcut.TargetPath = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+$Shortcut.WorkingDirectory = "$defaultLocalPath"
+$Shortcut.Arguments = "-Noexit -command & {.\Install-ASDK.ps1 -SkipWorkaround}"
+$Shortcut.Save()
 
-    #Rename-LocalUser -Name $username -NewName Administrator
+$size = Get-Volume -DriveLetter c | Get-PartitionSupportedSize
+Resize-Partition -DriveLetter c -Size $size.sizemax
 
-    Write-Log @writeLogParams -Message "Running BootstrapAzureStackDeployment"
-    Set-Location C:\CloudDeployment\Setup
-    .\BootstrapAzureStackDeployment.ps1
+Rename-LocalUser -Name $username -NewName Administrator
 
-    Write-Log @writeLogParams -Message "Tweaking some files to run ASDK on Azure VM"
+Write-Log @writeLogParams -Message "Running BootstrapAzureStackDeployment"
+Set-Location C:\CloudDeployment\Setup
+.\BootstrapAzureStackDeployment.ps1
 
-    Write-Log @writeLogParams -Message "Applying first workaround to tackle bare metal detection"
-    workaround1
+Write-Log @writeLogParams -Message "Tweaking some files to run ASDK on Azure VM"
 
-    #Write-Log @writeLogParams -Message "Applying second workaround since this version is 1802 or higher"
+Write-Log @writeLogParams -Message "Applying first workaround to tackle bare metal detection"
+workaround1
+
+#Write-Log @writeLogParams -Message "Applying second workaround since this version is 1802 or higher"
     #workaround2
-}
 
+
+<#
 if ($AzureImage)
 {
     New-Item HKLM:\Software\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentials -Force
@@ -288,6 +276,8 @@ if ($AzureImage)
     # Enable differencing roles from ASDKImage except .NET framework 3.5
     Enable-WindowsOptionalFeature -Online -All -NoRestart -FeatureName @("ActiveDirectory-PowerShell","DfsMgmt","DirectoryServices-AdministrativeCenter","DirectoryServices-DomainController","DirectoryServices-DomainController-Tools","DNS-Server-Full-Role","DNS-Server-Tools","DSC-Service","FailoverCluster-AutomationServer","FailoverCluster-CmdInterface","FSRM-Management","IIS-ASPNET45","IIS-HttpTracing","IIS-ISAPIExtensions","IIS-ISAPIFilter","IIS-NetFxExtensibility45","IIS-RequestMonitor","ManagementOdata","NetFx4Extended-ASPNET45","NFS-Administration","RSAT-ADDS-Tools-Feature","RSAT-AD-Tools-Feature","Server-Manager-RSAT-File-Services","UpdateServices-API","UpdateServices-RSAT","UpdateServices-UI","WAS-ConfigurationAPI","WAS-ProcessModel","WAS-WindowsActivationService","WCF-HTTP-Activation45","Microsoft-Hyper-V-Management-Clients")
 }
+#>
+
 
 #Download OneNodeRole.xml
 DownloadWithRetry -Uri "$gitbranch/scripts/OneNodeRole.xml" -DownloadLocation "$defaultLocalPath\OneNodeRole.xml"
@@ -316,5 +306,39 @@ if ($null -ne $WindowsFeature.RemoveFeature.Name)
     }
 }
 
-#Rename-LocalUser -Name $username -NewName Administrator
+
+
+# Disable IE ESC
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Value 0
+Stop-Process -Name Explorer
+
+# Hide Server Manager
+$HKLM = "HKLM:\SOFTWARE\Microsoft\ServerManager"
+New-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -PropertyType DWORD
+Set-ItemProperty -Path $HKLM -Name "DoNotOpenServerManagerAtLogon" -Value 1 -Type DWord
+
+# Hide Server Manager
+$HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
+New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
+Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
+
+# Install Chrome
+$Path = $env:TEMP; 
+$Installer = "chrome_installer.exe"
+Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
+
+# Create a PowerShell ISE Shortcut on the Desktop
+$WshShell = New-Object -ComObject WScript.Shell
+$allUsersDesktopPath = "$env:SystemDrive\Users\Public\Desktop"
+New-Item -ItemType Directory -Force -Path $allUsersDesktopPath
+$Shortcut = $WshShell.CreateShortcut("$allUsersDesktopPath\PowerShell ISE.lnk")
+$Shortcut.TargetPath = "$env:windir\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe"
+$Shortcut.Save()  
+
+
+Rename-LocalUser -Name $username -NewName Administrator
 Restart-Computer -Force

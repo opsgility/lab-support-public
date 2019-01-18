@@ -49,7 +49,7 @@ Set-ItemProperty -Path $HKLM -Name "DisableSecuritySettingsCheck" -Value 1
 Stop-Process -Name Explorer
 Write-Host "IE Enhanced Security Configuration (ESC) has been disabled." -ForegroundColor Green
 
-if([String]::IsNullOrEmpty($labName) -eq $false){
+<# if([String]::IsNullOrEmpty($labName) -eq $false){
     $playerFolder = "C:\LabPlayer"
     $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"
     if((Test-Path $playerFolder ) -eq $false)
@@ -70,6 +70,7 @@ if([String]::IsNullOrEmpty($labName) -eq $false){
     Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
     Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 }
+#>
 
 ### Extract Zip -- <<<comment this line out for uncompressed db files>>>
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force

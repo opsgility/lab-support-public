@@ -1,4 +1,4 @@
-param($sourceFileUrl="http://cloudworkshop.blob.core.windows.net/migrate-edw/StudentFiles-06-2018.zip", $destinationFolder="C:\LabFiles", $labName="", $domain="", $user="demouser", $password="Demo@pass123")
+param($sourceFileUrl="http://cloudworkshop.blob.core.windows.net/migrate-edw/StudentFiles-06-2018.zip", $destinationFolder="C:\LabFiles", $user="demouser", $password="Demo@pass123")
 $ErrorActionPreference = 'SilentlyContinue'
 
 Set-MpPreference -DisableRealtimeMonitoring $true
@@ -11,7 +11,7 @@ $line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
 secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
 
 #put in an artificial wait to let things settle down before we start making changes
-Start-Sleep -s 240
+#Start-Sleep -s 240
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {

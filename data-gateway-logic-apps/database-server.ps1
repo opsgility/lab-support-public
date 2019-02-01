@@ -124,28 +124,6 @@ $HKCU = "HKEY_CURRENT_USER\Software\Microsoft\ServerManager"
 New-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -PropertyType DWORD
 Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type DWord
 
-if([String]::IsNullOrEmpty($labName) -eq $false){
-    $playerFolder = "C:\LabPlayer"
-    $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/support/player.zip"
-    if((Test-Path $playerFolder ) -eq $false)
-    {
-        New-Item -Path $playerFolder  -ItemType directory
-    }
-    $splitpath = $sourceFileUrl.Split("/")
-    $fileName = $splitpath[$splitpath.Length-1]
-    $destinationPath = Join-Path $playerFolder  $fileName
-    (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
-    (new-object -com shell.application).namespace($playerFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
-    $sourceFileUrl = "https://opsgilitylabs.blob.core.windows.net/online-labs/$labName/lab-player.json"
-    $destinationPath = Join-Path $playerFolder  "lab-player.json"
-    (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
-
-    $shortCutPath = Join-Path $playerFolder "OpsgilityLabPlayer.lnk"
-
-    Copy-Item -Path $shortCutPath -Destination "C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-    Copy-Item -Path $shortCutPath -Destination "C:\Users\demouser\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-}
-
 # Get the Student Files 
 # Invoke-WebRequest $sourceFileUrl -OutFile "C:\OpsgilityTraining\StudentFiles.zip" 
 

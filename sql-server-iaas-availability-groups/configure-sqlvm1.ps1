@@ -165,11 +165,7 @@ $dbsource = Join-Path $destinationFolder "AdventureWorksDW2016CTP3.bak"
 
 ### Create SQLDATA Directory
 New-Item -ItemType Directory -Force -Path C:\ -Name SQLDATA
-
-### Create Backup Directory and share it
-New-Item -ItemType Directory -Force -Path C:\ -Name Backup
-New-SmbShare -Name "Backup" -Path C:\Backup | Grant-SmbShareAccess -Force -AccountName Everyone -AccessRight Full
-
+        
 $spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)
 

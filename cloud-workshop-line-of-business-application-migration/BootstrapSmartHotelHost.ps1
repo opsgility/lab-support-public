@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'SilentlyContinue'
+﻿param($region="")
+$ErrorActionPreference = 'SilentlyContinue'
 
 # Disable IE ESC
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Value 0
@@ -24,9 +25,9 @@ Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel DATA
 
 # Download disks for nested Hyper-V VMs, and various other files we'll need during the lab
 $downloads = @( `
-     "https://cloudworkshop.blob.core.windows.net/azure-migration/PostRebootConfigure.ps1" `
-    ,"https://cloudworkshop.blob.core.windows.net/azure-migration/OnLoginConfigure.ps1" `
-    ,"https://cloudworkshop.blob.core.windows.net/azure-migration/ConfigureAzureMigrateApplianceNetwork.ps1" `
+     "https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-workshop-line-of-business-application-migration/PostRebootConfigure.ps1" `
+    ,"https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-workshop-line-of-business-application-migration/OnLoginConfigure.ps1" `
+    ,"https://raw.githubusercontent.com/opsgility/lab-support-public/master/cloud-workshop-line-of-business-application-migration/ConfigureAzureMigrateApplianceNetwork.ps1" `
     ,"https://download.microsoft.com/download/C/6/3/C63D8695-CEF2-43C3-AF0A-4989507E429B/DataMigrationAssistant.msi" `
     )
 
@@ -41,7 +42,7 @@ Import-Module BitsTransfer
 Start-BitsTransfer -Source $downloads -Destination $destinationFiles
 
 # Register task to run post-reboot script once host is rebooted after Hyper-V install
-$action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File $opsDir\PostRebootConfigure.ps1"
+$action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File $opsDir\PostRebootConfigure.ps1 -region $region"
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName "SetUpVMs" -Action $action -Trigger $trigger -Principal $principal

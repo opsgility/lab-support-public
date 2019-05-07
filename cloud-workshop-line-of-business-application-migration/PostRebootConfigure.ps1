@@ -114,6 +114,7 @@ Function Follow-Redirect {
     return $actualUrl
 }
 
+param($region="")
 $ErrorActionPreference = 'SilentlyContinue'
 Import-Module BitsTransfer
 
@@ -140,8 +141,40 @@ $arguments = "/i",$azcopyMsi,"/q"
 Start-Process -FilePath msiexec.exe -ArgumentList $arguments -Wait
 $azcopy = '"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"'
 
-# Download SmartHotel VMs from blob storage
-$container = 'https://cloudworkshop.blob.core.windows.net/azure-migration'
+# Download SmartHotel VMs from blob storage - choose account based on region
+$container = 'https://opsgilitylabs.blob.core.windows.net/azure-migration'
+
+switch($region)
+{
+    "WestUS"
+    {
+        $container = "https://opsgilitylabs.blob.core.windows.net/azure-migration"
+    }
+    "EastUS"
+    {
+        $container = "https://opslabseastus.blob.core.windows.net/azure-migration"
+    }
+    "SouthCentralUS"
+    {
+        $container = "https://opslabssouthcentral.blob.core.windows.net/azure-migration"
+    }
+    "NorthEurope"
+    {
+        $container = "https://opslabsnortheurope.blob.core.windows.net/azure-migration"
+    }
+    "WestEurope"
+    {
+        $container = "https://opslabsnortheurope.blob.core.windows.net/azure-migration"
+    }
+    "AustraliaEast"
+    {
+        $container = "https://opslabsaustraliaeast.blob.core.windows.net/azure-migration"
+    }
+    "EastAsia"
+    {
+        $container = "https://opslabseastasia.blob.core.windows.net/azure-migration"
+    }
+}
 
 cmd /c "$azcopy /Source:$container/SmartHotelWeb1.zip /Dest:$tempDir\SmartHotelWeb1.zip"
 cmd /c "$azcopy /Source:$container/SmartHotelWeb2.zip /Dest:$tempDir\SmartHotelWeb2.zip"

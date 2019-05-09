@@ -142,37 +142,37 @@ Start-Process -FilePath msiexec.exe -ArgumentList $arguments -Wait
 $azcopy = '"C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe"'
 
 # Download SmartHotel VMs from blob storage - choose account based on region
-$container = 'https://opsgilitylabs.blob.core.windows.net/azure-migration'
+$container = 'https://opsgilitylabs.blob.core.windows.net/public'
 
 switch($region)
 {
     "WestUS"
     {
-        $container = "https://opsgilitylabs.blob.core.windows.net/azure-migration"
+        $container = "https://opsgilitylabs.blob.core.windows.net/public"
     }
     "EastUS"
     {
-        $container = "https://opslabseastus.blob.core.windows.net/azure-migration"
+        $container = "https://opslabseastus.blob.core.windows.net/public"
     }
     "SouthCentralUS"
     {
-        $container = "https://opslabssouthcentral.blob.core.windows.net/azure-migration"
+        $container = "https://opslabssouthcentral.blob.core.windows.net/public"
     }
     "NorthEurope"
     {
-        $container = "https://opslabsnortheurope.blob.core.windows.net/azure-migration"
+        $container = "https://opslabsnortheurope.blob.core.windows.net/public"
     }
     "WestEurope"
     {
-        $container = "https://opslabsnortheurope.blob.core.windows.net/azure-migration"
+        $container = "https://opslabsnortheurope.blob.core.windows.net/public"
     }
     "AustraliaEast"
     {
-        $container = "https://opslabsaustraliaeast.blob.core.windows.net/azure-migration"
+        $container = "https://opslabsaustraliaeast.blob.core.windows.net/public"
     }
     "EastAsia"
     {
-        $container = "https://opslabseastasia.blob.core.windows.net/azure-migration"
+        $container = "https://opslabseastasia.blob.core.windows.net/public"
     }
 }
 
@@ -180,10 +180,12 @@ cmd /c "$azcopy /Source:$container/SmartHotelWeb1.zip /Dest:$tempDir\SmartHotelW
 cmd /c "$azcopy /Source:$container/SmartHotelWeb2.zip /Dest:$tempDir\SmartHotelWeb2.zip"
 cmd /c "$azcopy /Source:$container/SmartHotelSQL1.zip /Dest:$tempDir\SmartHotelSQL1.zip"
 cmd /c "$azcopy /Source:$container/UbuntuWAF.zip /Dest:$tempDir\UbuntuWAF.zip"
+cmd /c "$azcopy /Source:$container/AzureMigrateAppliance_v1.19.04.16.zip /Dest:$tempDir\AzureMigrate.zip"
 
 # Download the Azure Migrate appliance to save time during the lab
-$migrateApplianceUrl = Follow-Redirect("https://aka.ms/migrate/appliance/hyperv")
-Start-BitsTransfer -Source $migrateApplianceUrl -Destination "$tempDir\AzureMigrateAppliance.zip"
+# Removed...too slow. Downloaded instead using AzCopy from copy in storage account
+# $migrateApplianceUrl = Follow-Redirect("https://aka.ms/migrate/appliance/hyperv")
+# Start-BitsTransfer -Source $migrateApplianceUrl -Destination "$tempDir\AzureMigrateAppliance.zip"
 
 # Unzip the VMs
 $zipfiles = Get-ChildItem -Path "$tempDir\*.zip"

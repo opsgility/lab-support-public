@@ -180,7 +180,7 @@ cmd /c "$azcopy /Source:$container/SmartHotelWeb1.zip /Dest:$tempDir\SmartHotelW
 cmd /c "$azcopy /Source:$container/SmartHotelWeb2.zip /Dest:$tempDir\SmartHotelWeb2.zip"
 cmd /c "$azcopy /Source:$container/SmartHotelSQL1.zip /Dest:$tempDir\SmartHotelSQL1.zip"
 cmd /c "$azcopy /Source:$container/UbuntuWAF.zip /Dest:$tempDir\UbuntuWAF.zip"
-# cmd /c "$azcopy /Source:$container/AzureMigrateAppliance_v1.19.04.16.zip /Dest:$tempDir\AzureMigrate.zip"
+cmd /c "$azcopy /Source:$container/AzureMigrateAppliance_v1.19.05.10.zip /Dest:$tempDir\AzureMigrate.zip"
 
 # Download the Azure Migrate appliance to save time during the lab
 # Removed...too slow. Downloaded instead using AzCopy from copy in storage account

@@ -57,8 +57,8 @@ else
 }
 
 # Download the ADK installer
-
-DownloadWithRetry -Uri "https://github.com/mattmcspirit/azurestack/archive/master.zip" -DownloadLocation "$defaultLocalPath\master.zip"
+## URL is dynamically generated so can't automatically download
+#DownloadWithRetry -Uri "https://github.com/mattmcspirit/azurestack/archive/master.zip" -DownloadLocation "$defaultLocalPath\master.zip"
 
 #Download and extract Mobaxterm
 DownloadWithRetry -Uri "https://aka.ms/mobaxtermLatest" -DownloadLocation "$defaultLocalPath\Mobaxterm.zip"

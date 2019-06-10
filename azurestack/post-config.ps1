@@ -43,12 +43,9 @@ $writeLogParams = @{
     LogFilePath = $logFileFullPath
 }
 
-DownloadWithRetry -Uri "https://raw.githubusercontent.com/yagmurs/AzureStack-VM-PoC/master/config.ind" -DownloadLocation "$defaultLocalPath\config.ind"
-$gitbranchconfig = Import-Csv -Path $defaultLocalPath\config.ind -Delimiter ","
-$gitbranchcode = $gitbranchconfig.branch.Trim()
-$gitbranch = "https://raw.githubusercontent.com/yagmurs/AzureStack-VM-PoC/$gitbranchcode"
 
-DownloadWithRetry -Uri "$gitbranch/scripts/ASDKHelperModule.psm1" -DownloadLocation "$defaultLocalPath\ASDKHelperModule.psm1"
+
+DownloadWithRetry -Uri "https://raw.githubusercontent.com/opsgility/lab-support-public/master/azurestack/ASDKHelperModule.psm1" -DownloadLocation "$defaultLocalPath\ASDKHelperModule.psm1"
 
 if (Test-Path "$defaultLocalPath\ASDKHelperModule.psm1")
 {
@@ -59,8 +56,9 @@ else
     throw "required module $defaultLocalPath\ASDKHelperModule.psm1 not found"   
 }
 
-#Download Install-ASDK.ps1 (installer)
-DownloadWithRetry -Uri "$gitbranch/scripts/Install-ASDK.ps1" -DownloadLocation "$defaultLocalPath\Install-ASDK.ps1"
+# Download the ADK installer
+
+DownloadWithRetry -Uri "https://github.com/mattmcspirit/azurestack/archive/master.zip" -DownloadLocation "$defaultLocalPath\master.zip"
 
 #Download and extract Mobaxterm
 DownloadWithRetry -Uri "https://aka.ms/mobaxtermLatest" -DownloadLocation "$defaultLocalPath\Mobaxterm.zip"
@@ -169,7 +167,7 @@ if ($AzureImage)
 }
 
 #Download OneNodeRole.xml
-DownloadWithRetry -Uri "$gitbranch/scripts/OneNodeRole.xml" -DownloadLocation "$defaultLocalPath\OneNodeRole.xml"
+DownloadWithRetry -Uri "https://raw.githubusercontent.com/opsgility/lab-support-public/master/azurestack/OneNodeRole.xml" -DownloadLocation "$defaultLocalPath\OneNodeRole.xml"
 [xml]$rolesXML = Get-Content -Path "$defaultLocalPath\OneNodeRole.xml" -Raw
 $WindowsFeature = $rolesXML.role.PublicInfo.WindowsFeature
 $dismFeatures = (Get-WindowsOptionalFeature -Online).FeatureName

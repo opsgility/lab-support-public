@@ -65,6 +65,15 @@ if([string]::IsNullOrEmpty($installOptions) -eq $false)
 
 }
 
+$Path = $env:TEMP; 
+$Installer = "Git-2.21.0-64-bit.exe"
+Write-Host "Downloading Git Client" -ForegroundColor Green
+Invoke-WebRequest "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe" -OutFile $Path\$Installer
+Write-Host "Installing G from $Path\$Installer..." -ForegroundColor Green
+Start-Process -FilePath msiexec -Args "/i $Path\$Installer /quiet /qn /norestart" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
+
 # Create a PowerShell ISE Shortcut on the Desktop
 $WshShell = New-Object -ComObject WScript.Shell
 $allUsersDesktopPath = "$env:SystemDrive\Users\Public\Desktop"

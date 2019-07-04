@@ -1,0 +1,393 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "WebVMName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "WebVM"
+        },
+        "WebVMAdminUserName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "demouser"
+        },
+        "WebVMAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "demo@pass123"
+        },
+        "WebVMUbuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "18.04-LTS",
+            "allowedValues": [
+                "16.04-LTS",
+                "18.04-LTS"
+            ]
+        },
+        "WebVMPublicIPDnsName": {
+            "type": "string",
+            "minLength": 3,
+            "defaultValue": "",
+            "metadata" : {
+                "description": "Enter the DNS label be used by the public IP address associated with the WebVM. This name must be unique."
+            }
+        },
+        "SQLVMName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "SQLVM"
+        },
+        "SQLVMAdminUserName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "demouser"
+        },
+        "SQLVMAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "demo@pass123"
+        },
+        "SQLVMUbuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "18.04-LTS",
+            "allowedValues": [
+                "16.04-LTS",
+                "18.04-LTS"
+            ]
+        }
+    },
+    "variables": {
+        "VNetName": "OpsTrainingVNET",
+        "VNetPrefix": "10.0.0.0/16",
+        "VNetFrontendSubnetName": "FrontendNetwork",
+        "VNetFrontendSubnetPrefix": "10.0.0.0/24",
+        "VNetBackendSubnetName": "BackendNetwork",
+        "VNetBackendSubnetPrefix": "10.0.1.0/24",
+        "WebVMImagePublisher": "Canonical",
+        "WebVMImageOffer": "UbuntuServer",
+        "WebVMOSDiskType": "StandardSSD_LRS",
+        "WebVMVmSize": "Standard_DS1_V2",
+        "WebVMSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('VNetName'), variables('VNetFrontendSubnetName'))]",
+        "WebVMNicName": "[concat(parameters('WebVMName'), '-NIC')]",
+        "WebVMPublicIPName": "WebVM-PublicIP",
+        "SQLVMImagePublisher": "Canonical",
+        "SQLVMImageOffer": "UbuntuServer",
+        "SQLVMOSDiskType": "Premium_LRS",
+        "SQLVMVmSize": "Standard_DS1_V2",
+        "SQLVMSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('VNetName'), variables('VNetBackendSubnetName'))]",
+        "SQLVMNicName": "[concat(parameters('SQLVMName'), '-NIC')]",
+        "WebNSGName": "WebNSG",
+        "SQLNSGName": "SQLNSG"
+    },
+    "resources": [
+        {
+            "name": "[variables('VNetName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-04-01",
+            "dependsOn": [ 
+                "[variables('WebNSGName')]",
+                "[variables('SQLNSGName')]"
+            ],
+            "tags": { },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('VNetPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('VNetFrontendSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('VNetFrontendSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('WebNSGName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[variables('VNetBackendSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('VNetBackendSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('SQLNSGName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('WebVMNicName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-04-01",
+            "dependsOn": [
+                "[variables('VNetName')]",
+                "[variables('WebVMPublicIPName')]"
+            ],
+            "tags": { },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('WebVMSubnetID')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('WebVMPublicIPName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('WebVMName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-03-01",
+            "dependsOn": [
+                "[variables('WebVMNicName')]"
+            ],
+            "tags": { },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('WebVMVmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('WebVMName')]",
+                    "adminUsername": "[parameters('WebVMAdminUsername')]",
+                    "adminPassword": "[parameters('WebVMAdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('WebVMImagePublisher')]",
+                        "offer": "[variables('WebVMImageOffer')]",
+                        "sku": "[parameters('WebVMUbuntuOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat(parameters('WebVMName'), '-OSDisk')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[variables('WebVMOSDiskType')]"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('WebVMNicName'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "name": "RunWebScript",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2019-07-01",
+                    "dependsOn": [
+                        "[parameters('WebVMName')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.OSTCExtensions",
+                        "type": "CustomScriptForLinux",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": false,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/apache.sh"
+                            ],
+                            "commandToExecute": "[concat('bash ', 'apache.sh')]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[variables('WebVMPublicIPName')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-06-01",
+            "dependsOn": [],
+            "tags": { },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('WebVMPublicIPDnsName')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('SQLVMNicName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-04-01",
+            "dependsOn": [
+                "[variables('VNetName')]"
+            ],
+            "tags": { },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('SQLVMSubnetID')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('SQLVMName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-03-01",
+            "dependsOn": [
+                "[variables('SQLVMNicName')]"
+            ],
+            "tags": { },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('SQLVMVmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('SQLVMName')]",
+                    "adminUsername": "[parameters('SQLVMAdminUsername')]",
+                    "adminPassword": "[parameters('SQLVMAdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('SQLVMImagePublisher')]",
+                        "offer": "[variables('SQLVMImageOffer')]",
+                        "sku": "[parameters('SQLVMUbuntuOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat(parameters('SQLVMName'), '-OSDisk')]",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[variables('SQLVMOSDiskType')]"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('SQLVMNicName'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+                {
+                    "name": "RunSQLScript",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2019-07-01",
+                    "dependsOn": [
+                        "[parameters('SQLVMName')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.OSTCExtensions",
+                        "type": "CustomScriptForLinux",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": false,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/mysql.sh"
+                            ],
+                            "commandToExecute": "[concat('bash ', 'mysql.sh')]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('WebNSGName')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "webrule",
+                        "properties": {
+                            "description": "This rule allows traffic in on port 80",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRanges": [ "80", "443" ],
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "sshrule",
+                        "properties": {
+                            "description": "This rule allows traffic on port 22 from the web",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('SQLNSGName')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "mysqlrule",
+                        "properties": {
+                            "description": "This rule allows traffic in on port 3306 (MySQL)",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3306",
+                            "sourceAddressPrefix": "[variables('VNetFrontendSubnetPrefix')]",
+                            "destinationAddressPrefix": "[variables('VNetBackendSubnetPrefix')]",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "denyrule",
+                        "properties": {
+                            "description": "This rule overrides the default rule, restricting traffic between the subnets except where allowed by another rule with lower priority",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "[variables('VNetFrontendSubnetPrefix')]",
+                            "destinationAddressPrefix": "[variables('VNetBackendSubnetPrefix')]",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

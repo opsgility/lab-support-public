@@ -201,7 +201,7 @@
                         "autoUpgradeMinorVersion": false,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/apache.sh"
+                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/authoring-arm-templates-vs-code/apache.sh"
                             ],
                             "commandToExecute": "[concat('bash ', 'apache.sh')]"
                         }
@@ -303,7 +303,7 @@
                         "autoUpgradeMinorVersion": false,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/lamp-sample/mysql.sh"
+                                "https://raw.githubusercontent.com/opsgility/lab-support-public/master/authoring-arm-templates-vs-code/mysql.sh"
                             ],
                             "commandToExecute": "[concat('bash ', 'mysql.sh')]"
                         }

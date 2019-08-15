@@ -1,0 +1,125 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "existingVNetName": {
+            "type": "string",
+            "defaultValue": "onpremvnet",
+            "metadata": {
+                "description": "Name of the remote VNet"
+            }
+        },
+        "existingVNetResourceGroup": {
+            "type": "string",
+            "defaultValue": "openhackonpremrg",
+            "metadata": {
+                "description": "Name of the resource group that contains the remote VNet"
+            }
+        },
+        "azureVnetName": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "azurevnet",
+            "metadata": {
+              "description": "Name of the Azure VNET for peering"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The location of resources, such as templates and DSC modules, that the template depends on"
+            },
+            "defaultValue": "https://raw.githubusercontent.com/ciphertxt/cw-smart-hotel-360-iaas/master/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Auto-generated token to access _artifactsLocation"
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "azurePrefix": "10.1.0.0/16",
+        "azureSubnetPrefix": "10.1.0.0/24",
+        "azureSubnetName": "Azure"
+    },
+    "resources": [
+        {
+            "apiVersion": "2016-03-30",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('azureVnetName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('azurePrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('azureSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('azureSubnetPrefix')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "UpdateVNetPeeringToGround",
+            "apiVersion": "2016-02-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/', parameters('azureVnetName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet-peering.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "existingRemoteVirtualNetworkResourceGroupName": {
+                        "value": "[parameters('existingVNetResourceGroup')]"
+                    },
+                    "existingRemoteVirtualNetworkName": {
+                        "value": "[parameters('existingVNetName')]"
+                    },
+                    "existingLocalVirtualNetworkName": {
+                        "value": "[parameters('azureVnetName')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "UpdateVNetPeeringToCloud",
+            "apiVersion": "2017-05-10",
+            "resourceGroup": "[parameters('existingVNetResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'UpdateVNetPeeringToGround')]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', parameters('azureVnetName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet-peering.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "existingRemoteVirtualNetworkResourceGroupName": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "existingRemoteVirtualNetworkName": {
+                        "value": "[parameters('azureVnetName')]"
+                    },
+                    "existingLocalVirtualNetworkName": {
+                        "value": "[parameters('existingVNetName')]"
+                    }
+                }
+            }
+        }
+    ]
+}

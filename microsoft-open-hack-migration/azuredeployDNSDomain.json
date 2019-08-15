@@ -1,0 +1,146 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dnsZonePrefix": {
+            "type": "string",
+            "defaultValue": "cmfinance",
+            "metadata": {
+                "description": "Prefix for the domain to purchase"
+            }
+        },
+        "wwwIp": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Public IP address of the current host"
+            }
+        },
+        "agreedAt": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "agreedBy": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Your client IP. Lookup available at https://www.whatismyip.com"
+            }
+        }
+    },
+    "variables": {
+        "dnsNameToPurchase": "[concat(parameters('dnsZonePrefix'), uniqueString(subscription().subscriptionId), '.com')]",
+        "address1": "1701 Shoal Creek Suite, Suite 246",
+        "city": "Highland Village",
+        "country": "US",
+        "postalCode": "75077",
+        "state": "TX",
+        "email": "openhacks@opsgility.com",
+        "nameFirst": "Opsgility",
+        "nameLast": "Admin",
+        "phone": "+1.8668333878",
+        "key1": "DNRA"
+    },
+    "resources": [
+        {
+            "name": "[variables('dnsNameToPurchase')]",
+            "type": "Microsoft.DomainRegistration/domains",
+            "apiVersion": "2018-02-01",
+            "location": "global",
+            "tags": {},
+            "properties": {
+              "contactAdmin": {
+                "addressMailing": {
+                  "address1": "[variables('address1')]",
+                  "city": "[variables('city')]",
+                  "country": "[variables('country')]",
+                  "postalCode": "[variables('postalCode')]",
+                  "state": "[variables('state')]"
+                },
+                "email": "[variables('email')]",
+                "nameFirst": "[variables('nameFirst')]",
+                "nameLast": "[variables('nameLast')]",
+                "phone": "[variables('phone')]"
+              },
+              "contactBilling": {
+                "addressMailing": {
+                  "address1": "[variables('address1')]",
+                  "city": "[variables('city')]",
+                  "country": "[variables('country')]",
+                  "postalCode": "[variables('postalCode')]",
+                  "state": "[variables('state')]"
+                },
+                "email": "[variables('email')]",
+                "nameFirst": "[variables('nameFirst')]",
+                "nameLast": "[variables('nameLast')]",
+                "phone": "[variables('phone')]"
+              },
+              "contactRegistrant": {
+                "addressMailing": {
+                  "address1": "[variables('address1')]",
+                  "city": "[variables('city')]",
+                  "country": "[variables('country')]",
+                  "postalCode": "[variables('postalCode')]",
+                  "state": "[variables('state')]"
+                },
+                "email": "[variables('email')]",
+                "nameFirst": "[variables('nameFirst')]",
+                "nameLast": "[variables('nameLast')]",
+                "phone": "[variables('phone')]"
+              },
+              "contactTech": {
+                "addressMailing": {
+                  "address1": "[variables('address1')]",
+                  "city": "[variables('city')]",
+                  "country": "[variables('country')]",
+                  "postalCode": "[variables('postalCode')]",
+                  "state": "[variables('state')]"
+                },
+                "email": "[variables('email')]",
+                "nameFirst": "[variables('nameFirst')]",
+                "nameLast": "[variables('nameLast')]",
+                "phone": "[variables('phone')]"
+              },
+              "privacy": false,
+              "autoRenew": false,
+              "consent": {
+                "agreementKeys": [
+                  "[variables('key1')]"
+                ],
+                "agreedBy": "[parameters('agreedBy')]",
+                "agreedAt": "[parameters('agreedAt')]"
+              },
+              "dnsZoneId": "[resourceId('Microsoft.Network/dnszones/', variables('dnsNameToPurchase'))]",
+              "targetDnsType": "AzureDns"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones/', variables('dnsNameToPurchase'))]"
+            ],
+            "resources": []
+        },
+        {
+            "type": "Microsoft.Network/dnsZones",
+            "apiVersion": "2016-04-01",
+            "name": "[variables('dnsNameToPurchase')]",
+            "location": "global",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/dnszones/A",
+            "apiVersion": "2018-05-01",
+            "name": "[concat(variables('dnsNameToPurchase'), '/www')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', variables('dnsNameToPurchase'))]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "ARecords": [
+                    {
+                        "ipv4Address": "[parameters('wwwIp')]"
+                    }
+                ],
+                "targetResource": {}
+            }
+        },
+    ]
+}

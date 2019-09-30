@@ -87,7 +87,6 @@ set-itemproperty $RunOnceKey "NextRun" ('C:\Windows\System32\WindowsPowerShell\v
 
 switch($region)
 {
-
     "WestUS"
     {
         $urlsmarthotelweb1 = "https://opsgilitylabs.blob.core.windows.net/public/SmartHotelWeb1.zip"
@@ -130,7 +129,12 @@ switch($region)
         $urlsmarthotelweb2 = "https://opslabseastasia.blob.core.windows.net/public/SmartHotelWeb2.zip"
         $urlsmarthotelSQL1 = "https://opslabseastasia.blob.core.windows.net/public/SmartHotelSQL1.zip"
     }
-
+    default
+    {
+        $urlsmarthotelweb1 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelWeb1.zip"
+        $urlsmarthotelweb2 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelWeb2.zip"
+        $urlsmarthotelSQL1 = "https://opslabseastus.blob.core.windows.net/public/SmartHotelSQL1.zip"
+    }
 }
 
 

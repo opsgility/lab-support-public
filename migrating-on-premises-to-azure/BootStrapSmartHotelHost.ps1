@@ -1,6 +1,8 @@
 param($sourceFileUrl="", $destinationFolder="", $region="")
 $ErrorActionPreference = 'SilentlyContinue'
 
+Start-Transcript -Path "D:\BootStrapSmartHotelHost_log.txt"
+
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
     if((Test-Path $destinationFolder) -eq $false)
@@ -191,3 +193,5 @@ Add-Type -assembly "system.io.compression.filesystem"
 
 
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
+
+Stop-Transcript

@@ -25,9 +25,9 @@ apt-get install azure-cli -y
 
 apt-get update -y
 
-az extension add -n azure-cli-ml
+az extension add -n azure-cli-ml --debug
 
-sleep 90
+sleep 120
 
 az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 

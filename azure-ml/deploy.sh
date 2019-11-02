@@ -30,7 +30,7 @@ az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 
 az extension add -n azure-cli-ml -y --debug
 
-sleep 90
+sleep 480
 
 az group create -n $RGNAME -l $LOCATION
 

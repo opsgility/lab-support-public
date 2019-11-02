@@ -29,15 +29,10 @@ apt-get update -y
 az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 
 az extension add -n azure-cli-ml -y
-sleep 180
-az extension update -n azure-cli-ml
 
-sleep 180
-
-az extension list
 
 az group create -n $RGNAME -l $LOCATION
 
-az ml workspace create -w $WORKSPACE -g $rgname
+az ml workspace create -w $WORKSPACE -g $rgname --debug
 
-az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3
+az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3 --debug

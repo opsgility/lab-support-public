@@ -30,7 +30,7 @@ az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 
 az extension add -n azure-cli-ml -y
 sleep 180
-az extension update -n azure-cli-ml -y
+az extension update -n azure-cli-ml
 
 sleep 180
 

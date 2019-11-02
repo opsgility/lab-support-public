@@ -25,14 +25,14 @@ apt-get install azure-cli -y
 
 apt-get update -y
 
-az extension add -n azure-cli-ml --debug
+az extension add -n azure-cli-ml -y --debug
 
-sleep 120
+#sleep 120
 
-az login -u $AZUREUSERNAME -p $AZUREPASSWORD
+#az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 
-az group create -n $RGNAME -l $LOCATION
+#az group create -n $RGNAME -l $LOCATION
 
-az ml workspace create -w $WORKSPACE -g $rgname
+#az ml workspace create -w $WORKSPACE -g $rgname
 
-az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3
+#az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3

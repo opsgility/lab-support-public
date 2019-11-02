@@ -28,9 +28,13 @@ apt-get update -y
 
 az login -u $AZUREUSERNAME -p $AZUREPASSWORD
 
-az extension add -n azure-cli-ml -y --debug
+az extension add -n azure-cli-ml -y
+sleep 180
+az extension update -n azure-cli-ml -y
 
-sleep 480
+sleep 180
+
+az extension list
 
 az group create -n $RGNAME -l $LOCATION
 

@@ -6,6 +6,8 @@ LOCATION=$4
 RGNAME="azureml"
 WORKSPACE="AMLWorkspace"
 
+export HOME="/home/demouser"
+
 apt-get update -y
 apt-get upgrade -y
 

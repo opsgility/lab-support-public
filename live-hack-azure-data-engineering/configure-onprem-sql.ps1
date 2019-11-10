@@ -11,7 +11,7 @@ $line = Get-Content C:\secexport.txt | Select-String 'SeManageVolumePrivilege'
 secedit /configure /db secedit.sdb /cfg C:\secimport.txt /overwrite /areas USER_RIGHTS /quiet
 
 #put in an artificial wait to let things settle down before we start making changes
-#Start-Sleep -s 240
+Start-Sleep -s 240
 
 if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmpty($destinationFolder) -eq $false)
 {
@@ -74,7 +74,7 @@ Enable-PSRemoting -Force
 Invoke-Command -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $spassword -ScriptBlock { 
 
 		# Restore the database from the backup
-        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE taxi-data FROM DISK = 'C:\LabFiles\taxi-data.bak' WITH MOVE 'taxi-data_Data' TO 'F:\Data\CohoDW_Data.mdf', MOVE 'taxi-data_Log' TO 'F:\Log\CohoDW_Log.ldf'"
+        Invoke-Sqlcmd -ServerInstance Localhost -Database "master" -Query "RESTORE DATABASE taxidata FROM DISK = 'C:\LabFiles\taxidata.bak' WITH MOVE 'taxidata_Data' TO 'F:\Data\taxidata.mdf', MOVE 'taxidata_Log' TO 'F:\Log\taxidata.ldf'"
 
 }
 Disable-PSRemoting -Force

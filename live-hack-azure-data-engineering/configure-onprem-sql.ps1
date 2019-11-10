@@ -64,8 +64,8 @@ Remove-Item $Path\$Installer
 Expand-Archive $destinationPath -DestinationPath $destinationFolder -Force
 
 ### Create Directories
-New-Item -ItemType Directory -Force -Path C:\ -Name Data
-New-Item -ItemType Directory -Force -Path C:\ -Name Log
+#New-Item -ItemType Directory -Force -Path C:\ -Name Data
+#New-Item -ItemType Directory -Force -Path C:\ -Name Log
 
 $spassword =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $spassword)

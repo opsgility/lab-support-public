@@ -37,4 +37,4 @@ az group create -n $RGNAME -l $LOCATION
 
 az ml workspace create -w $WORKSPACE -g $rgname --debug
 
-az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3 --debug
+az ml computetarget create amlcompute -n cpu --min-nodes 1 --max-nodes 2 -s STANDARD_D2S_V3 --workspace $WORKSPACE --debug

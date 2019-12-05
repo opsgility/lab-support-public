@@ -9,7 +9,7 @@ Install-WindowsFeature -Name "AD-Domain-Services" `
 Install-WindowsFeature -Name DNS -IncludeManagementTools
 
 Install-ADDSForest -DomainName $domain `
-                   -DomainMode Win2012 `
-                   -ForestMode Win2012 `
+                   -DomainMode WinThreshold `
+                   -ForestMode WinThreshold `
                    -Force `
                    -SafeModeAdministratorPassword $smPassword

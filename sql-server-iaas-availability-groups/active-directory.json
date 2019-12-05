@@ -44,12 +44,12 @@
     },
     "ADVMWindowsOSVersion": {
       "type": "string",
-      "defaultValue": "2016-Datacenter",
+      "defaultValue": "2019-Datacenter",
       "allowedValues": [
         "2008-R2-SP1",
         "2012-Datacenter",
         "2012-R2-Datacenter",
-	      "2016-Datacenter"
+	      "2019-Datacenter"
       ]
     }
   },
@@ -59,7 +59,7 @@
     "ADVMImagePublisher": "MicrosoftWindowsServer",
     "ADVMImageOffer": "WindowsServer",
     "ADVMOSDiskName": "ADVMOSDisk",
-    "ADVMVmSize": "Standard_DS2_v2",
+    "ADVMVmSize": "Standard_D4S_v3",
     "ADVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'OPSTrainingVNET')]",
     "ADVMSubnetRef": "[concat(variables('ADVMVnetID'), '/subnets/', variables('OPSTrainingVNETSubnet2Name'))]",
     "ADVMStorageAccountContainerName": "vhds",

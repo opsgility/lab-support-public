@@ -99,13 +99,6 @@
         "description": "script to execute"
       },
       "defaultValue": "C:\\OpsgilityTraining"
-    },
-    "labName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the lab"
-      },
-      "defaultValue": "sql-server-iaas-availability-groups"
     }
   },
   "variables": {
@@ -120,10 +113,10 @@
     "virtualNetworkName": "OpsTrainingVNET",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "SQLVM-1OSDiskName": "SQLVM-1OSDisk",
-    "SQLVM-1VmSize": "Standard_DS2_v2",
+    "SQLVM-1VmSize": "Standard_D4S_v3",
     "SQLVM-1NicName": "[concat(parameters('SQLVM-1Name'), 'NetworkInterface')]",
     "SQLVM-2OSDiskName": "SQLVM-2OSDisk",
-    "SQLVM-2VmSize": "Standard_DS2_v2",
+    "SQLVM-2VmSize": "Standard_D4S_v3",
     "SQLVM-2NicName": "[concat(parameters('SQLVM-2Name'), 'NetworkInterface')]",
     "WitnessOSDiskName": "WitnessOSDisk",
     "WitnessVmSize": "Standard_DS2_v2",

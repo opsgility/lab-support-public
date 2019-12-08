@@ -45,25 +45,10 @@
         "description": "The SQL SKU for the VM"
       }
     },
-    "WitnessImageSKU": {
-      "type": "string",
-      "defaultValue": "2016-Datacenter",
-      "allowedValues": [
-        "2016-Datacenter"
-      ],
-      "metadata": {
-        "description": "The Windows version for the Witness VM"
-      }
-    },
     "SQLVM-2Name": {
       "type": "string",
       "minLength": 1,
       "defaultValue": "SQLVM-02"
-    },
-    "WitnessName": {
-      "type": "string",
-      "minLength": 1,
-      "defaultValue": "WITNESSVM"
     },
     "SQLVM-1ScriptURL": {
       "type": "string",
@@ -79,13 +64,6 @@
       },
       "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/sql-server-iaas-availability-groups/configure-sqlvm2.ps1"
     },
-    "WitnessVmScriptURL": {
-      "type": "string",
-      "metadata": {
-        "description": "script to execute"
-      },
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/sql-server-iaas-availability-groups/configure-witness.ps1"
-    },
     "sourceFileUrl": {
       "type": "string",
       "metadata": {
@@ -98,7 +76,7 @@
       "metadata": {
         "description": "script to execute"
       },
-      "defaultValue": "C:\\OpsgilityTraining"
+      "defaultValue": "C:\\SkillMeUp"
     }
   },
   "variables": {
@@ -118,19 +96,13 @@
     "SQLVM-2OSDiskName": "SQLVM-2OSDisk",
     "SQLVM-2VmSize": "Standard_D4S_v3",
     "SQLVM-2NicName": "[concat(parameters('SQLVM-2Name'), 'NetworkInterface')]",
-    "WitnessOSDiskName": "WitnessOSDisk",
-    "WitnessVmSize": "Standard_DS2_v2",
-    "WitnessNicName": "[concat(parameters('WitnessName'), 'NetworkInterface')]",
     "scriptFolder": ".",
     "ConfigSQLVM-1": "configure-sqlvm1.ps1",
     "ConfigSQLVM-2": "configure-sqlvm2.ps1",
-    "ConfigWitnessVM": "configure-witness.ps1",
     "SQLVM-1scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder ', parameters('destinationFolder'))]",
     "SQLVM-2scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder ', parameters('destinationFolder'))]",
-    "WitnessScriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -sourceFileUrl ', parameters('sourceFileUrl'), ' -destinationFolder ', parameters('destinationFolder'))]",
     "PIPSQLVM1Name": "PIPSQLVM1",
     "PIPSQLVM2Name": "PIPSQLVM2",
-    "PIPWitnessName": "PIPWitness",
     "DataSubnetRef": "[concat(variables('vnetId'), '/subnets/', variables('OPSTrainingVNETSubnet1Name'))]"
 
   },
@@ -423,95 +395,6 @@
           }
         ],
         "enableAcceleratedNetworking": true
-      }
-    },
-    {
-      "name": "[parameters('WitnessName')]",
-      "type": "Microsoft.Compute/virtualMachines",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('WitnessNicName'))]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
-      ],
-      "tags": {
-        "displayName": "WITNESSVM"
-      },
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[variables('WitnessVmSize')]"
-        },
-        "osProfile": {
-          "computerName": "[parameters('WitnessName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisherWitness')]",
-            "offer": "[variables('imageOfferWitness')]",
-            "sku": "[parameters('WitnessImageSKU')]",
-            "version": "latest"
-          },
-          "osDisk": {
-            "name": "WitnessOSDiskName",
-            "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('storageContainer'), '/', variables('WitnessOSDiskName'), '.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('WitnessNicName'))]"
-            }
-          ]
-        },
-        "availabilitySet": {
-            "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySetName'))]"
-        }
-      },
-      "resources": [
-        {
-          "name": "ConfigWitness",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2016-03-30",
-          "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('WitnessName'))]"
-          ],
-          "tags": {
-            "displayName": "ConfigWitness"
-          },
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.8",
-            "autoUpgradeMinorVersion": false,
-            "settings": {
-              "fileUris": [
-                "[concat(parameters('WitnessVmScriptURL'))]"
-              ],
-              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('ConfigWitnessVM'), ' ', variables('WitnessScriptParameters'))]"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "[variables('PIPWitnessName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [ ],
-      "tags": {
-        "displayName": "WitnessIP"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic"
       }
     }
   ],

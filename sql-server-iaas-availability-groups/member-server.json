@@ -83,8 +83,6 @@
     "OPSTrainingVNETSubnet1Name": "Data",
     "vmstorageName": "[concat('vmstorage', uniqueString(resourceGroup().id))]",
     "storageContainer": "vhds",
-    "imagePublisherWitness": "MicrosoftWindowsServer",
-    "imageOfferWitness": "WindowsServer",
     "imagePublisherSQL": "MicrosoftSqlServer",
     "imageOfferSQL": "SQL2016SP2-WS2016",
     "availabilitySetName": "SQLAvSet",
@@ -366,35 +364,6 @@
       },
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
-      }
-    },
-    { 
-      "name": "[variables('WitnessNicName')]",
-      "type": "Microsoft.Network/networkInterfaces",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-09-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIPSQLVM2Name'))]"
-      ],
-      "tags": {
-        "displayName": "SQLVM2Nic"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig3",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('DataSubnetRef')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('PIPWitnessName'))]"
-              }
-            }
-          }
-        ],
-        "enableAcceleratedNetworking": true
       }
     }
   ],

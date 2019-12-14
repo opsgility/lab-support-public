@@ -14,3 +14,12 @@ if([string]::IsNullOrEmpty($sourceFileUrl) -eq $false -and [string]::IsNullOrEmp
 
     (new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 }
+
+
+$path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Privacy\"
+
+
+if((Test-Path -Path $path) -eq $true)
+{
+    Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value 0
+}

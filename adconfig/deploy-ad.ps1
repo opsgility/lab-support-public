@@ -1,6 +1,8 @@
 $domain="adatum.com"
 $password="demo@pass123"
 
+$smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
+
 Install-WindowsFeature -Name "AD-Domain-Services" `
                        -IncludeManagementTools `
                        -IncludeAllSubFeature

@@ -1,5 +1,5 @@
 $domain="adatum.com"
-$password="Pa55w.rd"
+$password="demo@pass123"
 
 Install-WindowsFeature -Name "AD-Domain-Services" `
                        -IncludeManagementTools `

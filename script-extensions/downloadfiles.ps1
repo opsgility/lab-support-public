@@ -48,6 +48,6 @@ Start-BitsTransfer -Source $downloads -Destination $destinationFiles
 # Register task to run post-reboot script once host is rebooted after Hyper-V install
 Write-Output "Register post-reboot script as scheduled task"
 $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File $opsDir\no-personalized-experience.ps1"
-$trigger = New-ScheduledTaskTrigger -AtStartup
+$trigger = New-ScheduledTaskTrigger -AtLogOn
 $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName "SetUpVMs" -Action $action -Trigger $trigger -Principal $principal

@@ -84,6 +84,9 @@ AKS_CLUSTER_NAME="akschallenge$CURRENT_RANDOM"
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
     echo "Authenticating to Azure with username and password..."
+    echo "AZURE_USERNAME: ${AZURE_USERNAME}"
+    echo "AZURE_PASSWORD: ${AZURE_PASSWORD}"
+
     az login --username $AZURE_USERNAME --password $AZURE_PASSWORD
 fi
 

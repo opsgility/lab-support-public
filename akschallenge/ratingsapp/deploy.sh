@@ -133,9 +133,13 @@ az aks create \
     --docker-bridge-address 172.17.0.1/16 \
     --generate-ssh-keys
 
+echo "Get AKS credentials..."
 az aks get-credentials \
     --resource-group $RESOURCE_GROUP \
     --name $AKS_CLUSTER_NAME
+
+echo "Get AKS nodes..."
+kubectl get nodes
 
 ACR_NAME="acr$CURRENT_RANDOM"
 

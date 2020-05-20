@@ -184,15 +184,15 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 
 helm search repo bitnami
 
+echo "Installing mongodb..."
 helm install ratings bitnami/mongodb \
     --set mongodbUsername=$MONGO_USER,mongodbPassword=$MONGO_PASSWORD,mongodbDatabase=ratingsdb
 
+echo "Creating mongosecret..."
 kubectl create secret generic mongosecret \
     --from-literal=MONGOCONNECTION="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:27017/ratingsdb"
 
 kubectl describe secret mongosecret
-
-sed -i "s/ACR_NAME/${ACR_NAME}/g" ratings-api-deployment.yaml
 
 cd $FULLTEMPDIRPATH
 
@@ -200,6 +200,9 @@ wget $GITRATINGSAPIYAMLDEPLOY
 wget $GITRATINGSAPIYAMLSERVICE
 wget $GITRATINGSWEBYAMLDEPLOY
 wget $GITRATINGSWEBYAMLSERVICE
+
+echo "Update ACR_NAME in ratings-api-deployment.yaml..."
+sed -i "s/ACR_NAME/${ACR_NAME}/g" ratings-api-deployment.yaml
 
 echo "Deploying ratings-api..."
 kubectl apply \
@@ -216,6 +219,7 @@ kubectl apply \
 
 kubectl get endpoints ratings-api
 
+echo "Update ACR_NAME in ratings-web-deployment.yaml..."
 sed -i "s/ACR_NAME/${ACR_NAME}/g" ratings-web-deployment.yaml
 
 echo "Deploying ratings-web..."

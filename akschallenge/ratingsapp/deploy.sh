@@ -187,6 +187,7 @@ az acr repository list \
     --name $ACR_NAME \
     --output table
 
+echo "Update AKS and grant access to ACR..."
 az aks update \
     --name $AKS_CLUSTER_NAME \
     --resource-group $RESOURCE_GROUP \
@@ -205,10 +206,13 @@ echo "Creating mongosecret..."
 kubectl create secret generic mongosecret \
     --from-literal=MONGOCONNECTION="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:27017/ratingsdb"
 
+echo "Describe secret..."
 kubectl describe secret mongosecret
 
+echo "Change to $TEMPDIRNAME..."
 cd $FULLTEMPDIRPATH
 
+echo "Downloading YAML defintions..."
 wget $GITRATINGSAPIYAMLDEPLOY
 wget $GITRATINGSAPIYAMLSERVICE
 wget $GITRATINGSWEBYAMLDEPLOY

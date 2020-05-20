@@ -34,7 +34,7 @@ VNET_NAME="aks-vnet"
 ACR_NAME="acr$CURRENT_RANDOM"
 
 # Initialize parameters specified from command line
-while getopts ":l:r:" arg; do
+while getopts ":l:r:u:p:" arg; do
     case "${arg}" in
         l) # Process -l (Location)
             REGION_NAME=${OPTARG}

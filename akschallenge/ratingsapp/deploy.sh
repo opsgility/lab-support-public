@@ -25,6 +25,12 @@ apt-get update && apt-get -y install git
 echo "Installing helm..."
 curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
+echo "Installing kubectl"
+apt-get update && apt-get install -y apt-transport-https gnupg2
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+apt-get update && apt-get install -y kubectl
+
 CURRENT_RANDOM=$RANDOM
 
 REGION_NAME="eastus"
@@ -64,7 +70,10 @@ elif ! [ -x "$(command -v git)" ]; then
   echo "Error: git is not installed." 2>&1
   exit 1
 elif ! [ -x "$(command -v helm)" ]; then
-  echo "Error: git is not installed." 2>&1
+  echo "Error: helm is not installed." 2>&1
+  exit 1
+elif ! [ -x "$(command -v kubectl)" ]; then
+  echo "Error: kubectl is not installed." 2>&1
   exit 1
 elif ! [ -x "$(command -v sed)" ]; then
   echo "Error: git is not installed." 2>&1

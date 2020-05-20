@@ -16,29 +16,6 @@ declare -r GITRATINGSWEBYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/
 declare -r GITRATINGSWEBYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-service.yaml"
 declare -r USAGESTRING="Usage: deploy.sh -l <REGION_NAME> [-r <RESOURCE_GROUP> -u <USERNAME> -p <PASSWORD>]"
 
-echo "Installing Azure CLI..."
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
-echo "Installing git..."
-apt-get update && apt-get -y install git
-
-echo "Installing helm..."
-curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-
-echo "Installing kubectl"
-apt-get update && apt-get install -y apt-transport-https gnupg2
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
-apt-get update && apt-get install -y kubectl
-
-CURRENT_RANDOM=$RANDOM
-
-REGION_NAME="eastus"
-RESOURCE_GROUP="akschallenge$CURRENT_RANDOM"
-SUBNET_NAME="aks-subnet"
-VNET_NAME="aks-vnet"
-ACR_NAME="acr$CURRENT_RANDOM"
-
 # Initialize parameters specified from command line
 while getopts ":l:r:u:p:" arg; do
     case "${arg}" in
@@ -62,23 +39,47 @@ while getopts ":l:r:u:p:" arg; do
 done
 shift $((OPTIND-1))
 
-# Check for programs
+echo "Checking for programs..."
 if ! [ -x "$(command -v az)" ]; then
-  echo "Error: az is not installed." 2>&1
-  exit 1
-elif ! [ -x "$(command -v git)" ]; then
-  echo "Error: git is not installed." 2>&1
-  exit 1
-elif ! [ -x "$(command -v helm)" ]; then
-  echo "Error: helm is not installed." 2>&1
-  exit 1
-elif ! [ -x "$(command -v kubectl)" ]; then
-  echo "Error: kubectl is not installed." 2>&1
-  exit 1
-elif ! [ -x "$(command -v sed)" ]; then
-  echo "Error: git is not installed." 2>&1
+    echo "Error: az is not installed." 2>&1
+    echo "Installing Azure CLI..."
+    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+fi 
+
+if ! [ -x "$(command -v git)" ]; then
+    echo "Error: git is not installed." 2>&1
+    echo "Installing git..."
+    apt-get update && apt-get -y install git
+fi
+
+if ! [ -x "$(command -v helm)" ]; then
+    echo "Error: helm is not installed." 2>&1
+    echo "Installing helm..."
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+fi
+
+if ! [ -x "$(command -v kubectl)" ]; then
+    echo "Error: kubectl is not installed." 2>&1
+    echo "Installing kubectl"
+    apt-get update && apt-get install -y apt-transport-https gnupg2
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+    apt-get update && apt-get install -y kubectl
+fi
+
+if ! [ -x "$(command -v sed)" ]; then
+  echo "Error: sed is not installed." 2>&1
   exit 1
 fi
+
+CURRENT_RANDOM=$RANDOM
+
+REGION_NAME="eastus"
+RESOURCE_GROUP="akschallengerg"
+SUBNET_NAME="aks-subnet"
+VNET_NAME="aks-vnet"
+ACR_NAME="acr$CURRENT_RANDOM"
+AKS_CLUSTER_NAME="akschallenge$CURRENT_RANDOM"
 
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
@@ -96,6 +97,7 @@ else
     echo "Using existing resource group $RESOURCE_GROUP."
 fi
 
+echo "Creating VNET ${VNET_NAME}..."
 az network vnet create \
     --resource-group $RESOURCE_GROUP \
     --location $REGION_NAME \
@@ -115,10 +117,7 @@ VERSION=$(az aks get-versions \
     --query 'orchestrators[?!isPreview] | [-1].orchestratorVersion' \
     --output tsv)
 
-AKS_CLUSTER_NAME="akschallenge$CURRENT_RANDOM"
-echo $AKS_CLUSTER_NAME
-
-echo "Creating AKS cluster $AKS_CLUSTER_NAME..."
+echo "Creating AKS cluster $AKS_CLUSTER_NAME with verion ${VERSION}..."
 az aks create \
     --resource-group $RESOURCE_GROUP \
     --name $AKS_CLUSTER_NAME \
@@ -139,7 +138,7 @@ az aks get-credentials \
     --name $AKS_CLUSTER_NAME
 
 echo "Get AKS nodes..."
-kubectl get nodes
+kubectl get nodes 2>&1
 
 ACR_NAME="acr$CURRENT_RANDOM"
 

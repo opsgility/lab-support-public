@@ -16,8 +16,14 @@ declare -r GITRATINGSWEBYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/
 declare -r GITRATINGSWEBYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-service.yaml"
 declare -r USAGESTRING="Usage: deploy.sh -l <REGION_NAME> [-r <RESOURCE_GROUP> -u <USERNAME> -p <PASSWORD>]"
 
-echo "Install Azure CLI..."
+echo "Installing Azure CLI..."
 curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+echo "Installing git..."
+apt-get update && apt-get -y install git
+
+echo "Installing helm..."
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
 CURRENT_RANDOM=$RANDOM
 

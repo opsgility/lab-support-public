@@ -10,8 +10,14 @@ declare -r GITRATINGSWEBDIR="mslearn-aks-workshop-ratings-web"
 declare -r MONGO_USER="demouser"
 declare -r MONGO_PASSWORD="demopassword1"
 declare -r MONGO_HOST="ratings-mongodb.svc.cluster.local"
-
+declare -r GITRATINGSAPIYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-api-deployment.yaml"
+declare -r GITRATINGSAPIYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-api-service.yaml"
+declare -r GITRATINGSWEBYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-deployment.yaml"
+declare -r GITRATINGSWEBYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-service.yaml"
 declare -r USAGESTRING="Usage: deploy.sh -l <REGION_NAME> [-r <RESOURCE_GROUP> -u <USERNAME> -p <PASSWORD>]"
+
+echo "Install Azure CLI..."
+curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 CURRENT_RANDOM=$RANDOM
 
@@ -181,6 +187,13 @@ kubectl create secret generic mongosecret \
 kubectl describe secret mongosecret
 
 sed -i "s/ACR_NAME/${ACR_NAME}/g" ratings-api-deployment.yaml
+
+cd $FULLTEMPDIRPATH
+
+wget $GITRATINGSAPIYAMLDEPLOY
+wget $GITRATINGSAPIYAMLSERVICE
+wget $GITRATINGSWEBYAMLDEPLOY
+wget $GITRATINGSWEBYAMLSERVICE
 
 echo "Deploying ratings-api..."
 kubectl apply \

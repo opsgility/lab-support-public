@@ -41,26 +41,22 @@ shift $((OPTIND-1))
 
 echo "Checking for programs..."
 if ! [ -x "$(command -v az)" ]; then
-    echo "Error: az is not installed." 2>&1
-    echo "Installing Azure CLI..."
+    echo "az is not installed. Installing Azure CLI..."
     curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 fi 
 
 if ! [ -x "$(command -v git)" ]; then
-    echo "Error: git is not installed." 2>&1
-    echo "Installing git..."
+    echo "git is not installed. Installing git..."
     apt-get update && apt-get -y install git
 fi
 
 if ! [ -x "$(command -v helm)" ]; then
-    echo "Error: helm is not installed." 2>&1
-    echo "Installing helm..."
+    echo "helm is not installed. Installing helm..."
     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 fi
 
 if ! [ -x "$(command -v kubectl)" ]; then
-    echo "Error: kubectl is not installed." 2>&1
-    echo "Installing kubectl"
+    echo "Error: kubectl is not installed. Installing kubectl..."
     apt-get update && apt-get install -y apt-transport-https gnupg2
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list

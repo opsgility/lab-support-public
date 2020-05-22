@@ -138,6 +138,9 @@ SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .objectId)
 echo "CLIENTSECRET: $CLIENTSECRET"
 echo "SPID: $SPID"
 
+echo "Sleeping for two minutes while SP propagtes..."
+sleep 120
+
 echo "Creating AKS cluster $AKS_CLUSTER_NAME with verion ${VERSION}..."
 az aks create \
     --resource-group $RESOURCE_GROUP \

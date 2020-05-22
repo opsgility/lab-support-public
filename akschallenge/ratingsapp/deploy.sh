@@ -134,7 +134,7 @@ VERSION=$(az aks get-versions \
 SPNAME="${AKS_CLUSTER_NAME}_sp"
 echo "Creating service principal $SPNAME"
 CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
-SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .objectId)
+SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .appId)
 echo "CLIENTSECRET: ${CLIENTSECRET}"
 echo "SPID: ${SPID}"
 

@@ -3,6 +3,9 @@
 # set -euo pipefail
 IFS=$'\n\t'
 
+declare AZURE_USERNAME=""
+declare AZURE_PASSWORD=""
+declare  AZURE_SUBSCRIPTIONID=""
 declare -r GITRATINGSAPIURI="https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-api.git"
 declare -r GITRATINGSAPIDIR="mslearn-aks-workshop-ratings-api"
 declare -r GITRATINGSWEBURI="https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-web.git"
@@ -14,10 +17,10 @@ declare -r GITRATINGSAPIYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/
 declare -r GITRATINGSAPIYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-api-service.yaml"
 declare -r GITRATINGSWEBYAMLDEPLOY="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-deployment.yaml"
 declare -r GITRATINGSWEBYAMLSERVICE="https://raw.githubusercontent.com/opsgility/lab-support-public/master/akschallenge/ratingsapp/ratings-web-service.yaml"
-declare -r USAGESTRING="Usage: deploy.sh -l <REGION_NAME> [-r <RESOURCE_GROUP> -u <USERNAME> -p <PASSWORD>]"
+declare -r USAGESTRING="Usage: deploy.sh -l <REGION_NAME> [-r <RESOURCE_GROUP> -u <USERNAME> -p <PASSWORD> -s <SUBSCRIPTIONID>]"
 
 # Initialize parameters specified from command line
-while getopts ":l:r:u:p:" arg; do
+while getopts ":l:r:u:p:s:" arg; do
     case "${arg}" in
         l) # Process -l (Location)
             REGION_NAME=${OPTARG}
@@ -30,6 +33,9 @@ while getopts ":l:r:u:p:" arg; do
         ;;
         p) # Process -p (Password)
             AZURE_PASSWORD=${OPTARG} 
+        ;;
+        s) # Process -s (SubscriptionId)
+            AZURE_SUBSCRIPTIONID=${OPTARG} 
         ;;
         \?)
             echo "Invalid options found: -$OPTARG."
@@ -82,8 +88,12 @@ if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
     echo "Authenticating to Azure with username and password..."
     echo "AZURE_USERNAME: ${AZURE_USERNAME}"
     echo "AZURE_PASSWORD: ${AZURE_PASSWORD}"
+    echo "AZURE_SUBSCRIPTIONID: ${AZURE_SUBSCRIPTIONID}"
 
     az login --username $AZURE_USERNAME --password $AZURE_PASSWORD
+
+    echo "Setting account..."
+    az account set -s $AZURE_SUBSCRIPTIONID
 fi
 
 RGEXISTS=$(az group show --name $RESOURCE_GROUP --query name)

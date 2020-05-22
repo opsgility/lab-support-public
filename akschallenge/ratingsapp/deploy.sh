@@ -132,8 +132,11 @@ VERSION=$(az aks get-versions \
     --output tsv)
 
 SPNAME="${AKS_CLUSTER_NAME}_sp"
+echo "Creating service principal $SPNAME"
 CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
 SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .objectId)
+echo "CLIENTSECRET: $CLIENTSECRET"
+echo "SPID: $SPID"
 
 echo "Creating AKS cluster $AKS_CLUSTER_NAME with verion ${VERSION}..."
 az aks create \

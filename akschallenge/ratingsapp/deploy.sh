@@ -69,6 +69,11 @@ if ! [ -x "$(command -v kubectl)" ]; then
     apt-get update && apt-get install -y kubectl
 fi
 
+if ! [ -x "$(command -v jq)" ]; then
+    echo "Error: jq is not installed. Installing jq..."
+    apt-get update && apt-get install -y jq
+fi
+
 if ! [ -x "$(command -v sed)" ]; then
   echo "Error: sed is not installed." 2>&1
   exit 1

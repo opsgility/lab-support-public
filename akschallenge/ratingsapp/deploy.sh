@@ -135,8 +135,8 @@ SPNAME="${AKS_CLUSTER_NAME}_sp"
 echo "Creating service principal $SPNAME"
 CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
 SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .objectId)
-echo "CLIENTSECRET: $CLIENTSECRET"
-echo "SPID: $SPID"
+echo "CLIENTSECRET: ${CLIENTSECRET}"
+echo "SPID: ${SPID}"
 
 echo "Sleeping for two minutes while SP propagtes..."
 sleep 120
@@ -155,8 +155,8 @@ az aks create \
     --dns-service-ip 10.2.0.10 \
     --docker-bridge-address 172.17.0.1/16 \
     --generate-ssh-keys \
-    --service-principal $SPID \
-    --client-secret $CLIENTSECRET
+    --service-principal "${SPID}" \
+    --client-secret "${CLIENTSECRET}"
 
 echo "Get AKS credentials..."
 az aks get-credentials \

@@ -191,6 +191,11 @@ az aks update \
     --resource-group $RESOURCE_GROUP \
     --attach-acr $ACR_NAME
 
+echo "Reauth and get AKS credentials..."
+az aks get-credentials \
+    --resource-group $RESOURCE_GROUP \
+    --name $AKS_CLUSTER_NAME
+
 echo "Deploying MongoDB..."
 helm repo add bitnami https://charts.bitnami.com/bitnami
 

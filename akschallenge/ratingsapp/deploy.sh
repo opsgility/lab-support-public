@@ -126,6 +126,10 @@ VERSION=$(az aks get-versions \
     --query 'orchestrators[?!isPreview] | [-1].orchestratorVersion' \
     --output tsv)
 
+SPNAME="${AKS_CLUSTER_NAME}_sp"
+CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
+SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .objectId)
+
 echo "Creating AKS cluster $AKS_CLUSTER_NAME with verion ${VERSION}..."
 az aks create \
     --resource-group $RESOURCE_GROUP \
@@ -139,7 +143,9 @@ az aks create \
     --service-cidr 10.2.0.0/24 \
     --dns-service-ip 10.2.0.10 \
     --docker-bridge-address 172.17.0.1/16 \
-    --generate-ssh-keys
+    --generate-ssh-keys \
+    --service-principal $SPID \
+    --client-secret $CLIENTSECRET
 
 echo "Get AKS credentials..."
 az aks get-credentials \

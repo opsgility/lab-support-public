@@ -79,9 +79,9 @@ CURRENT_RANDOM=$RANDOM
 REGION_NAME="eastus"
 RESOURCE_GROUP="akschallengerg"
 SUBNET_NAME="aks-subnet"
-VNET_NAME="aks-vnet"
+VNET_NAME="aks$CURRENT_RANDOM-vnet"
 ACR_NAME="acr$CURRENT_RANDOM"
-AKS_CLUSTER_NAME="akschallenge$CURRENT_RANDOM"
+AKS_CLUSTER_NAME="aks$CURRENT_RANDOM"
 
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then

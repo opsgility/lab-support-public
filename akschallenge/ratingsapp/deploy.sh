@@ -146,6 +146,12 @@ az aks get-credentials \
     --resource-group $RESOURCE_GROUP \
     --name $AKS_CLUSTER_NAME
 
+# creds stored in $HOME/.kube/config
+# e.g. /root/.kube/config
+echo "Updating permissions on kube config for user $(whoami)..."
+echo "HOME: $HOME"
+chown $(id -u):$(id -g) $HOME/.kube/config
+
 echo "Get AKS nodes..."
 kubectl get nodes 2>&1
 

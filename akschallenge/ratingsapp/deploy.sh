@@ -133,7 +133,22 @@ VERSION=$(az aks get-versions \
 
 SPNAME="${AKS_CLUSTER_NAME}_sp"
 echo "Creating service principal $SPNAME"
-CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
+
+# Add check for az aks create not URI encoding certain characters correctly
+CLIENTSECRETVALID=""
+while [ -z $CLIENTSECRETVALID ]; do
+  echo "Creating new SP and secret..."
+  CLIENTSECRET=$(az ad sp create-for-rbac --skip-assignment -n $SPNAME -o json | jq -r .password)
+  if [[ $CLIENTSECRET == *"'"* ]]; then
+    echo "Found invalid character. Recreating..."
+    CLIENTSECRETVALID=""
+  else
+    echo "Appears valid..."
+    CLIENTSECRETVALID="true"
+  fi
+done
+echo "CLIENTSECRET ready: ${CLIENTSECRET}"
+
 SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .appId)
 echo "CLIENTSECRET: ${CLIENTSECRET}"
 echo "SPID: ${SPID}"

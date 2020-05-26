@@ -153,7 +153,7 @@ SPID=$(az ad sp show --id "http://$SPNAME" -o json | jq -r .appId)
 echo "CLIENTSECRET: ${CLIENTSECRET}"
 echo "SPID: ${SPID}"
 
-echo "Sleeping for two minutes while SP propagtes..."
+echo "Sleeping for two minutes while SP propagates..."
 sleep 120
 
 echo "Creating AKS cluster $AKS_CLUSTER_NAME with verion ${VERSION}..."

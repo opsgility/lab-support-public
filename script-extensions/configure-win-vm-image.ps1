@@ -33,11 +33,12 @@ Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type
 
 # Install Chrome
 $Path = $env:TEMP; 
-$Installer = "chrome_installer.exe"
-Invoke-WebRequest "http://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
+$Installer = "ChromeSetup.exe"
+Invoke-WebRequest "https://opsgilitylabs.blob.core.windows.net/public/ChromeSetup.exe" -OutFile $Path\$Installer
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
 
+<#
 if([string]::IsNullOrEmpty($installOptions) -eq $false) 
 {
 
@@ -64,7 +65,32 @@ if([string]::IsNullOrEmpty($installOptions) -eq $false)
     }
 
 }
+#>
 
+# Edge Chromium
+$Path = $env:TEMP; 
+$Installer = "MicrosoftEdgeEnterpriseX64.msi"
+Invoke-WebRequest "http://go.microsoft.com/fwlink/?LinkID=2093437" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
+# VS Code
+$Path = $env:TEMP; 
+$Installer = "vscode.exe"
+Invoke-WebRequest "https://go.microsoft.com/fwlink/?Linkid=852157" -OutFile $Path\$Installer
+Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
+# AZ Cli
+$Path = $env:TEMP; 
+$Installer = "cli_installer.msi"
+Write-Host "Downloading Azure CLI 2..." -ForegroundColor Green
+Invoke-WebRequest "https://aka.ms/InstallAzureCliWindows" -OutFile $Path\$Installer
+Write-Host "Installing Azure CLI from $Path\$Installer..." -ForegroundColor Green
+Start-Process -FilePath msiexec -Args "/i $Path\$Installer /quiet /qn /norestart" -Verb RunAs -Wait
+Remove-Item $Path\$Installer
+
+# Git
 $Path = $env:TEMP; 
 $Installer = "Git-2.21.0-64-bit.exe"
 Write-Host "Downloading Git Client" -ForegroundColor Green

@@ -67,11 +67,14 @@ if([string]::IsNullOrEmpty($installOptions) -eq $false)
 }
 #>
 
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Install-Module -Name Az -Force -AllowClobber
+
 # Edge Chromium
 $Path = $env:TEMP; 
 $Installer = "MicrosoftEdgeEnterpriseX64.msi"
 Invoke-WebRequest "http://go.microsoft.com/fwlink/?LinkID=2093437" -OutFile $Path\$Installer
-Start-Process -FilePath $Path\$Installer -Args "/verysilent /MERGETASKS=!runcode" -Verb RunAs -Wait
+Start-Process -FilePath $Path\$Installer -Args "/q" -Verb RunAs -Wait
 Remove-Item $Path\$Installer
 
 # VS Code

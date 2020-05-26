@@ -101,6 +101,10 @@ if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
     az account set -s $AZURE_SUBSCRIPTIONID
 fi
 
+# Register resource providers
+az provider register --namespace 'Microsoft.ContainerRegistry'
+az provider register --namespace 'Microsoft.ContainerService'
+
 RGEXISTS=$(az group show --name $RESOURCE_GROUP --query name)
 if [ ${#RGEXISTS} -eq 0 ]; then
     echo "Resource group $RESOURCE_GROUP was not found. Creating resource group..."

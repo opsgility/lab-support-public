@@ -87,6 +87,7 @@ VNET_NAME="aks$CURRENT_RANDOM-vnet"
 ACR_NAME="acr$CURRENT_RANDOM"
 AKS_CLUSTER_NAME="aks$CURRENT_RANDOM"
 COSMOS_NAME="cosmos$CURRENT_RANDOM"
+RATINGS_WEB_DNS_NAME="ratingsweb$CURRENT_RANDOM"
 
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
@@ -306,6 +307,9 @@ echo "Sleeping for 1 minute..."
 sleep 60
 
 kubectl get deployment ratings-web
+
+echo "Update RATINGS_WEB_DNS_NAME in ratings-web-service.yaml..."
+sed -i "s/RATINGS_WEB_DNS_NAME/${RATINGS_WEB_DNS_NAME}/g" ratings-web-service.yaml
 
 echo "Deploying ratings-web service..."
 kubectl apply \

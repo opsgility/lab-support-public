@@ -105,6 +105,8 @@ fi
 # Register resource providers
 az provider register --namespace 'Microsoft.ContainerRegistry'
 az provider register --namespace 'Microsoft.ContainerService'
+az provider register --namespace 'Microsoft.ContainerInstance'
+az provider register --namespace 'Microsoft.DocumentDB'
 
 RGEXISTS=$(az group show --name $RESOURCE_GROUP --query name)
 if [ ${#RGEXISTS} -eq 0 ]; then

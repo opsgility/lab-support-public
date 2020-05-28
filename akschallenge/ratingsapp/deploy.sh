@@ -151,6 +151,9 @@ while [ -z $CLIENTSECRETVALID ]; do
   if [[ $CLIENTSECRET == *"'"* ]]; then
     echo "Found invalid character. Recreating..."
     CLIENTSECRETVALID=""
+  elif [[ $CLIENTSECRET == *"\`"* ]]; then
+    echo "Found invalid character. Recreating..."
+    CLIENTSECRETVALID=""
   else
     echo "Appears valid..."
     CLIENTSECRETVALID="true"

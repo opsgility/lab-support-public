@@ -5,7 +5,8 @@ IFS=$'\n\t'
 
 declare AZURE_USERNAME=""
 declare AZURE_PASSWORD=""
-declare  AZURE_SUBSCRIPTIONID=""
+declare AZURE_SUBSCRIPTIONID=""
+declare REGION_NAME="eastus"
 declare -r GITRATINGSAPIURI="https://github.com/opsgility/challenge-aks-operations-ratings-api.git"
 declare -r GITRATINGSAPIDIR="challenge-aks-operations-ratings-api"
 declare -r GITRATINGSWEBURI="https://github.com/opsgility/challenge-aks-operations-ratings-web.git"
@@ -80,13 +81,12 @@ if ! [ -x "$(command -v sed)" ]; then
 fi
 
 CURRENT_RANDOM=$RANDOM
-
-REGION_NAME="eastus"
 RESOURCE_GROUP="akschallengerg"
 SUBNET_NAME="aks-subnet"
 VNET_NAME="aks$CURRENT_RANDOM-vnet"
 ACR_NAME="acr$CURRENT_RANDOM"
 AKS_CLUSTER_NAME="aks$CURRENT_RANDOM"
+COSMOS_NAME="cosmos$CURRENT_RANDOM"
 
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
@@ -124,16 +124,20 @@ az network vnet create \
     --subnet-name $SUBNET_NAME \
     --subnet-prefix 10.240.0.0/16
 
+echo "Retrieving subnet ID..."
 SUBNET_ID=$(az network vnet subnet show \
     --resource-group $RESOURCE_GROUP \
     --vnet-name $VNET_NAME \
     --name $SUBNET_NAME \
     --query id -o tsv)
+echo "SUBNET_ID: $SUBNET_ID"
 
+echo "Determining AKS version..."
 VERSION=$(az aks get-versions \
     --location $REGION_NAME \
     --query 'orchestrators[?!isPreview] | [-1].orchestratorVersion' \
     --output tsv)
+echo "VERSION: $VERSION"
 
 SPNAME="${AKS_CLUSTER_NAME}_sp"
 echo "Creating service principal $SPNAME"
@@ -180,20 +184,23 @@ az aks create \
 echo "Get AKS credentials..."
 az aks get-credentials \
     --resource-group $RESOURCE_GROUP \
-    --name $AKS_CLUSTER_NAME
+    --name $AKS_CLUSTER_NAME \
+    --overwrite-existing
 
-# creds stored in $HOME/.kube/config
-# e.g. /root/.kube/config
-echo "Export KUBECONFIG..."
-echo "Current KUBECONFIG: $KUBECONFIG"
-export KUBECONFIG="/$(whoami)/.kube/config"
-KUBECONFIG="/$(whoami)/.kube/config"
-echo "New KUBECONFIG: $KUBECONFIG"
+# Check for Cloud Shell
+# If not in Cloud Shell we're running in the CSE
+if [[ ! -d ~/clouddrive ]]; then 
+    # creds stored in $HOME/.kube/config
+    # e.g. /root/.kube/config
+    echo "Export KUBECONFIG..."
+    echo "Current KUBECONFIG: $KUBECONFIG"
+    export KUBECONFIG="/$(whoami)/.kube/config"
+    KUBECONFIG="/$(whoami)/.kube/config"
+    echo "New KUBECONFIG: $KUBECONFIG" 
+fi
 
 echo "Get AKS nodes..."
 kubectl get nodes 2>&1
-
-ACR_NAME="acr$CURRENT_RANDOM"
 
 echo "Creating ACR $ACR_NAME..."
 az acr create \
@@ -245,18 +252,18 @@ az aks update \
     --resource-group $RESOURCE_GROUP \
     --attach-acr $ACR_NAME
 
-echo "Deploying MongoDB..."
-helm repo add bitnami https://charts.bitnami.com/bitnami
+echo "Deploying Cosmos DB for Mongo..."
+az cosmosdb create \
+    --name $COSMOS_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --kind MongoDB
 
-helm search repo bitnami
-
-echo "Installing mongodb..."
-helm install ratings bitnami/mongodb \
-    --set mongodbUsername=$MONGO_USER,mongodbPassword=$MONGO_PASSWORD,mongodbDatabase=ratingsdb
+COSMOS_KEY=$(az cosmosdb list-connection-strings --name $COSMOS_NAME --resource-group $RESOURCE_GROUP --query "connectionStrings[0].connectionString" | sed -r "s/\\\"//g" | sed -r "s/\?/ratingsdb\?/g")
+echo "COSMOS_KEY: ${COSMOS_KEY}"
 
 echo "Creating mongosecret..."
 kubectl create secret generic mongosecret \
-    --from-literal=MONGOCONNECTION="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:27017/ratingsdb"
+    --from-literal=MONGOCONNECTION="${COSMOS_KEY}"
 
 echo "Describe secret..."
 kubectl describe secret mongosecret

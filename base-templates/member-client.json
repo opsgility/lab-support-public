@@ -1,0 +1,230 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmstorageType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Premium_LRS"
+      ]
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "demouser",
+      "metadata": {
+        "description": "The name of the administrator account of the new VM and domain"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The password for the administrator account of the new VM and domain"
+      }
+    },
+    "localUsername": {
+      "type": "string",
+      "defaultValue": "[parameters('adminUsername')]"
+    },
+    "domainName": {
+      "type": "string",
+      "defaultValue": "opsaaddemo.local",
+      "metadata": {
+        "description": "The FQDN of the Active Directory Domain to be created"
+      }
+    },
+    "DomainJoinscriptUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "script to execute"
+      }
+    },
+    "JoinDomain": {
+      "type": "bool",
+      "defaultValue": "[not(empty(parameters('DomainJoinscriptUrl')))]"
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "MSVM1",
+      "minLength": 1
+    },
+    "VMWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "20h1-ent",
+      "allowedValues": [
+        "19h1-pro",
+        "19h2-pro",
+        "20h1-pro",
+        "19h1-ent",
+        "19h2-ent",
+        "20h1-ent"
+      ]
+    }
+  },
+  "variables": {
+    "VNETNAME": "OPSTrainingVNET",
+    "DNSIP": "10.0.1.4",
+    "OPSTrainingVNETPrefix": "10.0.0.0/16",
+    "OPSTrainingVNETSubnet1Name": "Apps",
+    "OPSTrainingVNETSubnet1Prefix": "10.0.0.0/24",
+    "OPSTrainingVNETSubnet2Name": "Identity",
+    "OPSTrainingVNETSubnet2Prefix": "10.0.1.0/24",
+    "vmstorageName": "[concat('msstorage', uniqueString(resourceGroup().id))]",
+    "scriptFolder": ".",
+    "DomainJoinscriptFileName": "domain-join.ps1",
+    "DomainJoinscriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",
+    "MABSClientVMName": "[parameters('vmName')]",
+    "MABSClientVMImagePublisher": "MicrosoftWindowsDesktop",
+    "MABSClientVMImageOffer": "Windows-10",
+    "MABSClientVMOSDiskName": "[concat(variables('MABSClientVMName'),'-OSDisk')]",
+    "MABSClientVMVmSize": "Standard_D2S_v3",
+    "MABSClientVMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'OPSTrainingVNET')]",
+    "MABSClientVMSubnetRef": "[concat(variables('MABSClientVMVnetID'), '/subnets/', variables('OPSTrainingVNETSubnet1Name'))]",
+    "MABSClientVMStorageAccountContainerName": "vhds",
+    "MABSClientVMNicName": "[concat(variables('MABSClientVMName'), 'NetworkInterface')]",
+    "MABSDISK1": "[concat('http://',variables('vmstorageName'),'.blob.core.windows.net/','vhds','/',variables('MABSClientVMName'),'-dataDisk1.vhd')]",
+    "MABSClientVM-IPName": "[concat(variables('MABSClientVMName'),'-IP')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('vmstorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('vmstorageType')]"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "vmstorage"
+      },
+      "kind": "Storage"
+    },
+    {
+      "name": "[variables('MABSClientVMNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('MABSClientVM-IPName'))]"
+      ],
+      "tags": {
+        "displayName": "MABSClientVMNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('MABSClientVMSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('MABSClientVM-IPName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('MABSClientVMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('MABSClientVMNicName'))]"
+      ],
+      "tags": {
+        "displayName": "MABSClientVM"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('MABSClientVMVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('MABSClientVMName')]",
+          "adminUsername": "[parameters('localUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('MABSClientVMImagePublisher')]",
+            "offer": "[variables('MABSClientVMImageOffer')]",
+            "sku": "[parameters('VMWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "MABSClientVMOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('MABSClientVMStorageAccountContainerName'), '/', variables('MABSClientVMOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "vhd": { "uri": "[variables('MABSDISK1')]" },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('MABSClientVMNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "condition": "[parameters('JoinDomain')]",
+          "name": "DomainJoin",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('MABSClientVMName'))]"
+          ],
+          "tags": {
+            "displayName": "DomainJoin"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('DomainJoinscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('DomainJoinscriptFileName'), ' ', variables('DomainJoinscriptParameters'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('MABSClientVM-IPName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "MABSClientVM-IP"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    }
+  ],
+  "outputs": {}
+}

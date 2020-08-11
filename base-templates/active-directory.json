@@ -54,7 +54,7 @@
     },
     "baseRepo": {
       "type": "string",
-      "defaultValue": "https://github.com/KitSkin/publabs/raw/master/win10ad"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master"
     }
   },
   "variables": {
@@ -77,7 +77,8 @@
     "InstallADScriptFolder": "CustomScripts",
     "InstallADScriptFileName": "InstallAD.ps1",
     "scriptFolder": ".",
-    "VM1scriptFileName": "deploy-ad.ps1",
+    "VM1scriptFileNameStart": "[add(lastIndexOf(parameters('ADInstallscriptUrl'),'/'),1)]",
+    "VM1scriptFileName": "[substring(parameters('ADInstallscriptUrl'),variables('VM1scriptFileNameStart'),sub(length(parameters('ADInstallscriptUrl')),variables('VM1scriptFileNameStart')))]",
     "VM1scriptParameters": "[concat(' -domain ', parameters('domainName'), ' -password ', parameters('adminPassword'), ' -sourceRepo ', parameters('baseRepo'))]",
     "DomainJoinscriptFileName": "domain-join.ps1",
     "DomainJoinscriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",

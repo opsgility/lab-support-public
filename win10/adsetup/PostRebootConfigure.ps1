@@ -9,6 +9,7 @@ param(
 Begin {
     Start-Transcript "C:\PostRebootConfigure_log.txt"
     $cmdLogPath = "C:\PostRebootConfigure_log_cmd.txt"
+    If (-not (Test-Path $Folder -ErrorAction SilentlyContinue)) { mkdir $Folder }
 }
 
 Process {
@@ -17,14 +18,14 @@ Process {
 Write-Output "Downloading zip file..."
 $sourceFileUrl = "$repo/$ContentFile"
 $fileName = Split-Path -Path $sourceFileUrl -Leaf
-$destinationPath = Join-Path $destinationFolder $fileName
+$destinationPath = Join-Path $Folder $fileName
 
 (New-Object Net.WebClient).DownloadFile($sourceFileUrl,$destinationPath);
 
-Write-Output "Extracting zip to $destinationFolder..."
-(new-object -com shell.application).namespace($destinationFolder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
+Write-Output "Extracting zip to $Folder..."
+(new-object -com shell.application).namespace($Folder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 
-&"$Folder\StudentFiles\DomainUpdate.ps1" -SharePath "$Folder\StudentFiles\LabFiles"
+&"$Folder\DomainUpdate.ps1" -SharePath "$Folder\LabFiles"
 
 
 }

@@ -1,8 +1,11 @@
-param($domain,
+param(
+    [alias('domainName')]
+    $domain,
+    [alias('adminPassword')]
     $password,
-    $sourceRepo="https://raw.githubusercontent.com/opsgility/lab-support-public/master/win10/adsetup",
+    $sourceRepo="https://raw.githubusercontent.com/opsgility/lab-support-public/master",
     $destinationFolder="C:\SkillMeUp",
-    $postConfig="PostRebootConfigure.ps1")
+    $postConfig="win10/adsetup/PostRebootConfigure.ps1")
 
 $smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
 

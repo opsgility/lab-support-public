@@ -2,7 +2,7 @@ param($domain,
     $password,
     $sourceRepo="https://raw.githubusercontent.com/opsgility/lab-support-public/master/win10/adsetup",
     $destinationFolder="C:\SkillMeUp",
-    $postConfig="win10/adsetup/PostRebootConfigure.ps1")
+    $postConfig="PostRebootConfigure.ps1")
 
 $smPassword = (ConvertTo-SecureString $password -AsPlainText -Force)
 
@@ -20,7 +20,7 @@ $destinationPath = "$destinationFolder\$FileName"
 
 # Register task to run post-reboot script once host is rebooted after Hyper-V install
 Write-Output "Register post-reboot script as scheduled task"
-$action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File $opsDir\PostRebootConfigure.ps1 -Domain $domain -repo $sourceRepo"
+$action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Unrestricted -File ""$destinationPath"" -Domain $domain -repo $sourceRepo -Folder ""$destinationFolder"""
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 Register-ScheduledTask -TaskName "SetUpDC" -Action $action -Trigger $trigger -Principal $principal

@@ -43,11 +43,11 @@
     },
     "ClientIndex": {
       "type": "int",
-      "defaultValue": "1"
+      "defaultValue": 1
     },
     "SkipJoins": {
       "type": "int",
-      "defaultValue": "0"
+      "defaultValue": 0
     },
     "JoinDomain": {
       "type": "bool",

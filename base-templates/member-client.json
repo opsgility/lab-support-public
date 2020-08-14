@@ -42,16 +42,16 @@
       }
     },
     "ClientIndex": {
-      "type": "int",
-      "defaultValue": 1
+      "type": "string",
+      "defaultValue": "1"
     },
     "SkipJoins": {
-      "type": "int",
-      "defaultValue": 0
+      "type": "string",
+      "defaultValue": "0"
     },
     "JoinDomain": {
       "type": "bool",
-      "defaultValue": "[greaterOrEquals(parameters('ClientIndex'),parameters('SkipJoins'))]"
+      "defaultValue": "[greaterOrEquals(int(parameters('ClientIndex')),int(parameters('SkipJoins')))]"
     },
     "vmName": {
       "type": "string",

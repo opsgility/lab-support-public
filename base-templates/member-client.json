@@ -41,9 +41,17 @@
         "description": "script to execute"
       }
     },
+    "ClientIndex": {
+      "type": "int",
+      "defaultValue": "1"
+    },
+    "SkipJoins": {
+      "type": "int",
+      "defaultValue": "0"
+    },
     "JoinDomain": {
       "type": "bool",
-      "defaultValue": "[not(empty(parameters('DomainJoinscriptUrl')))]"
+      "defaultValue": "[greaterOrEquals(parameters('ClientIndex'),parameters('SkipJoins'))]"
     },
     "vmName": {
       "type": "string",

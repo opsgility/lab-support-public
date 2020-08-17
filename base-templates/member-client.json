@@ -81,7 +81,7 @@
     "OPSTrainingVNETSubnet2Prefix": "10.0.1.0/24",
     "vmstorageName": "[concat('msstorage', uniqueString(resourceGroup().id))]",
     "scriptFolder": ".",
-    "DomainJoinscriptFileName": "domain-join.ps1",
+    "DomainJoinscriptFileName": "domain-join-user.ps1",
     "DomainJoinscriptParameters": "[concat(' -domain ', parameters('domainName'), ' -user ', parameters('adminUsername'), ' -password ', parameters('adminPassword'))]",
     "MABSClientVMName": "[parameters('vmName')]",
     "MABSClientVMImagePublisher": "MicrosoftWindowsDesktop",

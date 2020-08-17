@@ -21,7 +21,7 @@ $fileName = Split-Path -Path $sourceFileUrl -Leaf
 $destinationPath = Join-Path $Folder $fileName
 
 $maxTries=15
-$waitInSeconds=15
+$waitInSeconds=45
 $try=0
 Do {
     try {
@@ -42,7 +42,13 @@ If (Test-Path $destinationPath -ErrorAction SilentlyContinue) {
     Write-Output "Extracting zip to $Folder..."
     (new-object -com shell.application).namespace($Folder).CopyHere((new-object -com shell.application).namespace($destinationPath).Items(),16)
 
-    &"$Folder\DomainUpdate.ps1" -SharePath "$Folder\LabFiles"
+    try {
+        &"$Folder\DomainUpdate.ps1" -SharePath "$Folder\LabFiles"
+    } catch {
+        Write-Error "Could not complete Domain Update.  Pausing 10 minutes for Domain Services to start and attempting again."
+        Start-Sleep -Seconds 600
+        &"$Folder\DomainUpdate.ps1" -SharePath "$Folder\LabFiles"
+    }
 } else {
     Write-Error "Unable to download file.  Reboot to attempt to download again."
 }

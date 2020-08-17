@@ -54,7 +54,7 @@
     },
     "baseRepo": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master"
+      "defaultValue": "https://raw.githubusercontent.com/opsgility/lab-support-public/master/win10/adsetup"
     }
   },
   "variables": {

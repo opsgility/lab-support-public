@@ -53,6 +53,10 @@
       "type": "bool",
       "defaultValue": "[greaterOrEquals(int(parameters('ClientIndex')),int(parameters('SkipJoins')))]"
     },
+    "ExtraDisks": {
+      "type": "bool",
+      "defaultValue": false
+    },
     "vmName": {
       "type": "string",
       "defaultValue": "MSVM1",
@@ -93,6 +97,8 @@
     "MABSClientVMStorageAccountContainerName": "vhds",
     "MABSClientVMNicName": "[concat(variables('MABSClientVMName'), 'NetworkInterface')]",
     "MABSDISK1": "[concat('http://',variables('vmstorageName'),'.blob.core.windows.net/','vhds','/',variables('MABSClientVMName'),'-dataDisk1.vhd')]",
+    "MABSDISK2": "[concat('http://',variables('vmstorageName'),'.blob.core.windows.net/','vhds','/',variables('MABSClientVMName'),'-dataDisk2.vhd')]",
+    "MABSDISK3": "[concat('http://',variables('vmstorageName'),'.blob.core.windows.net/','vhds','/',variables('MABSClientVMName'),'-dataDisk3.vhd')]",
     "MABSClientVM-IPName": "[concat(variables('MABSClientVMName'),'-IP')]"
   },
   "resources": [
@@ -180,6 +186,22 @@
               "diskSizeGB": "1023",
               "lun": 0,
               "vhd": { "uri": "[variables('MABSDISK1')]" },
+              "createOption": "Empty"
+            },
+            {
+              "condition": "[parameters('ExtraDisks')]",
+              "name": "datadisk2",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "vhd": { "uri": "[variables('MABSDISK2')]" },
+              "createOption": "Empty"
+            },
+            {
+              "condition": "[parameters('ExtraDisks')]",
+              "name": "datadisk3",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "vhd": { "uri": "[variables('MABSDISK3')]" },
               "createOption": "Empty"
             }
           ]

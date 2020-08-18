@@ -268,21 +268,21 @@
             {
               "name": "datadisk1",
               "diskSizeGB": "1023",
-              "lun": 0,
+              "lun": 1,
               "vhd": { "uri": "[variables('MABSDISK1')]" },
               "createOption": "Empty"
             },
             {
               "name": "datadisk2",
               "diskSizeGB": "1023",
-              "lun": 0,
+              "lun": 2,
               "vhd": { "uri": "[variables('MABSDISK2')]" },
               "createOption": "Empty"
             },
             {
               "name": "datadisk3",
               "diskSizeGB": "1023",
-              "lun": 0,
+              "lun": 3,
               "vhd": { "uri": "[variables('MABSDISK3')]" },
               "createOption": "Empty"
             }

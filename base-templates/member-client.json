@@ -149,6 +149,90 @@
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
+      "condition": "[not(parameters('ExtraDisks'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('MABSClientVMNicName'))]"
+      ],
+      "tags": {
+        "displayName": "MABSClientVM"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('MABSClientVMVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('MABSClientVMName')]",
+          "adminUsername": "[parameters('localUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('MABSClientVMImagePublisher')]",
+            "offer": "[variables('MABSClientVMImageOffer')]",
+            "sku": "[parameters('VMWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "MABSClientVMOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName')), '2016-01-01').primaryEndpoints.blob, variables('MABSClientVMStorageAccountContainerName'), '/', variables('MABSClientVMOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "vhd": { "uri": "[variables('MABSDISK1')]" },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('MABSClientVMNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "condition": "[parameters('JoinDomain')]",
+          "name": "DomainJoin",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2016-03-30",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('MABSClientVMName'))]"
+          ],
+          "tags": {
+            "displayName": "DomainJoin"
+          },
+          "properties": {
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.4",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('DomainJoinscriptUrl'))]"
+              ],
+              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('scriptFolder'), '/', variables('DomainJoinscriptFileName'), ' ', variables('DomainJoinscriptParameters'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[concat(variables('MABSClientVMName'),'-extraStorage')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "condition": "[parameters('ExtraDisks')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vmstorageName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', variables('MABSClientVMNicName'))]"
@@ -189,7 +273,6 @@
               "createOption": "Empty"
             },
             {
-              "condition": "[parameters('ExtraDisks')]",
               "name": "datadisk2",
               "diskSizeGB": "1023",
               "lun": 0,
@@ -197,7 +280,6 @@
               "createOption": "Empty"
             },
             {
-              "condition": "[parameters('ExtraDisks')]",
               "name": "datadisk3",
               "diskSizeGB": "1023",
               "lun": 0,

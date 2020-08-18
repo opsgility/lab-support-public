@@ -304,7 +304,7 @@
           "location": "[resourceGroup().location]",
           "apiVersion": "2016-03-30",
           "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', variables('MABSClientVMName'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('MABSClientVMName'),'-extraStorage')]"
           ],
           "tags": {
             "displayName": "DomainJoin"

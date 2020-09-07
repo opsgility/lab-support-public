@@ -80,14 +80,24 @@ if ! [ -x "$(command -v sed)" ]; then
   exit 1
 fi
 
-CURRENT_RANDOM=$RANDOM
-RESOURCE_GROUP="akschallengerg"
-SUBNET_NAME="aks-subnet"
+# Random suffix. Fix to 4 digits, avoids risk of ACR provisioning failure since ACR requires at least 5 digits in the resource name
+CURRENT_RANDOM=$(($RANDOM%9000+1000))
+
+RESOURCE_GROUP="akschallengeRG"
 VNET_NAME="aks$CURRENT_RANDOM-vnet"
+SUBNET_NAME="aks-subnet"
 ACR_NAME="acr$CURRENT_RANDOM"
 AKS_CLUSTER_NAME="aks$CURRENT_RANDOM"
 COSMOS_NAME="cosmos$CURRENT_RANDOM"
 RATINGS_WEB_DNS_NAME="ratingsweb$CURRENT_RANDOM"
+
+echo "RESOURCE_GROUP: ${RESOURCE_GROUP}"
+echo "VNET_NAME: ${VNET_NAME}"
+echo "SUBNET_NAME: ${SUBNET_NAME}"
+echo "ACR_NAME: ${ACR_NAME}"
+echo "AKS_CLUSTER_NAME: ${AKS_CLUSTER_NAME}"
+echo "COSMOS_NAME: ${COSMOS_NAME}"
+echo "RATINGS_WEB_DNS_NAME: ${RATINGS_WEB_DNS_NAME}"
 
 # Accommodate Cloud Sandbox startup
 if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then

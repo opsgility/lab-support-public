@@ -274,7 +274,7 @@ az cosmosdb create \
     --resource-group $RESOURCE_GROUP \
     --kind MongoDB
 
-COSMOS_KEY=$(az cosmosdb list-connection-strings --name $COSMOS_NAME --resource-group $RESOURCE_GROUP --query "connectionStrings[0].connectionString" | sed -r "s/\\\"//g" | sed -r "s/\?/ratingsdb\?/g")
+COSMOS_KEY=$(az cosmosdb keys list --type connection-strings --name $COSMOS_NAME --resource-group $RESOURCE_GROUP --query "connectionStrings[0].connectionString" -o tsv | sed -r "s/\?/ratingsdb\?/g")
 echo "COSMOS_KEY: ${COSMOS_KEY}"
 
 echo "Creating mongosecret..."
@@ -337,5 +337,18 @@ while [ -z $external_ip ]; do
   [ -z "$external_ip" ] && sleep 10
 done
 echo "Endpoint ready: ${external_ip}"
+
+# Create the users and groups that will be used in the challenge
+echo "Creating users"
+USER1_ID=$(az ad user create --display-name "demo user 1" --password "demo@pass123" --user-principal-name "demouser1@$DOMAIN" --query objectId -o tsv)
+USER2_ID=$(az ad user create --display-name "demo user 2" --password "demo@pass123" --user-principal-name "demouser2@$DOMAIN" --query objectId -o tsv)
+
+echo "Creating groups"
+GROUP1_ID=$(az ad group create --display-name "Fruit Smashers Smooth Devs" --mail-nickname "smoothdevs" --query "objectId" -o tsv) 
+GROUP2_ID=$(az ad group create --display-name "Fruit Smashers Better Devs" --mail-nickname "betterdevs" --query "objectId" -o tsv) 
+
+echo "Assigning users $USER1_ID and $USER2_ID to groups $GROUP1_ID and $GROUP2_ID"
+az ad group member add --group $GROUP1_ID --member-id $USER1_ID
+az ad group member add --group $GROUP2_ID --member-id $USER2_ID
 
 echo "Deployment complete!"

@@ -110,6 +110,10 @@ if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
 
     echo "Setting account..."
     az account set -s $AZURE_SUBSCRIPTIONID
+
+    # Persist UN/PW for use by validation scripts
+    rm -f /etc/profile.d/lab-data.sh
+    echo "export AZURE_USERNAME=$AZURE_USERNAME; export AZURE_PASSWORD=$AZURE_PASSWORD" >> /etc/profile.d/lab-data.sh
 fi
 
 # Register resource providers

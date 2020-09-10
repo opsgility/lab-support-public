@@ -340,6 +340,7 @@ echo "Endpoint ready: ${external_ip}"
 
 # Create the users and groups that will be used in the challenge
 echo "Creating users"
+DOMAIN=$(az ad signed-in-user show --query userPrincipalName -o tsv  | sed -r "s/.*@//g")
 USER1_ID=$(az ad user create --display-name "demo user 1" --password "demo@pass123" --user-principal-name "demouser1@$DOMAIN" --query objectId -o tsv)
 USER2_ID=$(az ad user create --display-name "demo user 2" --password "demo@pass123" --user-principal-name "demouser2@$DOMAIN" --query objectId -o tsv)
 

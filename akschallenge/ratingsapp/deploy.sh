@@ -91,6 +91,8 @@ AKS_CLUSTER_NAME="aks$CURRENT_RANDOM"
 COSMOS_NAME="cosmos$CURRENT_RANDOM"
 RATINGS_WEB_DNS_NAME="ratingsweb$CURRENT_RANDOM"
 
+EXPORTS="/etc/profile.d/lab-data.sh"
+
 echo "RESOURCE_GROUP: ${RESOURCE_GROUP}"
 echo "VNET_NAME: ${VNET_NAME}"
 echo "SUBNET_NAME: ${SUBNET_NAME}"
@@ -112,9 +114,15 @@ if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
     az account set -s $AZURE_SUBSCRIPTIONID
 
     # Persist UN/PW for use by validation scripts
-    rm -f /etc/profile.d/lab-data.sh
-    echo "export AZURE_USERNAME=$AZURE_USERNAME; export AZURE_PASSWORD=$AZURE_PASSWORD" >> /etc/profile.d/lab-data.sh
+    # Escape '!' character if present in password
+    $PWD_EXPORT=$(echo $AZURE_PASSWORD | sed -r "s/\!/\\\!/g")
+    echo "export AZURE_USERNAME=$AZURE_USERNAME" > $EXPORTS
+    echo "export AZURE_PASSWORD=$PWD_EXPORT" >> $EXPORTS
+    echo "export AZURE_SUBSCRIPTIONID=$AZURE_SUBSCRIPTIONID" >> $EXPORTS
 fi
+
+echo "export AKS_CLUSTER_NAME=$AKS_CLUSTER_NAME" >> $EXPORTS
+echo "export RESOURCE_GROUP=$RESOURCE_GROUP" >> $EXPORTS
 
 # Register resource providers
 az provider register --namespace 'Microsoft.ContainerRegistry'
@@ -343,17 +351,20 @@ done
 echo "Endpoint ready: ${external_ip}"
 
 # Create the users and groups that will be used in the challenge
-echo "Creating users"
+echo "Creating users (and getting ID of lab user)"
 DOMAIN=$(az ad signed-in-user show --query userPrincipalName -o tsv  | sed -r "s/.*@//g")
 USER1_ID=$(az ad user create --display-name "demo user 1" --password "demo@pass123" --user-principal-name "demouser1@$DOMAIN" --query objectId -o tsv)
 USER2_ID=$(az ad user create --display-name "demo user 2" --password "demo@pass123" --user-principal-name "demouser2@$DOMAIN" --query objectId -o tsv)
+ADMIN_USER_ID=$(az ad signed-in-user show --query "objectId" -o tsv)
 
 echo "Creating groups"
 GROUP1_ID=$(az ad group create --display-name "Fruit Smashers Smooth Devs" --mail-nickname "smoothdevs" --query "objectId" -o tsv) 
 GROUP2_ID=$(az ad group create --display-name "Fruit Smashers Better Devs" --mail-nickname "betterdevs" --query "objectId" -o tsv) 
+ADMIN_GROUP_ID=$(az ad group create --display-name "AKS Admin Group" --mail-nickname "aksadmin" --query "objectId" -o tsv) 
 
-echo "Assigning users $USER1_ID and $USER2_ID to groups $GROUP1_ID and $GROUP2_ID"
+echo "Assigning users to groups"
 az ad group member add --group $GROUP1_ID --member-id $USER1_ID
 az ad group member add --group $GROUP2_ID --member-id $USER2_ID
+az ad group member add --group $ADMIN_GROUP_ID --member-id $ADMIN_USER_ID
 
 echo "Deployment complete!"

@@ -115,7 +115,7 @@ if [ ${#AZURE_USERNAME} -gt 0 ] && [ ${#AZURE_PASSWORD} -gt 0 ]; then
 
     # Persist UN/PW for use by validation scripts
     # Escape ' character if present in password
-    $PWD_EXPORT=$(echo $AZURE_PASSWORD | sed -r "s/'/'\\\''/g")
+    PWD_EXPORT=$(echo $AZURE_PASSWORD | sed -r "s/'/'\\\''/g")
     echo "export AZURE_USERNAME=$AZURE_USERNAME" > $EXPORTS
     echo "export AZURE_PASSWORD='$PWD_EXPORT'" >> $EXPORTS
     echo "export AZURE_SUBSCRIPTIONID=$AZURE_SUBSCRIPTIONID" >> $EXPORTS

@@ -207,6 +207,7 @@ az aks create \
     --docker-bridge-address 172.17.0.1/16 \
     --generate-ssh-keys \
     --service-principal "${SPID}" \
+    --node-vm-size Standard_DS2_V2 \
     --client-secret "${CLIENTSECRET}"
 
 echo "Get AKS credentials..."

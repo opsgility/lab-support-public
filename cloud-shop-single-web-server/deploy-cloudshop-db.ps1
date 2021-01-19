@@ -4,7 +4,7 @@ $logs    = "C:\Logs"
 $data    = "C:\Data"
 $backups = "C:\Backup" 
 $script  = "C:\Script" 
-
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
 [system.io.directory]::CreateDirectory($logs)
 [system.io.directory]::CreateDirectory($data)
 [system.io.directory]::CreateDirectory($backups)
@@ -24,12 +24,12 @@ Invoke-WebRequest $dbsource -OutFile $dbdestination
 $password =  ConvertTo-SecureString "$password" -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential("$env:COMPUTERNAME\$user", $password)
 
-Enable-PSRemoting –force
+Enable-PSRemoting â€“force
 Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
 Invoke-Command -FilePath $destinationPath -Credential $credential -ComputerName $env:COMPUTERNAME -ArgumentList "Password", $password
 Disable-PSRemoting -Force
 
-New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound –Protocol TCP –LocalPort 1433 -Action allow 
+New-NetFirewallRule -DisplayName "SQL Server" -Direction Inbound â€“Protocol TCP â€“LocalPort 1433 -Action allow 
 
 # Disable IE Enhanced Security Configuration
 $AdminKey = "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}"

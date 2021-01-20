@@ -1,4 +1,5 @@
 param($password)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $dbdestination = "C:\SQLDATA\AdventureWorks2012.bak"
 # Setup the data, backup and log directories as well as mixed mode authentication
 Import-Module "sqlps" -DisableNameChecking

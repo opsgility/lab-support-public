@@ -38,7 +38,7 @@
       "databaseName": "sample-db-with-tde",
       "databaseEdition": "GeneralPurpose",
       "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-      "databaseServiceObjectiveName": "GP_Gen5_2"
+      "databaseServiceObjectiveName": "GP_Gen5"
     },
     "resources": [
       {

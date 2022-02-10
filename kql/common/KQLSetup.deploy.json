@@ -1,0 +1,421 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databaseNamePrefix": {
+            "minLength": 4,
+            "maxLength": 18,
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Azure Data Explorer Cluster. Use only lowercase letters and numbers."
+            },
+            "defaultValue": "labde"
+        },
+        "location": {
+            "type": "String",
+            "metadata": {
+                "description": "The Region of the Azure Data Explorer Cluster."
+            },
+            "defaultValue": "[resourceGroup().location]"
+        },
+        "sku": {
+            "type": "String",
+            "metadata": {
+                "description": "Specifies the Basic sku name"
+            },
+            "defaultValue": "Dev(No SLA)_Standard_E2a_v4"
+        },
+        "zones": {
+            "type": "Array",
+            "metadata": {
+                "description": "The availability zones of the Azure Data Explorer Cluster."
+            },
+            "defaultValue": [ "1" ]
+        },
+        "workspaceName": {
+            "type": "string",
+            "defaultValue": "LabLAWorkspace"
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "Lab-VNet"
+        },
+        "addressBase": {
+            "type": "string",
+            "defaultValue": "10.0.0.0"
+        },
+        "virtualMachineName": {
+            "type": "string",
+            "defaultValue": "DemoVM"
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2ms"
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "demouser"
+        },
+        "adminPassword": {
+            "type": "secureString",
+            "defaultValue": "Demo!pass123"
+        },
+        "autoShutdownStatus": {
+            "type": "string",
+            "defaultValue": "Enabled"
+        },
+        "autoShutdownTime": {
+            "type": "string",
+            "defaultValue": "02:00"
+        }
+    },
+    "variables": {
+        "name": "[concat(parameters('databaseNamePrefix'), substring(uniqueString(resourceGroup().id),0,4))]",
+        "nsgName": "[concat(parameters('virtualMachineName'),'-nsg')]",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/default')]",
+        "nicName": "[concat(parameters('virtualMachineName'),'-nic')]",
+        "publicIpName": "[concat(parameters('virtualMachineName'),'-ip')]",
+        "domainNameLabel": "[toLower(concat(parameters('virtualMachineName'),substring(uniqueString(resourceGroup().id),0,4)))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Kusto/Clusters",
+            "apiVersion": "2021-08-27",
+            "name": "[variables('name')]",
+            "location": "[parameters('location')]",
+            "sku":  {
+                "capacity": 1,
+                "name": "[parameters('sku')]",
+                "tier": "Basic"
+            },
+            "zones": "[parameters('zones')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "enableStreamingIngest": false,
+                "enablePurge": false,
+                "enableDoubleEncryption": false,
+                "trustedExternalTenants": [],
+                "enableAutoStop": true
+            }
+        },
+        {
+            "name": "[variables('nicName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2021-03-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpName'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('nsgName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "priority": 300,
+                            "protocol": "TCP",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourceAddressPrefix": "*",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": "3389"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2017-03-15-preview",
+            "name": "[parameters('workspaceName')]",
+            "location": "[parameters('location')]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-11-01-preview",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "location": "[parameters('location')]",
+            "name": "[concat('VMInsights', '(', parameters('workspaceName'), ')')]",
+            "properties": {
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            },
+            "plan": {
+                "name": "[concat('VMInsights', '(', parameters('workspaceName'), ')')]",
+                "product": "OMSGallery/VMInsights",
+                "promotionCode": "",
+                "publisher": "Microsoft"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            ]
+        },
+        {
+            "name": "[parameters('virtualNetworkName')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[concat(parameters('addressBase'), '/20')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "[concat(parameters('addressBase'), '/24')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('publicIpName')]",
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIpAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('domainNameLabel')]"
+                }
+            },
+            "sku": {
+                "name": "Basic"
+            }
+        },
+        {
+            "name": "[parameters('virtualMachineName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2022-datacenter",
+                        "version": "latest"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "provisionVmAgent": true,
+                        "patchSettings": {
+                            "enableHotpatching": false,
+                            "patchMode": "AutomaticByOS"
+                        }
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2015-06-15",
+            "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'OMSExtension')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                "type": "MicrosoftMonitoringAgent",
+                "typeHandlerVersion": "1.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))).customerId]"
+                },
+                "protectedSettings": {
+                    "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')),'2015-03-20').primarySharedKey]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2018-10-01",
+            "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'DependencyAgentWindows')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                "type": "DependencyAgentWindows",
+                "typeHandlerVersion": "9.5",
+                "autoUpgradeMinorVersion": true
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "name": "[concat(parameters('virtualMachineName'),'Microsoft-VMInsights-Health')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "2019-11-01-preview",
+            "properties": {
+                "description": "Data collection rule for VM Insights health.",
+                "dataSources": {
+                    "performanceCounters": [
+                        {
+                            "name": "VMHealthPerfCounters",
+                            "streams": [
+                                "Microsoft-Perf"
+                            ],
+                            "scheduledTransferPeriod": "PT1M",
+                            "samplingFrequencyInSeconds": 60,
+                            "counterSpecifiers": [
+                                "\\LogicalDisk(*)\\% Free Space",
+                                "\\Memory\\Available Bytes",
+                                "\\Processor(_Total)\\% Processor Time"
+                            ]
+                        }
+                    ],
+                    "extensions": [
+                        {
+                            "name": "Microsoft-VMInsights-Health",
+                            "streams": [
+                                "Microsoft-HealthStateChange"
+                            ],
+                            "extensionName": "HealthExtension",
+                            "extensionSettings": {
+                                "schemaVersion": "1.0",
+                                "contentVersion": "",
+                                "healthRuleOverrides": [
+                                    {
+                                        "scopes": [
+                                            "*"
+                                        ],
+                                        "monitors": [
+                                            "root"
+                                        ],
+                                        "alertConfiguration": {
+                                            "isEnabled": true
+                                        }
+                                    }
+                                ]
+                            },
+                            "inputDataSources": [
+                                "VMHealthPerfCounters"
+                            ]
+                        }
+                    ]
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]",
+                            "name": "Microsoft-HealthStateChange-Dest"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Microsoft-HealthStateChange"
+                        ],
+                        "destinations": [
+                            "Microsoft-HealthStateChange-Dest"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat('shutdown-computevm-', parameters('virtualMachineName'))]",
+            "type": "Microsoft.DevTestLab/schedules",
+            "apiVersion": "2018-09-15",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+            ],
+            "properties": {
+                "status": "[parameters('autoShutdownStatus')]",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "[parameters('autoShutdownTime')]"
+                },
+                "timeZoneId": "UTC",
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "notificationLocale": "en",
+                    "timeInMinutes": "30"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "string",
+            "value": "[parameters('adminUsername')]"
+        },
+        "vmDNS": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))).dnsSettings.fqdn]"
+        }
+    }
+}

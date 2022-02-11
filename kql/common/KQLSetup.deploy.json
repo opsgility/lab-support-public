@@ -25,13 +25,6 @@
             },
             "defaultValue": "Dev(No SLA)_Standard_E2a_v4"
         },
-        "zones": {
-            "type": "Array",
-            "metadata": {
-                "description": "The availability zones of the Azure Data Explorer Cluster."
-            },
-            "defaultValue": [ "1" ]
-        },
         "workspaceName": {
             "type": "string",
             "defaultValue": "LabLAWorkspace"
@@ -90,7 +83,6 @@
                 "name": "[parameters('sku')]",
                 "tier": "Basic"
             },
-            "zones": "[parameters('zones')]",
             "identity": {
                 "type": "SystemAssigned"
             },

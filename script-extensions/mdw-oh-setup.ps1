@@ -62,7 +62,7 @@ $Installer = "VisualStudioSetup.exe"
 Write-Host "Downloading VS Community..." -ForegroundColor Green
 Invoke-WebRequest "https://c2rsetup.officeapps.live.com/c2r/downloadVS.aspx?sku=community&channel=Release&version=VS2022&source=VSLandingPage&includeRecommended=true&cid=2030" -OutFile $Path\$Installer
 Write-Host "Installing VS Community $Path\$Installer..." -ForegroundColor Green
-Start-Process -FilePath msiexec -Args "--allworkloads -q" -Verb RunAs -Wait
+Start-Process -FilePath $Path\$Installer -Args "--allworkloads -q" -Verb RunAs -Wait
 #Remove-Item $Path\$Installer
 
 

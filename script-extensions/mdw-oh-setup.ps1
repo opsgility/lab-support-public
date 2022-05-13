@@ -51,8 +51,8 @@ $Installer = "SSMS-Setup-ENU.exe"
 Write-Host "Downloading SSMS..." -ForegroundColor Green
 Invoke-WebRequest "https://aka.ms/ssmsfullsetup" -OutFile $Path\$Installer
 Write-Host "Installing SQL Server Management Studio from $Path\$Installer..." -ForegroundColor Green
-Start-Process -FilePath msiexec -Args "/i $Path\$Installer /quiet /qn /norestart" -Verb RunAs -Wait
-# Remove-Item $Path\$Installer
+Start-Process -FilePath $path\$installer -Args "/install /quiet /passive /norestart" -Verb RunAs -Wait
+
 
 # Install VS Community
 

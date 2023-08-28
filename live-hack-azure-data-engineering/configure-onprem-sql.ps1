@@ -1,4 +1,4 @@
-param($sourceFileUrl="http://opsgilitylabs.blob.core.windows.net/online-labs/live-hack-azure-data-engineering/StudentFiles.zip", $destinationFolder="C:\LabFiles", $user="demouser", $password="Demo@pass123")
+param($sourceFileUrl="https://opsgilitylabs.blob.core.windows.net/online-labs/live-hack-azure-data-engineering/StudentFiles.zip", $destinationFolder="C:\LabFiles", $user="demouser", $password="Demo@pass123")
 $ErrorActionPreference = 'SilentlyContinue'
 
 Set-MpPreference -DisableRealtimeMonitoring $true

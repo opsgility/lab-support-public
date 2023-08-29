@@ -1,6 +1,8 @@
 param($sourceFileUrl="https://opsgilitylabs.blob.core.windows.net/online-labs/live-hack-azure-data-engineering/StudentFiles.zip", $destinationFolder="C:\LabFiles", $user="demouser", $password="Demo@pass123")
 $ErrorActionPreference = 'SilentlyContinue'
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 Set-MpPreference -DisableRealtimeMonitoring $true
 
 $sqlaccount = "NT Service\MSSQLSERVER"
@@ -56,8 +58,6 @@ Set-ItemProperty -Path $HKCU -Name "CheckedUnattendLaunchSetting" -Value 0 -Type
 # Install Chrome
 $Path = $env:TEMP; 
 $Installer = "chrome_installer.exe"
-
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Invoke-WebRequest "https://dl.google.com/chrome/install/375.126/chrome_installer.exe" -OutFile $Path\$Installer
 Start-Process -FilePath $Path\$Installer -Args "/silent /install" -Verb RunAs -Wait

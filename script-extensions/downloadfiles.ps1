@@ -24,3 +24,6 @@ if((Test-Path -Path $path) -eq $true)
     Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value 0
 }
 
+# Kill Edge start 
+$path2 = "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main" 
+New-ItemProperty -Path $path2 -Name "PreventFirstRunPage" -Value 1

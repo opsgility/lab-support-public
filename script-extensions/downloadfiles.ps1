@@ -24,3 +24,13 @@ if((Test-Path -Path $path) -eq $true)
     Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Value 0
 }
 
+
+$scriptToDownload = "https://raw.githubusercontent.com/opsgility/lab-support-public/master/script-extensions/disableedgestart.ps1"
+
+(New-Object Net.WebClient).DownloadFile($scriptToDownload,"C:\disableedgestart.ps1");
+
+
+# Register task to run post-reboot script once host is rebooted after Hyper-V install
+$action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\Powershell.exe" -Argument "-executionPolicy Bypass -NoProfile -File C:\disableedgestart.ps1"
+$trigger = New-ScheduledTaskTrigger -AtLogOn
+Register-ScheduledTask -TaskName "DisableEdgeStart" -Action $action -Trigger $trigger 

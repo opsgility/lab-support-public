@@ -25,9 +25,9 @@ if((Test-Path -Path $path) -eq $true)
 }
 
 # Kill Edge start 
-New-Item "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge"
-New-Item "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main"  
-$path2 = "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main" 
+New-Item "HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge"
+New-Item "HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main"  
+$path2 = "HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\Main" 
 New-ItemProperty -Path $path2 -Name "PreventFirstRunPage" -Value 1
 
 
